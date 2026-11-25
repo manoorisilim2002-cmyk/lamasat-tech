@@ -59,6 +59,28 @@
       align-items: center;
       gap: 14px;
       overflow: hidden;
+      position: relative;
+    }
+
+    /* الشعار المرفق شفاف وخفيف على يسار الترويسة الزرقاء وخلف النص */
+    .header-left-logo {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #header-logo-img {
+      width: 136px;
+      height: 136px;
+      object-fit: contain;
+      opacity: 0.14;
+      border-radius: 16px;
     }
 
     .brand-lines {
@@ -102,25 +124,6 @@
       direction: ltr;
       text-align: right;
       opacity: 1;
-    }
-
-    /* الشعار المرفق شفاف على يسار المستطيل الأزرق العلوي */
-    .header-left-logo {
-      position: relative;
-      z-index: 2;
-      margin-right: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: none;
-    }
-
-    #header-logo-img {
-      width: 112px;
-      height: 112px;
-      object-fit: contain;
-      opacity: 0.22;
-      border-radius: 16px;
     }
 
     nav {
@@ -186,19 +189,45 @@
       padding: 12px;
     }
 
-    .stat.ok { border-right-color: var(--success); }
-    .stat.warn { border-right-color: var(--yellow); }
-    .stat.err { border-right-color: var(--danger); }
-
-    .stat .label { font-size: 12px; color: var(--muted); font-weight: bold; }
-    .stat .val { font-size: 15px; font-weight: bold; margin-top: 6px; }
-
-    .curr-line {
-      margin-top: 3px;
-      font-size: 13px;
+    .stat.ok {
+      background: #eef6ff;
+      border-color: #bfdbfe;
+      border-right-color: var(--blue);
     }
 
-    /* مستطيلات متناوبة للأصناف في البحث: أبيض ثم رمادي فاتح */
+    .stat.warn {
+      background: #fffbeb;
+      border-color: #fde68a;
+      border-right-color: var(--yellow);
+    }
+
+    .stat.err {
+      background: #fef2f2;
+      border-color: #fecaca;
+      border-right-color: var(--danger);
+    }
+
+    .stat .label { font-size: 12px; color: var(--muted); font-weight: bold; }
+
+    /* جميع العملات في سطر واحد داخل البطاقة */
+    .stat .val.inline-currencies {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: bold;
+      margin-top: 8px;
+    }
+
+    .curr-chip {
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 6px;
+      padding: 3px 8px;
+      white-space: nowrap;
+    }
+
     .search-item-box {
       padding: 10px 12px;
       border: 1px solid var(--border);
@@ -347,7 +376,6 @@
       justify-content: center;
     }
 
-    /* زر عائم في منتصف الشاشة بعلامة زائد */
     .fab-plus {
       position: fixed;
       bottom: 20px;
@@ -385,8 +413,10 @@
       background: #ffffff;
       border-radius: 12px;
       border: 1px solid var(--border);
-      max-width: 440px;
+      max-width: 560px;
       width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
       padding: 16px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
@@ -432,14 +462,14 @@
   <!-- التطبيق الرئيسي -->
   <div id="app-shell" class="hidden">
     <header>
+      <div class="header-left-logo">
+        <img id="header-logo-img" alt="LT" class="hidden" />
+      </div>
       <div class="brand-lines">
         <h1 class="brand-title">لمسات التقنية</h1>
         <p class="brand-sub">صيانة الطابعات، آلات التصوير، عدادات النقود، بيع الأحبار وقطع الغيار</p>
         <p class="brand-addr">حضرموت - القطن - المرقدة - بجانب مغسلة الأحقاف لغسيل السيارات</p>
         <p class="brand-phones">771220178 - 773557399</p>
-      </div>
-      <div class="header-left-logo">
-        <img id="header-logo-img" alt="LT" class="hidden" />
       </div>
     </header>
 
@@ -457,11 +487,14 @@
       <!-- بحث سريع عام -->
       <div class="card no-print">
         <div class="form-row" style="margin:0;">
-          <input type="text" id="global-search-input" oninput="renderSearchResults()" placeholder="بحث سريع عن قطعة/صنف (اسم، سعر، عدد) أو عميل أو مورد..." style="flex:1;min-width:240px;" />
+          <input type="text" id="global-search-input" list="all-items-suggestions" oninput="renderSearchResults()" placeholder="بحث سريع عن قطعة/صنف (اسم، سعر، عدد) أو عميل أو مورد..." style="flex:1;min-width:240px;" />
           <button class="btn secondary sm" onclick="clearSearch()">مسح البحث</button>
         </div>
         <div id="global-search-results" class="hidden" style="margin-top:10px;"></div>
       </div>
+
+      <!-- قائمة اقتراحات موحدة لجميع الأصناف والعناصر السابقة -->
+      <datalist id="all-items-suggestions"></datalist>
 
       <!-- 1. الرئيسية -->
       <section id="tab-dashboard" class="tab-panel">
@@ -491,7 +524,7 @@
         <div class="card manager-only">
           <h2 id="inv-form-title">إضافة صنف جديد إلى المخزون</h2>
           <div class="form-row">
-            <input type="text" id="inv-name" placeholder="اسم الصنف" style="flex:2;min-width:190px;" />
+            <input type="text" id="inv-name" list="all-items-suggestions" placeholder="اسم الصنف (مثال: حبر شارب أسود)" style="flex:2;min-width:190px;" />
             <input type="number" id="inv-qty" placeholder="العدد" min="0" style="width:105px;" />
             <input type="number" id="inv-min-alert" placeholder="تنبيهات المخزون (الحد الأدنى)" min="0" style="width:185px;" />
             <input type="number" step="0.01" id="inv-cost" placeholder="سعر التكلفة" min="0" style="width:120px;" />
@@ -535,7 +568,7 @@
         <div class="card">
           <div class="form-row">
             <select id="selected-supplier-id" onchange="renderSupplierWorkspace()" style="min-width:240px;"></select>
-            <button class="btn yellow" onclick="exportStatementPDF('supplier')">كشف حساب المورد (PDF)</button>
+            <button class="btn yellow" onclick="openPdfActionModal('supplier')">كشف حساب المورد (PDF)</button>
           </div>
 
           <div id="supplier-workspace" class="party-box hidden">
@@ -611,7 +644,7 @@
         <div class="card">
           <div class="form-row">
             <select id="selected-customer-id" onchange="renderCustomerWorkspace()" style="min-width:240px;"></select>
-            <button class="btn yellow" onclick="exportStatementPDF('customer')">كشف حساب العميل (PDF)</button>
+            <button class="btn yellow" onclick="openPdfActionModal('customer')">كشف حساب العميل (PDF)</button>
           </div>
 
           <div id="customer-workspace" class="party-box hidden">
@@ -628,7 +661,6 @@
               </div>
             </div>
 
-            <!-- نموذج تسجيل تسديد لعميل (متاح للموظف والمدير) -->
             <div id="employee-payment-box" style="margin-top:12px;background:#ffffff;border:1px solid var(--border);border-radius:8px;padding:10px;">
               <h4>تسجيل تسديد لعميل</h4>
               <div class="form-row" style="margin:0;">
@@ -644,7 +676,6 @@
               </div>
             </div>
 
-            <!-- نموذج العمليات الكاملة للعميل (للمدير فقط) -->
             <div class="manager-only">
               <hr style="margin:12px 0;border:none;border-top:1px solid var(--border);" />
               <h4 id="cust-tx-form-title">تسجيل عملية جديدة للعميل</h4>
@@ -750,7 +781,7 @@
           <h2 id="exp-form-title">تسجيل مصروف</h2>
           <div class="form-row">
             <label>التاريخ: <input type="date" id="exp-date" /></label>
-            <input type="text" id="exp-title" placeholder="البيان" style="flex:2;min-width:200px;" />
+            <input type="text" id="exp-title" list="all-items-suggestions" placeholder="البيان أو العنصر" style="flex:2;min-width:200px;" />
             <input type="number" step="0.01" id="exp-amount" placeholder="المبلغ" min="0" style="width:140px;" />
             <select id="exp-curr">
               <option value="YER">YER</option>
@@ -828,11 +859,25 @@
     </div>
   </div>
 
+  <!-- نافذة فتح ومشاركة وطباعة ملف PDF -->
+  <div id="pdf-action-modal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <h3 id="pdf-modal-title">كشف الحساب (PDF)</h3>
+      <p style="font-size:13px;color:var(--muted);">اختر فتح/حفظ كملف PDF عبر تطبيقات الجهاز أو مشاركة الكشف مباشرة.</p>
+      <div class="form-row">
+        <button type="button" class="btn" onclick="openPrintFromModal()">فتح / حفظ PDF</button>
+        <button type="button" class="btn yellow" onclick="shareStatementFromModal()">مشاركة الكشف</button>
+        <button type="button" class="btn secondary" onclick="closePdfActionModal()">إغلاق</button>
+      </div>
+      <div id="pdf-modal-preview"></div>
+    </div>
+  </div>
+
   <!-- منطقة مخصصة للطباعة (الجدول فقط في كشف الحساب PDF) -->
   <div id="print-statement-area" class="hidden"></div>
 
   <script>
-    const STORAGE_KEY = 'lamasat_tech_v6_data';
+    const STORAGE_KEY = 'lamasat_tech_v8_data';
     const BG_IMAGE_KEY = 'lamasat_tech_bg_image_v1';
     const CURRENCIES = ['YER', 'SAR', 'USD'];
     const USERS = {
@@ -847,6 +892,7 @@
     let editingInvoiceId = null;
     let editingExpenseId = null;
     let activeTabName = 'dashboard';
+    let currentPdfPartyType = 'supplier';
 
     function todayISO() {
       return new Date().toISOString().slice(0, 10);
@@ -994,8 +1040,8 @@
       return curr ? `${numStr} ${curr}` : numStr;
     }
 
-    function formatByCurrencyLines(calcFn) {
-      return CURRENCIES.map(c => `<div class="curr-line">${fmt(calcFn(c), c)}</div>`).join('');
+    function formatByCurrencyInline(calcFn) {
+      return CURRENCIES.map(c => `<span class="curr-chip">${fmt(calcFn(c), c)}</span>`).join('');
     }
 
     function sideLabel(side) {
@@ -1008,6 +1054,39 @@
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;');
+    }
+
+    // تجميع جميع الأصناف والعناصر السابقة للاقتراح التلقائي عند الكتابة
+    function getAllKnownItemNames() {
+      const namesSet = new Set();
+      state.inventory.forEach(i => {
+        if (i.name) namesSet.add(i.name.trim());
+      });
+      state.transactions.forEach(t => {
+        if (Array.isArray(t.items)) {
+          t.items.forEach(it => {
+            if (it.itemName) namesSet.add(it.itemName.trim());
+          });
+        }
+      });
+      state.invoices.forEach(inv => {
+        if (Array.isArray(inv.items)) {
+          inv.items.forEach(it => {
+            if (it.itemName) namesSet.add(it.itemName.trim());
+          });
+        }
+      });
+      state.expenses.forEach(e => {
+        if (e.title) namesSet.add(e.title.trim());
+      });
+      return Array.from(namesSet).filter(Boolean);
+    }
+
+    function refreshItemSuggestions() {
+      const dl = document.getElementById('all-items-suggestions');
+      if (!dl) return;
+      const allNames = getAllKnownItemNames();
+      dl.innerHTML = allNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
     }
 
     function renderSearchResults() {
@@ -1069,7 +1148,6 @@
       }
     }
 
-    // الزر العائم لإضافة عميل أو مورد
     function openQuickAddModal() {
       if (!currentSession || currentSession.role !== 'manager') {
         alert('إضافة عميل أو مورد متاحة لحساب المدير.');
@@ -1239,15 +1317,10 @@
 
     function addLineRow(prefix, preset = null) {
       const container = document.getElementById(`${prefix}-lines-container`);
-      const optionsHtml = state.inventory
-        .map(i => `<option value="${escapeHtml(i.name)}">${escapeHtml(i.name)} (${Number(i.qty || 0)})</option>`)
-        .join('');
-
       const div = document.createElement('div');
       div.className = 'line-item-row';
       div.innerHTML = `
-        <input type="text" list="inv-options-${prefix}" class="line-name" value="${escapeHtml(preset ? preset.itemName : '')}" placeholder="اسم الصنف" style="flex:2;min-width:160px;" onchange="autofillLinePrice(this, '${prefix}')" />
-        <datalist id="inv-options-${prefix}">${optionsHtml}</datalist>
+        <input type="text" list="all-items-suggestions" class="line-name" value="${escapeHtml(preset ? preset.itemName : '')}" placeholder="اسم الصنف" style="flex:2;min-width:160px;" onchange="autofillLinePrice(this, '${prefix}')" />
         <input type="number" step="1" min="1" value="${preset ? preset.qty : 1}" class="line-qty" placeholder="العدد" style="width:90px;" />
         <input type="number" step="0.01" min="0" value="${preset ? preset.unitPrice : 0}" class="line-price" placeholder="سعر الوحدة" style="width:120px;" />
         <button type="button" class="btn danger sm" onclick="this.parentElement.remove()">حذف</button>
@@ -1304,9 +1377,25 @@
       return deb - cred;
     }
 
-    function formatPartyBalanceSummary(partyType, partyId) {
+    // للموردين: يظهر الدولار افتراضياً فقط، وإذا تمت إضافة عملة جديدة للمورد تظهر العملة الجديدة
+    function formatSupplierBalanceSummary(supId) {
+      const supTxs = state.transactions.filter(t => t.partyType === 'supplier' && t.partyId === supId);
+      const activeCurrencies = ['USD'];
+      supTxs.forEach(t => {
+        if (t.currency && !activeCurrencies.includes(t.currency)) {
+          activeCurrencies.push(t.currency);
+        }
+      });
+      return activeCurrencies.map(c => {
+        const net = getPartyNetByCurrency('supplier', supId, c);
+        const sideText = net >= 0 ? 'عليه' : 'له';
+        return `${fmt(Math.abs(net), c)} (${sideText})`;
+      }).join(' | ');
+    }
+
+    function formatCustomerBalanceSummary(custId) {
       return CURRENCIES.map(c => {
-        const net = getPartyNetByCurrency(partyType, partyId, c);
+        const net = getPartyNetByCurrency('customer', custId, c);
         const sideText = net >= 0 ? 'عليه' : 'له';
         return `${fmt(Math.abs(net), c)} (${sideText})`;
       }).join(' | ');
@@ -1793,18 +1882,18 @@
       renderAll();
     }
 
-    // كشف حساب PDF: الجدول فقط، وفي المورد بالتحديد (التاريخ . رقم الفاتورة . الأصناف . عليه . له . الرصيد)
-    function exportStatementPDF(partyType) {
+    // بناء جدول كشف الحساب وفتح/مشاركة/طباعة PDF
+    function buildStatementTableMarkup(partyType) {
       const isSup = partyType === 'supplier';
       const selectEl = document.getElementById(isSup ? 'selected-supplier-id' : 'selected-customer-id');
       const party = (isSup ? state.suppliers : state.customers).find(p => p.id === selectEl.value);
-      if (!party) return alert(isSup ? 'اختر مورداً أولاً.' : 'اختر عميلاً أولاً.');
+      if (!party) return null;
 
       const txs = state.transactions.filter(t => t.partyType === partyType && t.partyId === party.id);
       const runningByCurr = { YER: 0, SAR: 0, USD: 0 };
 
-      let rowsHtml = '';
       let headersHtml = '';
+      let rowsHtml = '';
 
       if (isSup) {
         headersHtml = `
@@ -1871,22 +1960,77 @@
       }
 
       const colCount = isSup ? 6 : 5;
+      return {
+        party,
+        txs,
+        html: `
+          <div style="padding:16px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
+            <table style="width:100%;border-collapse:collapse;">
+              <thead>${headersHtml}</thead>
+              <tbody>${rowsHtml || `<tr><td colspan="${colCount}" style="text-align:center;padding:8px;">-</td></tr>`}</tbody>
+            </table>
+          </div>
+        `
+      };
+    }
+
+    function openPdfActionModal(partyType) {
+      currentPdfPartyType = partyType;
+      const built = buildStatementTableMarkup(partyType);
+      if (!built) {
+        return alert(partyType === 'supplier' ? 'اختر مورداً أولاً.' : 'اختر عميلاً أولاً.');
+      }
+      document.getElementById('pdf-modal-title').textContent =
+        partyType === 'supplier' ? `كشف حساب المورد: ${built.party.name}` : `كشف حساب العميل: ${built.party.name}`;
+      document.getElementById('pdf-modal-preview').innerHTML = built.html;
+      document.getElementById('pdf-action-modal').classList.remove('hidden');
+    }
+
+    function closePdfActionModal() {
+      document.getElementById('pdf-action-modal').classList.add('hidden');
+    }
+
+    function openPrintFromModal() {
+      const built = buildStatementTableMarkup(currentPdfPartyType);
+      if (!built) return;
+      closePdfActionModal();
       const printArea = document.getElementById('print-statement-area');
       printArea.classList.remove('hidden');
-      printArea.innerHTML = `
-        <div style="padding:16px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
-          <table style="width:100%;border-collapse:collapse;">
-            <thead>${headersHtml}</thead>
-            <tbody>${rowsHtml || `<tr><td colspan="${colCount}" style="text-align:center;padding:8px;">-</td></tr>`}</tbody>
-          </table>
-        </div>
-      `;
-
+      printArea.innerHTML = built.html;
       window.print();
       setTimeout(() => {
         printArea.classList.add('hidden');
         printArea.innerHTML = '';
       }, 500);
+    }
+
+    async function shareStatementFromModal() {
+      const built = buildStatementTableMarkup(currentPdfPartyType);
+      if (!built) return;
+
+      const textLines = built.txs.map(t =>
+        `${t.date} | ${t.invoiceNo || '-'} | ${sideLabel(t.side)}: ${fmt(t.amount, t.currency)}`
+      );
+      const shareText = textLines.length > 0 ? textLines.join('\n') : built.party.name;
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: built.party.name,
+            text: shareText
+          });
+          return;
+        } catch {
+          // في حال إلغاء المشاركة أو عدم توفرها
+        }
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(shareText);
+        alert('تم نسخ كشف الحساب للمشاركة واللصق في أي تطبيق.');
+      } else {
+        prompt('انسخ نص كشف الحساب لمشاركته:', shareText);
+      }
     }
 
     // النسخ الاحتياطي
@@ -1966,15 +2110,15 @@
       document.getElementById('period-statement-cards').innerHTML = `
         <div class="stat ok">
           <div class="label">إجمالي مبيعات السنة (${escapeHtml(salesYear)})</div>
-          <div class="val">${formatByCurrencyLines(yearSalesByCurr)}</div>
+          <div class="val inline-currencies">${formatByCurrencyInline(yearSalesByCurr)}</div>
         </div>
-        <div class="stat">
+        <div class="stat warn">
           <div class="label">إجمالي عليه في الفترة المحددة</div>
-          <div class="val">${formatByCurrencyLines(periodOnHimByCurr)}</div>
+          <div class="val inline-currencies">${formatByCurrencyInline(periodOnHimByCurr)}</div>
         </div>
         <div class="stat err">
           <div class="label">إجمالي له والمصروفات في الفترة</div>
-          <div class="val">${formatByCurrencyLines(c => periodForHimByCurr(c) + periodExpByCurr(c))}</div>
+          <div class="val inline-currencies">${formatByCurrencyInline(c => periodForHimByCurr(c) + periodExpByCurr(c))}</div>
         </div>
       `;
 
@@ -2011,6 +2155,8 @@
     }
 
     function renderAll() {
+      refreshItemSuggestions();
+
       const salesByCurr = (c) => state.transactions
         .filter(t => t.partyType === 'customer' && t.currency === c)
         .reduce((s, t) => s + (Number(t.amount) || 0), 0);
@@ -2032,15 +2178,15 @@
       document.getElementById('dashboard-stats').innerHTML = `
         <div class="stat ok">
           <div class="label">إجمالي مبيعات</div>
-          <div class="val">${formatByCurrencyLines(salesByCurr)}</div>
+          <div class="val inline-currencies">${formatByCurrencyInline(salesByCurr)}</div>
         </div>
         <div class="stat warn">
           <div class="label">إجمالي مستحقات</div>
-          <div class="val">${formatByCurrencyLines(receivablesByCurr)}</div>
+          <div class="val inline-currencies">${formatByCurrencyInline(receivablesByCurr)}</div>
         </div>
         <div class="stat err">
           <div class="label">إجمالي التزامات</div>
-          <div class="val">${formatByCurrencyLines(liabilitiesByCurr)}</div>
+          <div class="val inline-currencies">${formatByCurrencyInline(liabilitiesByCurr)}</div>
         </div>
       `;
 
@@ -2085,7 +2231,7 @@
       document.getElementById('suppliers-clean-list').innerHTML = state.suppliers.map(s => `
         <div class="clean-party-row" onclick="selectPartyFromList('supplier','${s.id}')">
           <strong>${escapeHtml(s.name)}</strong>
-          <span class="party-balance">${formatPartyBalanceSummary('supplier', s.id)}</span>
+          <span class="party-balance">${formatSupplierBalanceSummary(s.id)}</span>
         </div>
       `).join('') || '';
 
@@ -2098,7 +2244,7 @@
       document.getElementById('customers-clean-list').innerHTML = state.customers.map(c => `
         <div class="clean-party-row" onclick="selectPartyFromList('customer','${c.id}')">
           <strong>${escapeHtml(c.name)}</strong>
-          <span class="party-balance">${formatPartyBalanceSummary('customer', c.id)}</span>
+          <span class="party-balance">${formatCustomerBalanceSummary(c.id)}</span>
         </div>
       `).join('') || '';
 
@@ -2166,7 +2312,7 @@
 
       const txs = state.transactions.filter(t => t.partyType === 'supplier' && t.partyId === sup.id);
       document.getElementById('sup-ws-title').textContent = sup.name;
-      document.getElementById('sup-ws-meta').textContent = `${sup.phone || ''} | ${formatPartyBalanceSummary('supplier', sup.id)}`;
+      document.getElementById('sup-ws-meta').textContent = `${sup.phone || ''} | ${formatSupplierBalanceSummary(sup.id)}`;
       document.getElementById('sup-edit-name').value = sup.name;
       document.getElementById('sup-edit-phone').value = sup.phone || '';
 
@@ -2210,7 +2356,7 @@
 
       const txs = state.transactions.filter(t => t.partyType === 'customer' && t.partyId === cust.id);
       document.getElementById('cust-ws-title').textContent = cust.name;
-      document.getElementById('cust-ws-meta').textContent = `${cust.phone || ''} | ${formatPartyBalanceSummary('customer', cust.id)}`;
+      document.getElementById('cust-ws-meta').textContent = `${cust.phone || ''} | ${formatCustomerBalanceSummary(cust.id)}`;
       document.getElementById('cust-edit-name').value = cust.name;
       document.getElementById('cust-edit-phone').value = cust.phone || '';
 
