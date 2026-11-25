@@ -31,7 +31,7 @@
       min-height: 100vh;
     }
 
-    /* صورة خلفية خفيفة على ملء الشاشة خلف النصوص */
+    /* علامة مائية على ملء الشاشة خلف النصوص */
     #screen-watermark {
       position: fixed;
       inset: 0;
@@ -56,14 +56,17 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: space-between;
-      align-items: flex-start;
+      align-items: center;
       gap: 14px;
+      overflow: hidden;
     }
 
     .brand-lines {
       display: flex;
       flex-direction: column;
       gap: 5px;
+      position: relative;
+      z-index: 2;
     }
 
     .brand-title {
@@ -101,20 +104,23 @@
       opacity: 1;
     }
 
-    .top-controls {
+    /* الشعار المرفق شفاف على يسار المستطيل الأزرق العلوي */
+    .header-left-logo {
+      position: relative;
+      z-index: 2;
+      margin-right: auto;
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      pointer-events: none;
     }
 
-    .badge-role {
-      background: var(--yellow);
-      color: #0f172a;
-      font-weight: bold;
-      padding: 6px 11px;
-      border-radius: 8px;
-      font-size: 12px;
+    #header-logo-img {
+      width: 112px;
+      height: 112px;
+      object-fit: contain;
+      opacity: 0.22;
+      border-radius: 16px;
     }
 
     nav {
@@ -149,7 +155,7 @@
     main {
       max-width: 1200px;
       margin: 14px auto;
-      padding: 0 12px 90px;
+      padding: 0 12px 95px;
     }
 
     .card {
@@ -190,6 +196,23 @@
     .curr-line {
       margin-top: 3px;
       font-size: 13px;
+    }
+
+    /* مستطيلات متناوبة للأصناف في البحث: أبيض ثم رمادي فاتح */
+    .search-item-box {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .search-item-box.even-white {
+      background: #ffffff;
+    }
+
+    .search-item-box.odd-gray {
+      background: #e2e8f0;
     }
 
     .alert-box {
@@ -318,7 +341,13 @@
       margin-bottom: 6px;
     }
 
-    /* زر عائم في منتصف أسفل الشاشة بعلامة زائد */
+    .footer-logout-wrap {
+      margin-top: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* زر عائم في منتصف الشاشة بعلامة زائد */
     .fab-plus {
       position: fixed;
       bottom: 20px;
@@ -376,16 +405,16 @@
     }
 
     @media print {
-      header, nav, .no-print, #login-screen, .fab-plus, .modal-backdrop { display: none !important; }
+      header, nav, .no-print, #login-screen, .fab-plus, .modal-backdrop, .footer-logout-wrap { display: none !important; }
       body { background: #ffffff; }
-      #screen-watermark { opacity: 0.06; }
-      .card { border: none; box-shadow: none; padding: 0; background: transparent; }
+      #screen-watermark { display: none !important; }
+      #print-statement-area { display: block !important; }
     }
   </style>
 </head>
 <body>
 
-  <!-- صورة خلفية على ملء الشاشة خلف النصوص -->
+  <!-- علامة مائية على ملء الشاشة خلف النصوص -->
   <div id="screen-watermark"></div>
 
   <!-- شاشة تسجيل الدخول -->
@@ -409,9 +438,8 @@
         <p class="brand-addr">حضرموت - القطن - المرقدة - بجانب مغسلة الأحقاف لغسيل السيارات</p>
         <p class="brand-phones">771220178 - 773557399</p>
       </div>
-      <div class="top-controls no-print">
-        <span class="badge-role" id="current-role-badge">الدور: مدير</span>
-        <button class="btn secondary sm" onclick="logout()">خروج</button>
+      <div class="header-left-logo">
+        <img id="header-logo-img" alt="LT" class="hidden" />
       </div>
     </header>
 
@@ -449,10 +477,12 @@
             <label>من تاريخ: <input type="date" id="filter-from-date" onchange="renderPeriodStatement()" /></label>
             <label>إلى تاريخ: <input type="date" id="filter-to-date" onchange="renderPeriodStatement()" /></label>
             <label>سنة المبيعات: <input type="number" id="filter-sales-year" min="2000" max="2100" onchange="renderPeriodStatement()" style="width:110px;" /></label>
-            <button class="btn secondary sm" onclick="resetPeriodFilters()">عرض الكل</button>
+            <button class="btn secondary sm" onclick="resetPeriodFilters()">إخفاء التفاصيل</button>
           </div>
-          <div class="grid-3" id="period-statement-cards"></div>
-          <div id="period-statement-table-wrap" style="margin-top:12px;"></div>
+          <div id="period-statement-details" class="hidden">
+            <div class="grid-3" id="period-statement-cards"></div>
+            <div id="period-statement-table-wrap" style="margin-top:12px;"></div>
+          </div>
         </div>
       </section>
 
@@ -517,6 +547,7 @@
               <div class="form-row manager-only" style="margin:0;">
                 <input type="text" id="sup-edit-name" placeholder="تعديل الاسم" />
                 <input type="text" id="sup-edit-phone" placeholder="تعديل الهاتف" />
+                <button type="button" class="btn secondary sm" onclick="pickContactToInput('sup-edit-phone')">جهات الاتصال</button>
                 <button class="btn secondary sm" onclick="updateSelectedSupplier()">تعديل بيانات المورد</button>
               </div>
             </div>
@@ -526,12 +557,12 @@
               <h4 id="sup-tx-form-title">تسجيل عملية جديدة للمورد</h4>
               <div class="form-row">
                 <label>التاريخ: <input type="date" id="sup-tx-date" /></label>
-                <input type="text" id="sup-tx-invoice-no" placeholder="رقم الفاتورة" style="width:145px;" />
+                <input type="text" id="sup-tx-invoice-no" placeholder="رقم الفاتورة" style="flex:1;min-width:170px;" />
                 <input type="number" step="0.01" id="sup-tx-amount" placeholder="المبلغ" min="0" style="width:130px;" />
                 <select id="sup-tx-curr">
+                  <option value="USD" selected>USD</option>
                   <option value="YER">YER</option>
                   <option value="SAR">SAR</option>
-                  <option value="USD">USD</option>
                 </select>
                 <select id="sup-tx-side">
                   <option value="debit">عليه</option>
@@ -541,7 +572,6 @@
                   <option value="add">يُضاف للمخزون</option>
                   <option value="none">بدون تأثير على المخزون</option>
                 </select>
-                <input type="text" id="sup-tx-note" placeholder="البيان" style="flex:1;min-width:170px;" />
               </div>
 
               <div id="sup-lines-container"></div>
@@ -562,7 +592,6 @@
                   <th>عليه</th>
                   <th>له</th>
                   <th>الرصيد</th>
-                  <th>البيان</th>
                   <th class="manager-only">إجراءات</th>
                 </tr>
               </thead>
@@ -594,6 +623,7 @@
               <div class="form-row manager-only" style="margin:0;">
                 <input type="text" id="cust-edit-name" placeholder="تعديل الاسم" />
                 <input type="text" id="cust-edit-phone" placeholder="تعديل الهاتف" />
+                <button type="button" class="btn secondary sm" onclick="pickContactToInput('cust-edit-phone')">جهات الاتصال</button>
                 <button class="btn secondary sm" onclick="updateSelectedCustomer()">تعديل بيانات العميل</button>
               </div>
             </div>
@@ -609,7 +639,7 @@
                   <option value="SAR">SAR</option>
                   <option value="USD">USD</option>
                 </select>
-                <input type="text" id="pay-tx-note" placeholder="بيان التسديد" style="flex:1;min-width:170px;" />
+                <input type="text" id="pay-tx-note" placeholder="البيان" style="flex:1;min-width:170px;" />
                 <button class="btn" onclick="saveCustomerPayment()">حفظ التسديد</button>
               </div>
             </div>
@@ -753,7 +783,7 @@
       <section id="tab-backup" class="tab-panel hidden">
         <div class="card">
           <h2>النسخ الاحتياطي وصورة الخلفية</h2>
-          <p style="font-size:13px;color:var(--muted);">تصدير واستعادة البيانات الكاملة، وتعيين صورة الشعار الخفيفة على ملء الشاشة.</p>
+          <p style="font-size:13px;color:var(--muted);">تصدير واستعادة البيانات الكاملة، وتعيين صورة الشعار الخفيفة على ملء الشاشة وفي أعلى الواجهة.</p>
           <div class="form-row">
             <button class="btn" onclick="exportBackupJSON()">تصدير نسخة احتياطية (JSON)</button>
             <span class="manager-only">
@@ -761,13 +791,18 @@
             </span>
           </div>
           <div class="form-row" style="margin-top:12px;">
-            <label>تعيين صورة الخلفية للشاشة:
+            <label>تعيين صورة الشعار:
               <input type="file" id="bg-image-input" accept="image/*" onchange="handleBgImageUpload(event)" />
             </label>
-            <button class="btn secondary sm" onclick="clearBgImage()">إزالة صورة الخلفية</button>
+            <button class="btn secondary sm" onclick="clearBgImage()">إزالة صورة الشعار</button>
           </div>
         </div>
       </section>
+
+      <!-- زر تسجيل الخروج في نهاية الصفحة الرئيسية -->
+      <div class="footer-logout-wrap no-print">
+        <button class="btn danger" onclick="logout()">تسجيل الخروج</button>
+      </div>
     </main>
 
     <!-- زر عائم في منتصف الشاشة بعلامة زائد لإضافة عميل أو مورد -->
@@ -780,7 +815,10 @@
       <h3 id="modal-party-title">إضافة جديد</h3>
       <div style="display:flex;flex-direction:column;gap:10px;">
         <input type="text" id="modal-party-name" placeholder="الاسم" />
-        <input type="text" id="modal-party-phone" placeholder="رقم الهاتف" />
+        <div class="form-row" style="margin:0;">
+          <input type="text" id="modal-party-phone" placeholder="رقم الهاتف" style="flex:1;" />
+          <button type="button" class="btn secondary sm" onclick="pickContactToInput('modal-party-phone')">جهات الاتصال</button>
+        </div>
         <input type="text" id="modal-party-notes" placeholder="ملاحظات" />
         <div class="form-row" style="margin:4px 0 0;">
           <button class="btn" onclick="savePartyFromModal()">حفظ</button>
@@ -790,17 +828,16 @@
     </div>
   </div>
 
-  <!-- منطقة مخصصة للطباعة (كشف حساب PDF أو فاتورة) -->
+  <!-- منطقة مخصصة للطباعة (الجدول فقط في كشف الحساب PDF) -->
   <div id="print-statement-area" class="hidden"></div>
 
   <script>
-    const STORAGE_KEY = 'lamasat_tech_v5_data';
+    const STORAGE_KEY = 'lamasat_tech_v6_data';
     const BG_IMAGE_KEY = 'lamasat_tech_bg_image_v1';
     const CURRENCIES = ['YER', 'SAR', 'USD'];
     const USERS = {
-      manoori: { pass: 'Manoori_773557399', role: 'manager', label: 'المدير' },
-      'طارق': { pass: '12345', role: 'employee', label: 'الموظف' },
-      LT: { pass: '00000', role: 'manager', label: 'المدير (LT)' }
+      Mt: { pass: '773557399', role: 'manager', label: 'المدير' },
+      'طارق': { pass: '123', role: 'employee', label: '' }
     };
 
     let state = loadState();
@@ -841,12 +878,17 @@
     }
 
     function applyBackgroundImage() {
-      const el = document.getElementById('screen-watermark');
+      const wm = document.getElementById('screen-watermark');
+      const hdrLogo = document.getElementById('header-logo-img');
       const savedImg = localStorage.getItem(BG_IMAGE_KEY);
       if (savedImg) {
-        el.style.backgroundImage = `url("${savedImg}")`;
+        wm.style.backgroundImage = `url("${savedImg}")`;
+        hdrLogo.src = savedImg;
+        hdrLogo.classList.remove('hidden');
       } else {
-        el.style.backgroundImage = 'none';
+        wm.style.backgroundImage = 'none';
+        hdrLogo.removeAttribute('src');
+        hdrLogo.classList.add('hidden');
       }
     }
 
@@ -858,7 +900,7 @@
         try {
           localStorage.setItem(BG_IMAGE_KEY, e.target.result);
           applyBackgroundImage();
-          alert('تم تعيين صورة الخلفية على ملء الشاشة.');
+          alert('تم تعيين الشعار بنجاح.');
         } catch {
           alert('حجم الصورة كبير جداً للتخزين المحلي.');
         }
@@ -871,17 +913,38 @@
       applyBackgroundImage();
     }
 
+    async function pickContactToInput(inputId) {
+      const inputEl = document.getElementById(inputId);
+      if (!inputEl) return;
+      if ('contacts' in navigator && typeof navigator.contacts.select === 'function') {
+        try {
+          const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+          if (contacts && contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+            inputEl.value = contacts[0].tel[0].replace(/\s+/g, '');
+            return;
+          }
+        } catch {
+          // الانتقال للخيار الاحتياطي إذا لم يدعم الجهاز أو ألغى المستخدم
+        }
+      }
+      const typed = prompt('أدخل أو الصق رقم الهاتف من جهات الاتصال:');
+      if (typed !== null && typed.trim() !== '') {
+        inputEl.value = typed.trim();
+      }
+    }
+
     function handleLogin() {
       const u = document.getElementById('login-user').value.trim();
       const p = document.getElementById('login-pass').value;
       const err = document.getElementById('login-error');
-      const userObj = USERS[u] || USERS[u.toUpperCase()];
+      const matchedKey = Object.keys(USERS).find(k => k.toLowerCase() === u.toLowerCase());
+      const userObj = matchedKey ? USERS[matchedKey] : null;
+
       if (userObj && userObj.pass === p) {
-        currentSession = { username: u, role: userObj.role, label: userObj.label };
+        currentSession = { username: matchedKey, role: userObj.role, label: userObj.label };
         err.textContent = '';
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-shell').classList.remove('hidden');
-        document.getElementById('current-role-badge').textContent = `الدور: ${currentSession.label}`;
         applyBackgroundImage();
         setDefaultDates();
         initLineContainers();
@@ -974,23 +1037,19 @@
         String(s.phone || '').toLowerCase().includes(q)
       );
 
-      const itemsHtml = matchedItems.map(i =>
-        `<li>صنف: ${escapeHtml(i.name)} | العدد: ${Number(i.qty || 0)} | سعر البيع: ${fmt(i.price, i.currency)}</li>`
-      ).join('');
+      const itemsBoxes = matchedItems.map((i, idx) => {
+        const toneClass = idx % 2 === 0 ? 'even-white' : 'odd-gray';
+        return `<div class="search-item-box ${toneClass}"><strong>${escapeHtml(i.name)}</strong> — العدد: ${Number(i.qty || 0)} — السعر: ${fmt(i.price, i.currency)}</div>`;
+      }).join('');
 
-      const custHtml = matchedCustomers.map(c =>
-        `<li>عميل: <button class="btn secondary sm" onclick="openPartyFromSearch('customer','${c.id}')">${escapeHtml(c.name)}</button> (${escapeHtml(c.phone || '-')})</li>`
-      ).join('');
+      const partyBoxes = [
+        ...matchedCustomers.map(c => `<div class="search-item-box even-white">عميل: <button class="btn secondary sm" onclick="openPartyFromSearch('customer','${c.id}')">${escapeHtml(c.name)}</button> ${escapeHtml(c.phone || '')}</div>`),
+        ...matchedSuppliers.map(s => `<div class="search-item-box odd-gray">مورد: <button class="btn secondary sm" onclick="openPartyFromSearch('supplier','${s.id}')">${escapeHtml(s.name)}</button> ${escapeHtml(s.phone || '')}</div>`)
+      ].join('');
 
-      const supHtml = matchedSuppliers.map(s =>
-        `<li>مورد: <button class="btn secondary sm" onclick="openPartyFromSearch('supplier','${s.id}')">${escapeHtml(s.name)}</button> (${escapeHtml(s.phone || '-')})</li>`
-      ).join('');
-
-      const combined = itemsHtml + custHtml + supHtml;
+      const combined = itemsBoxes + partyBoxes;
       box.classList.remove('hidden');
-      box.innerHTML = combined
-        ? `<div style="background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:10px;"><strong>نتائج البحث:</strong><ul style="margin:6px 0 0;padding-right:18px;">${combined}</ul></div>`
-        : `<div style="font-size:13px;color:var(--muted);">لا توجد نتائج مطابقة للبحث.</div>`;
+      box.innerHTML = combined || `<div style="font-size:13px;color:var(--muted);">لا توجد نتائج مطابقة للبحث.</div>`;
     }
 
     function clearSearch() {
@@ -1169,7 +1228,6 @@
       renderAll();
     }
 
-    // الأصناف المتعددة (كل صنف في سطر)
     function initLineContainers() {
       ['sup', 'cust', 'inv'].forEach(prefix => {
         const container = document.getElementById(`${prefix}-lines-container`);
@@ -1280,10 +1338,9 @@
 
       const date = document.getElementById('sup-tx-date').value || todayISO();
       const invoiceNo = document.getElementById('sup-tx-invoice-no').value.trim();
-      const curr = document.getElementById('sup-tx-curr').value;
+      const curr = document.getElementById('sup-tx-curr').value || 'USD';
       const side = document.getElementById('sup-tx-side').value;
       const stockMode = document.getElementById('sup-tx-stock-mode').value;
-      const note = document.getElementById('sup-tx-note').value.trim();
       const items = collectLines('sup');
       const itemsSum = items.reduce((s, it) => s + it.lineTotal, 0);
       const rawAmount = Number(document.getElementById('sup-tx-amount').value) || 0;
@@ -1301,7 +1358,7 @@
           oldTx.currency = curr;
           oldTx.side = side;
           oldTx.stockMode = stockMode;
-          oldTx.note = note;
+          oldTx.note = invoiceNo;
           oldTx.items = items;
           applyTransactionStockEffect(oldTx.items, 'supplier', oldTx.stockMode, oldTx.currency, 1);
         }
@@ -1320,7 +1377,7 @@
           stockMode,
           source: 'manual',
           items,
-          note
+          note: invoiceNo
         };
         applyTransactionStockEffect(items, 'supplier', stockMode, curr, 1);
         state.transactions.push(tx);
@@ -1371,7 +1428,7 @@
       const date = document.getElementById('pay-tx-date').value || todayISO();
       const amount = Number(document.getElementById('pay-tx-amount').value) || 0;
       const curr = document.getElementById('pay-tx-curr').value;
-      const note = document.getElementById('pay-tx-note').value.trim() || 'تسديد من العميل';
+      const note = document.getElementById('pay-tx-note').value.trim() || 'تسديد';
 
       if (amount <= 0) return alert('أدخل مبلغ التسديد.');
 
@@ -1397,7 +1454,7 @@
       saveState();
       renderAll();
       renderCustomerWorkspace();
-      alert('تم تسجيل التسديد للعميل بنجاح.');
+      alert('تم تسجيل التسديد بنجاح.');
     }
 
     function saveCustomerTransaction() {
@@ -1479,14 +1536,15 @@
       document.getElementById(`${prefix}-tx-form-title`).textContent = 'تعديل العملية المحددة';
       document.getElementById(`${prefix}-tx-date`).value = tx.date || todayISO();
       document.getElementById(`${prefix}-tx-amount`).value = tx.amount || 0;
-      document.getElementById(`${prefix}-tx-curr`).value = tx.currency || 'YER';
+      document.getElementById(`${prefix}-tx-curr`).value = tx.currency || (prefix === 'sup' ? 'USD' : 'YER');
       document.getElementById(`${prefix}-tx-side`).value = tx.side || 'debit';
-      document.getElementById(`${prefix}-tx-stock-mode`).value = tx.stockMode || 'none';
-      document.getElementById(`${prefix}-tx-note`).value = tx.note || '';
       if (prefix === 'sup') {
         document.getElementById('sup-tx-invoice-no').value = tx.invoiceNo || '';
+        document.getElementById('sup-tx-stock-mode').value = tx.stockMode || 'add';
       } else {
         document.getElementById('cust-tx-invoice-no').value = tx.invoiceNo || '';
+        document.getElementById('cust-tx-stock-mode').value = tx.stockMode || 'deduct';
+        document.getElementById('cust-tx-note').value = tx.note || '';
       }
       setLines(prefix, tx.items);
     }
@@ -1497,9 +1555,13 @@
         prefix === 'sup' ? 'تسجيل عملية جديدة للمورد' : 'تسجيل عملية جديدة للعميل';
       document.getElementById(`${prefix}-tx-date`).value = todayISO();
       document.getElementById(`${prefix}-tx-amount`).value = '';
-      document.getElementById(`${prefix}-tx-note`).value = '';
-      if (prefix === 'sup') document.getElementById('sup-tx-invoice-no').value = '';
-      if (prefix === 'cust') document.getElementById('cust-tx-invoice-no').value = '';
+      if (prefix === 'sup') {
+        document.getElementById('sup-tx-invoice-no').value = '';
+        document.getElementById('sup-tx-curr').value = 'USD';
+      } else {
+        document.getElementById('cust-tx-invoice-no').value = '';
+        document.getElementById('cust-tx-note').value = '';
+      }
       setLines(prefix, []);
     }
 
@@ -1544,7 +1606,7 @@
           linkedTx.currency = curr;
           linkedTx.side = side;
           linkedTx.items = items;
-          linkedTx.note = note || `INV ${editingInvoiceId}`;
+          linkedTx.note = note || editingInvoiceId;
         }
         editingInvoiceId = null;
       } else {
@@ -1621,12 +1683,8 @@
       const printArea = document.getElementById('print-statement-area');
       printArea.classList.remove('hidden');
       printArea.innerHTML = `
-        <div style="padding:20px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
-          <h2>لمسات التقنية - فاتورة ${escapeHtml(inv.id)}</h2>
-          <p>صيانة الطابعات، آلات التصوير، عدادات النقود، بيع الأحبار وقطع الغيار | 771220178 - 773557399</p>
-          <p><strong>العميل:</strong> ${escapeHtml(inv.customerName)} | <strong>التاريخ:</strong> ${escapeHtml(inv.date)} | <strong>النوع:</strong> ${sideLabel(inv.side)}</p>
-          ${inv.note ? `<p><strong>البيان:</strong> ${escapeHtml(inv.note)}</p>` : ''}
-          <table style="width:100%;border-collapse:collapse;margin-top:10px;">
+        <div style="padding:16px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
+          <table style="width:100%;border-collapse:collapse;">
             <thead>
               <tr>
                 <th style="border:1px solid #333;padding:6px;">الصنف</th>
@@ -1637,7 +1695,6 @@
             </thead>
             <tbody>${rows || '<tr><td colspan="4" style="text-align:center;padding:8px;">-</td></tr>'}</tbody>
           </table>
-          <h3 style="margin-top:14px;">الإجمالي: ${fmt(inv.amount, inv.currency)}</h3>
         </div>
       `;
       window.print();
@@ -1736,7 +1793,7 @@
       renderAll();
     }
 
-    // كشف حساب PDF: الاسم في الأعلى، والأعمدة من اليمين لليسار: التاريخ، رقم الفاتورة، الأصناف، عليه، له، الرصيد
+    // كشف حساب PDF: الجدول فقط، وفي المورد بالتحديد (التاريخ . رقم الفاتورة . الأصناف . عليه . له . الرصيد)
     function exportStatementPDF(partyType) {
       const isSup = partyType === 'supplier';
       const selectEl = document.getElementById(isSup ? 'selected-supplier-id' : 'selected-customer-id');
@@ -1744,58 +1801,84 @@
       if (!party) return alert(isSup ? 'اختر مورداً أولاً.' : 'اختر عميلاً أولاً.');
 
       const txs = state.transactions.filter(t => t.partyType === partyType && t.partyId === party.id);
-
       const runningByCurr = { YER: 0, SAR: 0, USD: 0 };
-      const rowsHtml = txs.map(t => {
-        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
-        const amt = Number(t.amount) || 0;
-        const isCredit = t.side === 'credit';
-        const onHim = isCredit ? 0 : amt;
-        const forHim = isCredit ? amt : 0;
-        runningByCurr[curr] = (runningByCurr[curr] || 0) + (onHim - forHim);
-        const bal = runningByCurr[curr];
-        const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
 
-        return `
+      let rowsHtml = '';
+      let headersHtml = '';
+
+      if (isSup) {
+        headersHtml = `
           <tr>
-            <td style="border:1px solid #333;padding:6px;">${escapeHtml(t.date)}</td>
-            <td style="border:1px solid #333;padding:6px;">${escapeHtml(t.invoiceNo || '-')}</td>
-            <td style="border:1px solid #333;padding:6px;">${formatItemsPlainLines(t.items)}</td>
-            <td style="border:1px solid #333;padding:6px;">${onHim ? fmt(onHim, curr) : '-'}</td>
-            <td style="border:1px solid #333;padding:6px;">${forHim ? fmt(forHim, curr) : '-'}</td>
-            <td style="border:1px solid #333;padding:6px;">${balText}</td>
+            <th style="border:1px solid #333;padding:6px;">التاريخ</th>
+            <th style="border:1px solid #333;padding:6px;">رقم الفاتورة</th>
+            <th style="border:1px solid #333;padding:6px;">الأصناف</th>
+            <th style="border:1px solid #333;padding:6px;">عليه</th>
+            <th style="border:1px solid #333;padding:6px;">له</th>
+            <th style="border:1px solid #333;padding:6px;">الرصيد</th>
           </tr>
         `;
-      }).join('');
+        rowsHtml = txs.map(t => {
+          const curr = CURRENCIES.includes(t.currency) ? t.currency : 'USD';
+          const amt = Number(t.amount) || 0;
+          const isCredit = t.side === 'credit';
+          const onHim = isCredit ? 0 : amt;
+          const forHim = isCredit ? amt : 0;
+          runningByCurr[curr] = (runningByCurr[curr] || 0) + (onHim - forHim);
+          const bal = runningByCurr[curr];
+          const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
 
-      const summaryByCurr = CURRENCIES.map(c => {
-        const sub = txs.filter(t => t.currency === c);
-        const deb = sub.filter(t => t.side !== 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
-        const cred = sub.filter(t => t.side === 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
-        const net = deb - cred;
-        return `<div><strong>${c}:</strong> عليه ${fmt(deb, c)} | له ${fmt(cred, c)} | الرصيد ${fmt(Math.abs(net), c)} (${net >= 0 ? 'عليه' : 'له'})</div>`;
-      }).join('');
+          return `
+            <tr>
+              <td style="border:1px solid #333;padding:6px;">${escapeHtml(t.date)}</td>
+              <td style="border:1px solid #333;padding:6px;">${escapeHtml(t.invoiceNo || '-')}</td>
+              <td style="border:1px solid #333;padding:6px;">${formatItemsPlainLines(t.items)}</td>
+              <td style="border:1px solid #333;padding:6px;">${onHim ? fmt(onHim, curr) : '-'}</td>
+              <td style="border:1px solid #333;padding:6px;">${forHim ? fmt(forHim, curr) : '-'}</td>
+              <td style="border:1px solid #333;padding:6px;">${balText}</td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        headersHtml = `
+          <tr>
+            <th style="border:1px solid #333;padding:6px;">التاريخ</th>
+            <th style="border:1px solid #333;padding:6px;">الأصناف</th>
+            <th style="border:1px solid #333;padding:6px;">عليه</th>
+            <th style="border:1px solid #333;padding:6px;">له</th>
+            <th style="border:1px solid #333;padding:6px;">الرصيد</th>
+          </tr>
+        `;
+        rowsHtml = txs.map(t => {
+          const curr = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
+          const amt = Number(t.amount) || 0;
+          const isCredit = t.side === 'credit';
+          const onHim = isCredit ? 0 : amt;
+          const forHim = isCredit ? amt : 0;
+          runningByCurr[curr] = (runningByCurr[curr] || 0) + (onHim - forHim);
+          const bal = runningByCurr[curr];
+          const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
 
+          return `
+            <tr>
+              <td style="border:1px solid #333;padding:6px;">${escapeHtml(t.date)}</td>
+              <td style="border:1px solid #333;padding:6px;">${formatItemsPlainLines(t.items)}</td>
+              <td style="border:1px solid #333;padding:6px;">${onHim ? fmt(onHim, curr) : '-'}</td>
+              <td style="border:1px solid #333;padding:6px;">${forHim ? fmt(forHim, curr) : '-'}</td>
+              <td style="border:1px solid #333;padding:6px;">${balText}</td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      const colCount = isSup ? 6 : 5;
       const printArea = document.getElementById('print-statement-area');
       printArea.classList.remove('hidden');
       printArea.innerHTML = `
-        <div style="padding:20px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
-          <h1 style="margin:0 0 6px;">${escapeHtml(party.name)}</h1>
-          <p style="margin:0 0 12px;color:#334155;">لمسات التقنية - كشف حساب ${isSup ? 'مورد' : 'عميل'} | التاريخ: ${todayISO()}</p>
-          <table style="width:100%;border-collapse:collapse;margin-top:10px;">
-            <thead>
-              <tr>
-                <th style="border:1px solid #333;padding:6px;">التاريخ</th>
-                <th style="border:1px solid #333;padding:6px;">رقم الفاتورة</th>
-                <th style="border:1px solid #333;padding:6px;">الأصناف</th>
-                <th style="border:1px solid #333;padding:6px;">عليه</th>
-                <th style="border:1px solid #333;padding:6px;">له</th>
-                <th style="border:1px solid #333;padding:6px;">الرصيد</th>
-              </tr>
-            </thead>
-            <tbody>${rowsHtml || '<tr><td colspan="6" style="text-align:center;padding:8px;">لا توجد عمليات مسجلة</td></tr>'}</tbody>
+        <div style="padding:16px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>${headersHtml}</thead>
+            <tbody>${rowsHtml || `<tr><td colspan="${colCount}" style="text-align:center;padding:8px;">-</td></tr>`}</tbody>
           </table>
-          <div style="margin-top:14px;">${summaryByCurr}</div>
         </div>
       `;
 
@@ -1844,10 +1927,18 @@
     function renderPeriodStatement() {
       const fromD = document.getElementById('filter-from-date').value;
       const toD = document.getElementById('filter-to-date').value;
+      const detailsWrap = document.getElementById('period-statement-details');
+
+      if (!fromD && !toD) {
+        detailsWrap.classList.add('hidden');
+        return;
+      }
+
+      detailsWrap.classList.remove('hidden');
       const salesYear = String(document.getElementById('filter-sales-year').value || new Date().getFullYear());
 
       const inRange = (d) => {
-        if (!d) return true;
+        if (!d) return false;
         if (fromD && d < fromD) return false;
         if (toD && d > toD) return false;
         return true;
@@ -1953,7 +2044,6 @@
         </div>
       `;
 
-      // مربع تنبيهات انخفاض المخزون
       const lowItems = state.inventory.filter(i => (Number(i.minAlert) || 0) > 0 && (Number(i.qty) || 0) <= (Number(i.minAlert) || 0));
       const alertBox = document.getElementById('low-stock-alert-box');
       if (lowItems.length > 0) {
@@ -1961,7 +2051,7 @@
         alertBox.innerHTML = `
           <strong>تنبيهات انخفاض المخزون (${lowItems.length}):</strong>
           <ul style="margin:6px 0 0;padding-right:18px;">
-            ${lowItems.map(i => `<li>${escapeHtml(i.name)} — العدد الحالي: ${Number(i.qty || 0)} | الحد الأدنى: ${Number(i.minAlert || 0)}</li>`).join('')}
+            ${lowItems.map(i => `<li>${escapeHtml(i.name)} — العدد: ${Number(i.qty || 0)} | الحد الأدنى: ${Number(i.minAlert || 0)}</li>`).join('')}
           </ul>
         `;
       } else {
@@ -1971,7 +2061,6 @@
 
       renderPeriodStatement();
 
-      // قائمة المخزون (كل صنف في سطر)
       document.getElementById('inventory-tbody').innerHTML = state.inventory.map(item => `
         <tr>
           <td>${escapeHtml(item.name)}</td>
@@ -1987,7 +2076,6 @@
         </tr>
       `).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد أصناف في المخزون</td></tr>';
 
-      // قوائم الموردين والعملاء الصافية مع إجمالي الرصيد بجانب الاسم
       const supSelect = document.getElementById('selected-supplier-id');
       const prevSup = supSelect.value;
       supSelect.innerHTML = '<option value="">-- اختر مورداً --</option>' +
@@ -2017,7 +2105,6 @@
       document.getElementById('customers-datalist').innerHTML =
         state.customers.map(c => `<option value="${escapeHtml(c.name)}"></option>`).join('');
 
-      // جدول الفواتير
       document.getElementById('invoices-tbody').innerHTML = state.invoices.map(inv => {
         const itemsDesc = (inv.items || []).map(i => `${escapeHtml(i.itemName)} x ${Number(i.qty || 0)}`).join('<br/>');
         const fullDesc = [escapeHtml(inv.note || ''), itemsDesc].filter(Boolean).join('<br/>') || '-';
@@ -2038,7 +2125,6 @@
         `;
       }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد فواتير مسجلة</td></tr>';
 
-      // جدول المصروفات
       document.getElementById('expenses-tbody').innerHTML = state.expenses.map(e => `
         <tr>
           <td>${escapeHtml(e.date)}</td>
@@ -2086,7 +2172,7 @@
 
       const running = { YER: 0, SAR: 0, USD: 0 };
       document.getElementById('sup-tx-tbody').innerHTML = txs.map(t => {
-        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
+        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'USD';
         const amt = Number(t.amount) || 0;
         const onHim = t.side === 'credit' ? 0 : amt;
         const forHim = t.side === 'credit' ? amt : 0;
@@ -2102,14 +2188,13 @@
             <td>${onHim ? fmt(onHim, curr) : '-'}</td>
             <td>${forHim ? fmt(forHim, curr) : '-'}</td>
             <td>${balText}</td>
-            <td>${escapeHtml(t.note || '-')}</td>
             <td class="manager-only">
               <button class="btn warn sm" onclick="startEditTransaction('sup', '${t.id}')">تعديل</button>
               <button class="btn danger sm" onclick="deleteTransaction('${t.id}')">حذف</button>
             </td>
           </tr>
         `;
-      }).join('') || '<tr><td colspan="8" style="text-align:center;">لا توجد عمليات لهذا المورد</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد عمليات لهذا المورد</td></tr>';
       applyRolePermissions();
     }
 
