@@ -451,15 +451,43 @@
 
     .hidden { display: none !important; }
 
+    /* تنسيق صفحة تسجيل الدخول */
     #login-screen {
       max-width: 420px;
-      margin: 40px auto;
-      background: rgba(255, 255, 255, 0.96);
+      margin: 48px auto;
+      background: rgba(255, 255, 255, 0.97);
       border: 1px solid var(--border);
       border-top: 5px solid var(--blue);
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      border-bottom: 4px solid var(--yellow);
+      border-radius: 16px;
+      padding: 26px 22px;
+      box-shadow: 0 8px 24px rgba(13, 71, 161, 0.12);
+      text-align: center;
+    }
+
+    .login-brand-heading {
+      margin: 0 0 10px;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+    }
+
+    .login-brand-heading .word-blue {
+      color: var(--blue);
+    }
+
+    .login-brand-heading .word-gold {
+      color: #d49b00;
+      text-shadow: 0 1px 0 rgba(251, 192, 45, 0.35);
+    }
+
+    .login-slogan {
+      margin: 0 0 18px;
+      font-size: 15px;
+      font-weight: bold;
+      color: var(--blue-dark);
+      line-height: 1.75;
     }
 
     @media print {
@@ -477,8 +505,13 @@
 
   <!-- شاشة تسجيل الدخول -->
   <div id="login-screen">
-    <h2>لمسات التقنية - تسجيل الدخول</h2>
-    <p style="font-size:13px;color:var(--muted);">حضرموت - القطن - المرقدة - بجانب مغسلة الأحقاف لغسيل السيارات</p>
+    <h2 class="login-brand-heading">
+      <span class="word-blue">لمسات</span> <span class="word-gold">التقنية</span>
+    </h2>
+    <p class="login-slogan">
+      خبرة تُنجز العمل<br />
+      وثقة تُبنى مع كل عميل
+    </p>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <input type="text" id="login-user" placeholder="اسم المستخدم" />
       <input type="password" id="login-pass" placeholder="كلمة المرور" />
@@ -1121,7 +1154,6 @@
       dl.innerHTML = allNames.map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
     }
 
-    // إغلاق قوائم الاقتراح الفورية عند النقر خارجها
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.item-lookup-wrap')) {
         document.querySelectorAll('.live-dropdown').forEach(dd => dd.classList.add('hidden'));
@@ -1370,7 +1402,6 @@
       container.appendChild(div);
     }
 
-    // إظهار الأصناف التي في المخزون وتحتوي على نفس الحروف في الموردين والعملاء
     function filterInventoryForLine(inputEl, prefix) {
       const wrap = inputEl.closest('.item-lookup-wrap');
       const dropdown = wrap ? wrap.querySelector('.live-dropdown') : null;
