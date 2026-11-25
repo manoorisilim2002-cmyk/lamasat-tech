@@ -658,8 +658,8 @@
                   <option value="SAR">SAR</option>
                 </select>
                 <select id="sup-tx-side">
+                  <option value="credit" selected>له</option>
                   <option value="debit">عليه</option>
-                  <option value="credit">له</option>
                 </select>
                 <select id="sup-tx-stock-mode">
                   <option value="add">يُضاف للمخزون</option>
@@ -1061,6 +1061,8 @@
     }
 
     function ensureCustomerDefaultCredit() {
+      const supSide = document.getElementById('sup-tx-side');
+      if (supSide) supSide.value = 'credit';
       const custSide = document.getElementById('cust-tx-side');
       if (custSide) custSide.value = 'credit';
       const invSide = document.getElementById('inv-side');
@@ -1739,7 +1741,7 @@
       document.getElementById(`${prefix}-tx-date`).value = tx.date || todayISO();
       document.getElementById(`${prefix}-tx-amount`).value = tx.amount || 0;
       document.getElementById(`${prefix}-tx-curr`).value = tx.currency || (prefix === 'sup' ? 'USD' : 'YER');
-      document.getElementById(`${prefix}-tx-side`).value = tx.side || (prefix === 'cust' ? 'credit' : 'debit');
+      document.getElementById(`${prefix}-tx-side`).value = tx.side || 'credit';
       if (prefix === 'sup') {
         document.getElementById('sup-tx-invoice-no').value = tx.invoiceNo || '';
         document.getElementById('sup-tx-stock-mode').value = tx.stockMode || 'add';
@@ -1760,7 +1762,7 @@
       if (prefix === 'sup') {
         document.getElementById('sup-tx-invoice-no').value = '';
         document.getElementById('sup-tx-curr').value = 'USD';
-        document.getElementById('sup-tx-side').value = 'debit';
+        document.getElementById('sup-tx-side').value = 'credit';
       } else {
         document.getElementById('cust-tx-invoice-no').value = '';
         document.getElementById('cust-tx-note').value = '';
