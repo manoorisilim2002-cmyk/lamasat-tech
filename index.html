@@ -1051,7 +1051,65 @@ const supabaseClient = window.supabase.createClient(
       }
     }
 
-    function handleLogin() {
+    async function handleLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const err = document.getElementById('login-error');
+
+  err.textContent = '';
+
+  const emailMap = {
+    'Mt': 'manoori.silim.2002@gmail.com,
+    'طارق': 'moment.salm2000@gmail.com'
+  };
+
+  const matchedKey = Object.keys(emailMap).find(
+    k => k.toLowerCase() === u.toLowerCase()
+  );
+
+  if (!matchedKey) {
+    err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+    return;
+  }
+
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: emailMap[matchedKey],
+    password: p
+  });
+
+  if (error) {
+    err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+    return;
+  }
+
+  const { data: roleData, error: roleError } = await supabaseClient
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', data.user.id)
+    .single();
+
+  if (roleError || !roleData) {
+    await supabaseClient.auth.signOut();
+    err.textContent = 'تعذر تحديد صلاحية المستخدم.';
+    return;
+  }
+
+  currentSession = {
+    username: matchedKey,
+    role: roleData.role,
+    label: roleData.role === 'manager' ? 'المدير' : ''
+  };
+
+  document.getElementById('login-screen').classList.add('hidden');
+  document.getElementById('app-shell').classList.remove('hidden');
+
+  applyBackgroundImage();
+  setDefaultDates();
+  initLineContainers();
+  ensureCustomerDefaultCredit();
+  applyRolePermissions();
+  renderAll();
+  }
       const u = document.getElementById('login-user').value.trim();
       const p = document.getElementById('login-pass').value;
       const err = document.getElementById('login-error');
