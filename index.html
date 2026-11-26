@@ -515,7 +515,7 @@
     </p>
     <div style="display:flex;flex-direction:column;gap:10px;">
       <input type="text" id="login-user" placeholder="اسم المستخدم" />
-      <input type="password" id="login-pass" placeholder="كلمة المرور" />
+      <input type="password" id="login-pass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') handleLogin()" />
       <button class="btn" onclick="handleLogin()">دخول إلى النظام</button>
       <div id="login-error" style="color:var(--danger);font-size:13px;"></div>
     </div>
@@ -532,6 +532,7 @@
         <p class="brand-sub">صيانة الطابعات، آلات التصوير، عدادات النقود، بيع الأحبار وقطع الغيار</p>
         <p class="brand-addr">حضرموت - القطن - المرقدة - بجانب مغسلة الأحقاف لغسيل السيارات</p>
         <p class="brand-phones">771220178 - 773557399</p>
+        <div id="sync-status-badge" style="font-size:12px;margin-top:4px;color:#fef08a;font-weight:bold;">جاري الاتصال بالسحابة...</div>
       </div>
     </header>
 
@@ -941,19 +942,25 @@
     const STORAGE_KEY = 'lamasat_tech_v8_data';
     const BG_IMAGE_KEY = 'lamasat_tech_bg_image_v1';
     const CURRENCIES = ['YER', 'SAR', 'USD'];
-    const USERS = {
-      Mt: { pass: '7735', role: 'manager', label: 'المدير' },
-      'طارق': { pass: '123', role: 'employee', label: '' }
-    };
-const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBn';
 
-const supabaseClient = supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+    const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY
+    );
+
+    const EMAIL_MAP = {
+      'Mt': 'manoori.silim.2002@gmail.com',
+      'طارق': 'moment.salm2000@gmail.com'
+    };
+
     let state = loadState();
     let currentSession = null;
+    let realtimeChannel = null;
+    let syncTimer = null;
+    let isApplyingRemoteUpdate = false;
     let editingInventoryId = null;
     let editingTxId = { sup: null, cust: null };
     let editingInvoiceId = null;
@@ -986,29 +993,96 @@ const supabaseClient = supabase.createClient(
       }
     }
 
-    function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
-  if (currentSession?.role === 'manager') {
-    supabaseClient
-      .from('lamasat_data')
-      .update({ data: state })
-      .eq('id', 1)
-      .then(({ error }) => {
-        if (error) {
-          console.error('خطأ حفظ البيانات في السحابة:', error);
-        }
-      });
-  }
+    function setSyncStatus(text, color = '#fef08a') {
+      const el = document.getElementById('sync-status-badge');
+      if (el) {
+        el.textContent = text;
+        el.style.color = color;
+      }
     }
-    // الاتصال بقاعدة بيانات لمسات التقنية
-const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
+    async function syncFromCloud(silent = false) {
+      try {
+        if (!silent) setSyncStatus('جاري تحديث البيانات من السحابة...', '#fef08a');
+        const { data: row, error } = await supabaseClient
+          .from('lamasat_data')
+          .select('data')
+          .eq('id', 1)
+          .maybeSingle();
+
+        if (error) {
+          console.error('خطأ جلب البيانات من السحابة:', error);
+          setSyncStatus('تعذر التحديث من السحابة (وضع محلي)', '#fca5a5');
+          return;
+        }
+
+        if (row && row.data && typeof row.data === 'object') {
+          isApplyingRemoteUpdate = true;
+          state = Object.assign(defaultState(), row.data);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          renderAll();
+          isApplyingRemoteUpdate = false;
+        }
+        setSyncStatus('متصل ومتزامن لحظياً مع السحابة ✓', '#86efac');
+      } catch (e) {
+        console.error(e);
+        setSyncStatus('تعذر الاتصال بالسحابة', '#fca5a5');
+      }
+    }
+
+    function startCloudRealtimeSync() {
+      if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+      }
+      if (syncTimer) {
+        clearInterval(syncTimer);
+      }
+
+      realtimeChannel = supabaseClient
+        .channel('lamasat-data-live')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'lamasat_data', filter: 'id=eq.1' },
+          (payload) => {
+            if (payload.new && payload.new.data && typeof payload.new.data === 'object') {
+              isApplyingRemoteUpdate = true;
+              state = Object.assign(defaultState(), payload.new.data);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+              renderAll();
+              isApplyingRemoteUpdate = false;
+              setSyncStatus('تم استلام تحديث جديد من الجهاز الآخر ✓', '#86efac');
+            }
+          }
+        )
+        .subscribe((status) => {
+          if (status === 'SUBSCRIBED') {
+            setSyncStatus('متصل ومتزامن لحظياً مع السحابة ✓', '#86efac');
+          }
+        });
+
+      // مزامنة احتياطية دورية كل 15 ثانية لضمان التحديث حتى لو انقطع البث اللحظي
+      syncTimer = setInterval(() => {
+        if (currentSession) syncFromCloud(true);
+      }, 15000);
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (isApplyingRemoteUpdate || !currentSession) return;
+
+      setSyncStatus('جاري حفظ التعديلات في السحابة...', '#fef08a');
+      supabaseClient
+        .from('lamasat_data')
+        .upsert({ id: 1, data: state }, { onConflict: 'id' })
+        .then(({ error }) => {
+          if (error) {
+            console.error('خطأ حفظ البيانات في السحابة:', error);
+            setSyncStatus('تم الحفظ محلياً فقط (تحقق من صلاحيات السحابة)', '#fca5a5');
+          } else {
+            setSyncStatus('تم الحفظ والمزامنة مع السحابة ✓', '#86efac');
+          }
+        });
+    }
 
     function applyBackgroundImage() {
       const wm = document.getElementById('screen-watermark');
@@ -1064,65 +1138,85 @@ const supabaseClient = window.supabase.createClient(
       }
     }
 
+    async function enterAppWithUser(user, displayUsername) {
+      const { data: roleData, error: roleError } = await supabaseClient
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+
+      if (roleError || !roleData) {
+        await supabaseClient.auth.signOut();
+        return false;
+      }
+
+      currentSession = {
+        username: displayUsername,
+        role: roleData.role,
+        label: roleData.role === 'manager' ? 'المدير' : 'موظف'
+      };
+
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+
+      applyBackgroundImage();
+      setDefaultDates();
+      initLineContainers();
+      ensureCustomerDefaultCredit();
+      applyRolePermissions();
+      renderAll();
+
+      await syncFromCloud(false);
+      startCloudRealtimeSync();
+      return true;
+    }
+
     async function handleLogin() {
-  const u = document.getElementById('login-user').value.trim();
-  const p = document.getElementById('login-pass').value;
-  const err = document.getElementById('login-error');
+      const u = document.getElementById('login-user').value.trim();
+      const p = document.getElementById('login-pass').value;
+      const err = document.getElementById('login-error');
 
-  err.textContent = '';
+      err.textContent = '';
 
-  const emailMap = {
-  'Mt': 'manoori.silim.2002@gmail.com',
-  'طارق': 'moment.salm2000@gmail.com'
-};
+      const matchedKey = Object.keys(EMAIL_MAP).find(
+        k => k.toLowerCase() === u.toLowerCase()
+      );
 
-  const matchedKey = Object.keys(emailMap).find(
-    k => k.toLowerCase() === u.toLowerCase()
-  );
+      if (!matchedKey) {
+        err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+        return;
+      }
 
-  if (!matchedKey) {
-    err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
-    return;
-  }
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: EMAIL_MAP[matchedKey],
+        password: p
+      });
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
-    email: emailMap[matchedKey],
-    password: p
-  });
+      if (error || !data.user) {
+        err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+        return;
+      }
 
-  if (error) {
-    err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
-    return;
-  }
+      const ok = await enterAppWithUser(data.user, matchedKey);
+      if (!ok) {
+        err.textContent = 'تعذر تحديد صلاحية المستخدم.';
+      }
+    }
 
-  const { data: roleData, error: roleError } = await supabaseClient
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', data.user.id)
-    .single();
-
-  if (roleError || !roleData) {
-    await supabaseClient.auth.signOut();
-    err.textContent = 'تعذر تحديد صلاحية المستخدم.';
-    return;
-  }
-
-  currentSession = {
-    username: matchedKey,
-    role: roleData.role,
-    label: roleData.role === 'manager' ? 'المدير' : ''
-  };
-
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app-shell').classList.remove('hidden');
-
-  applyBackgroundImage();
-  setDefaultDates();
-  initLineContainers();
-  ensureCustomerDefaultCredit();
-  applyRolePermissions();
-  renderAll();
-  }
+    async function restoreSavedSession() {
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+          const email = (session.user.email || '').toLowerCase();
+          const matchedKey = Object.keys(EMAIL_MAP).find(
+            k => EMAIL_MAP[k].toLowerCase() === email
+          ) || email;
+          await enterAppWithUser(session.user, matchedKey);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
 
     function ensureCustomerDefaultCredit() {
       const supSide = document.getElementById('sup-tx-side');
@@ -1133,7 +1227,16 @@ const supabaseClient = window.supabase.createClient(
       if (invSide) invSide.value = 'credit';
     }
 
-    function logout() {
+    async function logout() {
+      if (realtimeChannel) {
+        supabaseClient.removeChannel(realtimeChannel);
+        realtimeChannel = null;
+      }
+      if (syncTimer) {
+        clearInterval(syncTimer);
+        syncTimer = null;
+      }
+      await supabaseClient.auth.signOut();
       currentSession = null;
       document.getElementById('app-shell').classList.add('hidden');
       document.getElementById('login-screen').classList.remove('hidden');
@@ -1485,7 +1588,7 @@ const supabaseClient = window.supabase.createClient(
       }
 
       dropdown.innerHTML = matches.map(item => `
-        <div class="live-dropdown-item" onmousedown="selectInventoryItemForLine(event, this, '${prefix}', '${escapeHtml(item.name)}')">
+        <div class="live-dropdown-item" data-item-name="${escapeHtml(item.name)}" onmousedown="selectInventoryItemForLine(event, this, '${prefix}')">
           <span><strong>${escapeHtml(item.name)}</strong> (متوفر: ${Number(item.qty || 0)})</span>
           <span>${fmt(prefix === 'sup' ? (item.cost || item.price || 0) : (item.price || item.cost || 0), item.currency)}</span>
         </div>
@@ -1493,8 +1596,9 @@ const supabaseClient = window.supabase.createClient(
       dropdown.classList.remove('hidden');
     }
 
-    function selectInventoryItemForLine(event, itemEl, prefix, itemName) {
+    function selectInventoryItemForLine(event, itemEl, prefix) {
       event.preventDefault();
+      const itemName = itemEl.getAttribute('data-item-name') || '';
       const wrap = itemEl.closest('.item-lookup-wrap');
       const inputEl = wrap ? wrap.querySelector('.line-name') : null;
       const dropdown = wrap ? wrap.querySelector('.live-dropdown') : null;
@@ -2341,18 +2445,24 @@ const supabaseClient = window.supabase.createClient(
         .filter(t => t.partyType === 'customer' && t.currency === c)
         .reduce((s, t) => s + (Number(t.amount) || 0), 0);
 
-      const receivablesByCurr = (c) => state.transactions
-        .filter(t => t.partyType === 'customer' && t.currency === c && t.side !== 'credit')
-        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      const receivablesByCurr = (c) => {
+        const custDeb = state.transactions
+          .filter(t => t.partyType === 'customer' && t.currency === c && t.side !== 'credit')
+          .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+        const custCred = state.transactions
+          .filter(t => t.partyType === 'customer' && t.currency === c && t.side === 'credit')
+          .reduce((s, t) => s + (Number(t.amount) || 0), 0);
+        return Math.max(0, custDeb - custCred);
+      };
 
       const liabilitiesByCurr = (c) => {
+        const supCred = state.transactions
+          .filter(t => t.partyType === 'supplier' && t.currency === c && t.side === 'credit')
+          .reduce((s, t) => s + (Number(t.amount) || 0), 0);
         const supDeb = state.transactions
           .filter(t => t.partyType === 'supplier' && t.currency === c && t.side !== 'credit')
           .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-        const allCred = state.transactions
-          .filter(t => t.currency === c && t.side === 'credit')
-          .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-        return supDeb + allCred;
+        return Math.max(0, supCred - supDeb);
       };
 
       document.getElementById('dashboard-stats').innerHTML = `
@@ -2570,6 +2680,7 @@ const supabaseClient = window.supabase.createClient(
     }
 
     applyBackgroundImage();
+    restoreSavedSession();
   </script>
 </body>
-</html>
+ </html>
