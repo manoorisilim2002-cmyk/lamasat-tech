@@ -1059,9 +1059,9 @@ const supabaseClient = window.supabase.createClient(
   err.textContent = '';
 
   const emailMap = {
-    'Mt': 'manoori.silim.2002@gmail.com,
-    'طارق': 'moment.salm2000@gmail.com'
-  };
+  'Mt': 'manoori.silim.2002@gmail.com',
+  'طارق': 'moment.salm2000@gmail.com'
+};
 
   const matchedKey = Object.keys(emailMap).find(
     k => k.toLowerCase() === u.toLowerCase()
@@ -1110,27 +1110,6 @@ const supabaseClient = window.supabase.createClient(
   applyRolePermissions();
   renderAll();
   }
-      const u = document.getElementById('login-user').value.trim();
-      const p = document.getElementById('login-pass').value;
-      const err = document.getElementById('login-error');
-      const matchedKey = Object.keys(USERS).find(k => k.toLowerCase() === u.toLowerCase());
-      const userObj = matchedKey ? USERS[matchedKey] : null;
-
-      if (userObj && userObj.pass === p) {
-        currentSession = { username: matchedKey, role: userObj.role, label: userObj.label };
-        err.textContent = '';
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('app-shell').classList.remove('hidden');
-        applyBackgroundImage();
-        setDefaultDates();
-        initLineContainers();
-        ensureCustomerDefaultCredit();
-        applyRolePermissions();
-        renderAll();
-      } else {
-        err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
-      }
-    }
 
     function ensureCustomerDefaultCredit() {
       const supSide = document.getElementById('sup-tx-side');
