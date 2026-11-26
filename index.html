@@ -945,7 +945,13 @@
       Mt: { pass: '7735', role: 'manager', label: 'المدير' },
       'طارق': { pass: '123', role: 'employee', label: '' }
     };
+const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBn';
 
+const supabaseClient = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
     let state = loadState();
     let currentSession = null;
     let editingInventoryId = null;
