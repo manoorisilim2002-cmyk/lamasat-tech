@@ -982,7 +982,14 @@
 
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
+    }// الاتصال بقاعدة بيانات لمسات التقنية
+const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
 
     function applyBackgroundImage() {
       const wm = document.getElementById('screen-watermark');
