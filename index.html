@@ -781,16 +781,20 @@
 
     // دالة الحفظ السحابي والمحلي
     function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      
-      if (currentSession) {
-        supabaseClient.from('lamasat_data')
-          .upsert({ id: 1, data: state })
-          .eq('id', 1)
-          .then(({ error }) => {
-            if (error) console.error('خطأ حفظ سحابي:', error);
-          });
-      }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  
+  if (currentSession) {
+    supabaseClient.from('lamasat_data')
+      .upsert({ id: 1, data: state })
+      .then(({ error }) => {
+        if (error) {
+          alert('فشل الحفظ في السحابة: ' + error.message);
+          console.error('خطأ حفظ سحابي:', error);
+        } else {
+          console.log('تم الحفظ في السحابة بنجاح');
+        }
+      });
+  }
     }
 
     function applyBackgroundImage() {
