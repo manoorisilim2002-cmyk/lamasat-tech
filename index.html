@@ -32,7 +32,6 @@
       min-height: 100vh;
     }
 
-    /* علامة مائية على ملء الشاشة خلف النصوص */
     #screen-watermark {
       position: fixed;
       inset: 0;
@@ -63,7 +62,6 @@
       position: relative;
     }
 
-    /* الشعار المرفق شفاف وخفيف على يسار الترويسة الزرقاء وخلف النص */
     .header-left-logo {
       position: absolute;
       left: 16px;
@@ -190,306 +188,116 @@
       padding: 12px;
     }
 
-    .stat.ok {
-      background: #eef6ff;
-      border-color: #bfdbfe;
-      border-right-color: var(--blue);
-    }
-
-    .stat.warn {
-      background: #fffbeb;
-      border-color: #fde68a;
-      border-right-color: var(--yellow);
-    }
-
-    .stat.err {
-      background: #fef2f2;
-      border-color: #fecaca;
-      border-right-color: var(--danger);
-    }
+    .stat.ok { background: #eef6ff; border-color: #bfdbfe; border-right-color: var(--blue); }
+    .stat.warn { background: #fffbeb; border-color: #fde68a; border-right-color: var(--yellow); }
+    .stat.err { background: #fef2f2; border-color: #fecaca; border-right-color: var(--danger); }
 
     .stat .label { font-size: 12px; color: var(--muted); font-weight: bold; }
 
     .stat .val.inline-currencies {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: bold;
-      margin-top: 8px;
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      font-size: 14px; font-weight: bold; margin-top: 8px;
     }
 
     .curr-chip {
-      background: rgba(255, 255, 255, 0.85);
-      border: 1px solid rgba(15, 23, 42, 0.12);
-      border-radius: 6px;
-      padding: 3px 8px;
-      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.85); border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 6px; padding: 3px 8px; white-space: nowrap;
     }
 
-    .search-item-box {
-      padding: 10px 12px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      margin-bottom: 6px;
-      font-size: 13px;
-    }
-
+    .search-item-box { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 6px; font-size: 13px; }
     .search-item-box.even-white { background: #ffffff; }
     .search-item-box.odd-gray { background: #e2e8f0; }
 
-    .alert-box {
-      background: #fef2f2;
-      border: 1px solid #fecaca;
-      border-right: 4px solid var(--danger);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 12px;
-    }
+    .alert-box { background: #fef2f2; border: 1px solid #fecaca; border-right: 4px solid var(--danger); border-radius: 10px; padding: 12px; margin-top: 12px; }
+    .alert-ok { background: #f0fdf4; border: 1px solid #bbf7d0; border-right: 4px solid var(--success); border-radius: 10px; padding: 12px; margin-top: 12px; font-size: 13px; }
 
-    .alert-ok {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-right: 4px solid var(--success);
-      border-radius: 10px;
-      padding: 12px;
-      margin-top: 12px;
-      font-size: 13px;
-    }
-
-    .clean-party-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
+    .clean-party-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
     .clean-party-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 12px;
-      background: #f8fafc;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      cursor: pointer;
+      display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+      gap: 8px; padding: 10px 12px; background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 10px; cursor: pointer;
     }
-
     .clean-party-row:hover { background: var(--blue-soft); }
-
     .party-balance { font-weight: bold; font-size: 13px; }
 
-    .form-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
-      align-items: center;
-    }
+    .form-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; align-items: center; }
 
     input, select, textarea {
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-family: inherit;
-      font-size: 13px;
-      background: #ffffff;
-      color: var(--text);
+      padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px;
+      font-family: inherit; font-size: 13px; background: #ffffff; color: var(--text);
     }
-
-    input:focus, select:focus, textarea:focus {
-      outline: 2px solid var(--blue);
-      border-color: var(--blue);
-    }
+    input:focus, select:focus, textarea:focus { outline: 2px solid var(--blue); border-color: var(--blue); }
 
     button.btn {
-      background: var(--blue);
-      color: #ffffff;
-      border: none;
-      padding: 8px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 13px;
+      background: var(--blue); color: #ffffff; border: none; padding: 8px 14px;
+      border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 13px;
     }
-
     button.btn.secondary { background: #e2e8f0; color: var(--text); }
     button.btn.yellow { background: var(--yellow); color: #0f172a; }
     button.btn.danger { background: var(--danger); color: #ffffff; }
     button.btn.warn { background: #d97706; color: #ffffff; }
     button.btn.sm { padding: 5px 9px; font-size: 12px; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-top: 8px;
-    }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+    th, td { border: 1px solid var(--border); padding: 8px; text-align: right; }
+    th { background: var(--blue-soft); color: var(--blue-dark); }
 
-    th, td {
-      border: 1px solid var(--border);
-      padding: 8px;
-      text-align: right;
-    }
-
-    th {
-      background: var(--blue-soft);
-      color: var(--blue-dark);
-    }
-
-    .party-box {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 12px;
-      background: #f8fafc;
-      margin-top: 12px;
-    }
+    .party-box { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #f8fafc; margin-top: 12px; }
 
     .line-item-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: flex-start;
-      background: #ffffff;
-      padding: 8px;
-      border: 1px dashed var(--border);
-      border-radius: 8px;
-      margin-bottom: 6px;
-      position: relative;
+      display: flex; flex-wrap: wrap; gap: 6px; align-items: flex-start; background: #ffffff;
+      padding: 8px; border: 1px dashed var(--border); border-radius: 8px; margin-bottom: 6px; position: relative;
     }
 
-    .item-lookup-wrap {
-      position: relative;
-      flex: 2;
-      min-width: 180px;
-    }
-
-    .item-lookup-wrap input.line-name {
-      width: 100%;
-    }
+    .item-lookup-wrap { position: relative; flex: 2; min-width: 180px; }
+    .item-lookup-wrap input.line-name { width: 100%; }
 
     .live-dropdown {
-      position: absolute;
-      top: 100%;
-      right: 0;
-      left: 0;
-      background: #ffffff;
-      border: 1px solid var(--blue);
-      border-radius: 8px;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
-      max-height: 200px;
-      overflow-y: auto;
-      z-index: 40;
-      margin-top: 2px;
+      position: absolute; top: 100%; right: 0; left: 0; background: #ffffff;
+      border: 1px solid var(--blue); border-radius: 8px; box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+      max-height: 200px; overflow-y: auto; z-index: 40; margin-top: 2px;
     }
 
     .live-dropdown-item {
-      padding: 7px 10px;
-      font-size: 12px;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #f1f5f9;
+      padding: 7px 10px; font-size: 12px; cursor: pointer; display: flex;
+      justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9;
     }
-
     .live-dropdown-item:last-child { border-bottom: none; }
     .live-dropdown-item:hover { background: var(--blue-soft); }
 
-    .footer-logout-wrap {
-      margin-top: 24px;
-      display: flex;
-      justify-content: center;
-    }
+    .footer-logout-wrap { margin-top: 24px; display: flex; justify-content: center; }
 
     .fab-plus {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--blue);
-      color: #ffffff;
-      border: 3px solid var(--yellow);
-      font-size: 28px;
-      font-weight: bold;
-      line-height: 1;
-      cursor: pointer;
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-      z-index: 35;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      width: 56px; height: 56px; border-radius: 50%; background: var(--blue);
+      color: #ffffff; border: 3px solid var(--yellow); font-size: 28px; font-weight: bold;
+      line-height: 1; cursor: pointer; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+      z-index: 35; display: flex; align-items: center; justify-content: center;
     }
 
     .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.45);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 14px;
-      z-index: 50;
+      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
+      display: flex; align-items: center; justify-content: center; padding: 14px; z-index: 50;
     }
 
     .modal-card {
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      max-width: 560px;
-      width: 100%;
-      max-height: 88vh;
-      overflow-y: auto;
-      padding: 16px;
+      background: #ffffff; border-radius: 12px; border: 1px solid var(--border);
+      max-width: 560px; width: 100%; max-height: 88vh; overflow-y: auto; padding: 16px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     }
 
     .hidden { display: none !important; }
 
-    /* تنسيق صفحة تسجيل الدخول */
     #login-screen {
-      max-width: 420px;
-      margin: 48px auto;
-      background: rgba(255, 255, 255, 0.97);
-      border: 1px solid var(--border);
-      border-top: 5px solid var(--blue);
-      border-bottom: 4px solid var(--yellow);
-      border-radius: 16px;
-      padding: 26px 22px;
-      box-shadow: 0 8px 24px rgba(13, 71, 161, 0.12);
-      text-align: center;
+      max-width: 420px; margin: 48px auto; background: rgba(255, 255, 255, 0.97);
+      border: 1px solid var(--border); border-top: 5px solid var(--blue); border-bottom: 4px solid var(--yellow);
+      border-radius: 16px; padding: 26px 22px; box-shadow: 0 8px 24px rgba(13, 71, 161, 0.12); text-align: center;
     }
 
-    .login-brand-heading {
-      margin: 0 0 10px;
-      font-size: 30px;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      line-height: 1.3;
-    }
-
-    .login-brand-heading .word-blue {
-      color: var(--blue);
-    }
-
-    .login-brand-heading .word-gold {
-      color: #d49b00;
-      text-shadow: 0 1px 0 rgba(251, 192, 45, 0.35);
-    }
-
-    .login-slogan {
-      margin: 0 0 18px;
-      font-size: 15px;
-      font-weight: bold;
-      color: var(--blue-dark);
-      line-height: 1.75;
-    }
+    .login-brand-heading { margin: 0 0 10px; font-size: 30px; font-weight: 900; letter-spacing: 0.5px; line-height: 1.3; }
+    .login-brand-heading .word-blue { color: var(--blue); }
+    .login-brand-heading .word-gold { color: #d49b00; text-shadow: 0 1px 0 rgba(251, 192, 45, 0.35); }
+    .login-slogan { margin: 0 0 18px; font-size: 15px; font-weight: bold; color: var(--blue-dark); line-height: 1.75; }
 
     @media print {
       header, nav, .no-print, #login-screen, .fab-plus, .modal-backdrop, .footer-logout-wrap { display: none !important; }
@@ -501,10 +309,8 @@
 </head>
 <body>
 
-  <!-- علامة مائية على ملء الشاشة خلف النصوص -->
   <div id="screen-watermark"></div>
 
-  <!-- شاشة تسجيل الدخول -->
   <div id="login-screen">
     <h2 class="login-brand-heading">
       <span class="word-blue">لمسات</span> <span class="word-gold">التقنية</span>
@@ -521,7 +327,6 @@
     </div>
   </div>
 
-  <!-- التطبيق الرئيسي -->
   <div id="app-shell" class="hidden">
     <header>
       <div class="header-left-logo">
@@ -546,7 +351,6 @@
     </nav>
 
     <main>
-      <!-- بحث سريع عام -->
       <div class="card no-print">
         <div class="form-row" style="margin:0;">
           <input type="text" id="global-search-input" list="all-items-suggestions" oninput="renderSearchResults()" placeholder="بحث سريع عن قطعة/صنف (اسم، سعر، عدد) أو عميل أو مورد..." style="flex:1;min-width:240px;" />
@@ -557,7 +361,6 @@
 
       <datalist id="all-items-suggestions"></datalist>
 
-      <!-- 1. الرئيسية -->
       <section id="tab-dashboard" class="tab-panel">
         <div class="card">
           <h2>لوحة المتابعة الرئيسية</h2>
@@ -580,7 +383,6 @@
         </div>
       </section>
 
-      <!-- 2. المخزون والأصناف -->
       <section id="tab-inventory" class="tab-panel hidden">
         <div class="card manager-only">
           <h2 id="inv-form-title">إضافة صنف جديد إلى المخزون</h2>
@@ -619,7 +421,6 @@
         </div>
       </section>
 
-      <!-- 3. الموردين -->
       <section id="tab-suppliers" class="tab-panel hidden">
         <div class="card">
           <h3>قائمة الموردين</h3>
@@ -695,7 +496,6 @@
         </div>
       </section>
 
-      <!-- 4. العملاء -->
       <section id="tab-customers" class="tab-panel hidden">
         <div class="card">
           <h3>قائمة العملاء</h3>
@@ -788,7 +588,6 @@
         </div>
       </section>
 
-      <!-- 5. الفواتير -->
       <section id="tab-invoices" class="tab-panel hidden">
         <div class="card manager-only">
           <h2 id="inv-form-title">إنشاء فاتورة جديدة</h2>
@@ -803,8 +602,8 @@
               <option value="USD">USD</option>
             </select>
             <select id="inv-side">
-              <option value="credit" selected>له</option>
-              <option value="debit">عليه</option>
+              <option value="credit">له</option>
+              <option value="debit" selected>عليه</option>
             </select>
             <input type="number" step="0.01" id="inv-amount-override" placeholder="مبلغ مخصص" style="width:140px;" />
           </div>
@@ -836,7 +635,6 @@
         </div>
       </section>
 
-      <!-- 6. المصروفات -->
       <section id="tab-expenses" class="tab-panel hidden">
         <div class="card manager-only">
           <h2 id="exp-form-title">تسجيل مصروف</h2>
@@ -871,7 +669,6 @@
         </div>
       </section>
 
-      <!-- 7. النسخ الاحتياطي وصورة الخلفية -->
       <section id="tab-backup" class="tab-panel hidden">
         <div class="card">
           <h2>النسخ الاحتياطي وصورة الخلفية</h2>
@@ -891,17 +688,14 @@
         </div>
       </section>
 
-      <!-- زر تسجيل الخروج في نهاية الصفحة الرئيسية -->
       <div class="footer-logout-wrap no-print">
         <button class="btn danger" onclick="logout()">تسجيل الخروج</button>
       </div>
     </main>
 
-    <!-- زر عائم في منتصف الشاشة بعلامة زائد لإضافة عميل أو مورد -->
     <button type="button" class="fab-plus no-print" title="إضافة عميل أو مورد" onclick="openQuickAddModal()">+</button>
   </div>
 
-  <!-- نافذة إضافة عميل أو مورد عبر الزر العائم -->
   <div id="quick-add-modal" class="modal-backdrop hidden">
     <div class="modal-card">
       <h3 id="modal-party-title">إضافة جديد</h3>
@@ -920,7 +714,6 @@
     </div>
   </div>
 
-  <!-- نافذة فتح ومشاركة وطباعة ملف PDF -->
   <div id="pdf-action-modal" class="modal-backdrop hidden">
     <div class="modal-card">
       <h3 id="pdf-modal-title">كشف الحساب (PDF)</h3>
@@ -934,17 +727,18 @@
     </div>
   </div>
 
-  <!-- منطقة مخصصة للطباعة (الجدول فقط في كشف الحساب PDF) -->
   <div id="print-statement-area" class="hidden"></div>
 
   <script>
     const STORAGE_KEY = 'lamasat_tech_v8_data';
     const BG_IMAGE_KEY = 'lamasat_tech_bg_image_v1';
     const CURRENCIES = ['YER', 'SAR', 'USD'];
-    const USERS = {
-      Mt: { pass: '7735', role: 'manager', label: 'المدير' },
-      'طارق': { pass: '123', role: 'employee', label: '' }
-    };
+    
+    // إعدادات Supabase
+    const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
+    // ضع هنا المفتاح الذي جعل الاختبار ينجح
+    const SUPABASE_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc'; 
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let state = loadState();
     let currentSession = null;
@@ -955,8 +749,13 @@
     let activeTabName = 'dashboard';
     let currentPdfPartyType = 'supplier';
 
+    // دالة التاريخ المحلي
     function todayISO() {
-      return new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
     }
 
     function defaultState() {
@@ -980,8 +779,18 @@
       }
     }
 
+    // دالة الحفظ السحابي والمحلي
     function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      
+      if (currentSession) {
+        supabaseClient.from('lamasat_data')
+          .update({ data: state })
+          .eq('id', 1)
+          .then(({ error }) => {
+            if (error) console.error('خطأ حفظ سحابي:', error);
+          });
+      }
     }
 
     function applyBackgroundImage() {
@@ -1038,26 +847,79 @@
       }
     }
 
-    function handleLogin() {
+    // دالة تسجيل الدخول السحابي
+    async function handleLogin() {
       const u = document.getElementById('login-user').value.trim();
       const p = document.getElementById('login-pass').value;
       const err = document.getElementById('login-error');
-      const matchedKey = Object.keys(USERS).find(k => k.toLowerCase() === u.toLowerCase());
-      const userObj = matchedKey ? USERS[matchedKey] : null;
+      err.textContent = 'جاري تسجيل الدخول...';
 
-      if (userObj && userObj.pass === p) {
-        currentSession = { username: matchedKey, role: userObj.role, label: userObj.label };
+      const emailMap = {
+        'Mt': 'manoori.silim.2002@gmail.com',
+        'طارق': 'moment.salm2000@gmail.com'
+      };
+
+      const matchedKey = Object.keys(emailMap).find(k => k.toLowerCase() === u.toLowerCase());
+
+      if (!matchedKey) {
+        err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+        return;
+      }
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email: emailMap[matchedKey],
+          password: p
+        });
+
+        if (error) {
+          err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+          return;
+        }
+
+        const { data: roleData } = await supabaseClient
+          .from('user_roles')
+          .select('role')
+          .eq('user_id', data.user.id)
+          .single();
+
+        const role = roleData ? roleData.role : 'employee';
+        currentSession = {
+          username: matchedKey,
+          role: role,
+          label: role === 'manager' ? 'المدير' : ''
+        };
+
+        // تحميل البيانات من السحابة
+        const { data: cloudData } = await supabaseClient.from('lamasat_data').select('data').eq('id', 1).single();
+        if (cloudData && cloudData.data) {
+          state = Object.assign(defaultState(), cloudData.data);
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        }
+
         err.textContent = '';
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('app-shell').classList.remove('hidden');
+
         applyBackgroundImage();
         setDefaultDates();
         initLineContainers();
         ensureCustomerDefaultCredit();
         applyRolePermissions();
         renderAll();
-      } else {
-        err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+
+        // تشغيل المزامنة اللحظية
+        supabaseClient.channel('lamasat_sync')
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lamasat_data' }, payload => {
+            if (payload.new.data) {
+              state = Object.assign(defaultState(), payload.new.data);
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+              renderAll();
+            }
+          }).subscribe();
+
+      } catch (ex) {
+        err.textContent = 'حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.';
       }
     }
 
@@ -1067,10 +929,12 @@
       const custSide = document.getElementById('cust-tx-side');
       if (custSide) custSide.value = 'credit';
       const invSide = document.getElementById('inv-side');
-      if (invSide) invSide.value = 'credit';
+      if (invSide) invSide.value = 'debit'; // جعل الفاتورة الافتراضية "عليه"
     }
 
-    function logout() {
+    // دالة تسجيل الخروج السحابي
+    async function logout() {
+      await supabaseClient.auth.signOut();
       currentSession = null;
       document.getElementById('app-shell').classList.add('hidden');
       document.getElementById('login-screen').classList.remove('hidden');
@@ -1876,7 +1740,7 @@
       document.getElementById('inv-customer-name').value = '';
       document.getElementById('inv-date').value = todayISO();
       document.getElementById('inv-note').value = '';
-      document.getElementById('inv-side').value = 'credit';
+      document.getElementById('inv-side').value = 'debit';
       document.getElementById('inv-amount-override').value = '';
       setLines('inv', []);
     }
@@ -2509,4 +2373,4 @@
     applyBackgroundImage();
   </script>
 </body>
-</html>
+               </html>
