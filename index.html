@@ -43,7 +43,6 @@
       overflow-x: hidden;
     }
 
-    /* Mobile-first container with 9:16 proportion feel on larger screens */
     .phone-frame-shell {
       width: 100%;
       max-width: 460px;
@@ -66,13 +65,34 @@
       }
     }
 
-    /* Header & Curved Wave Accent */
+    /* Single-screen Login without scrolling */
+    #login-screen {
+      height: 100dvh;
+      min-height: 100dvh;
+      max-height: 100dvh;
+      overflow: hidden;
+      justify-content: space-between;
+    }
+
+    @media (min-width: 520px) {
+      #login-screen {
+        height: calc(100dvh - 28px);
+        min-height: calc(100dvh - 28px);
+        max-height: calc(100dvh - 28px);
+      }
+    }
+
     .top-brand-header {
       position: relative;
       background: linear-gradient(180deg, #ffffff 0%, #f2f7ff 100%);
-      padding: 14px 14px 20px;
+      padding: 12px 14px 18px;
       overflow: hidden;
       border-bottom: 1px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    #login-screen .top-brand-header {
+      padding: 9px 12px 14px;
     }
 
     .header-wave-svg {
@@ -80,7 +100,7 @@
       bottom: -1px;
       left: 0;
       width: 100%;
-      height: 36px;
+      height: 32px;
       pointer-events: none;
       z-index: 0;
     }
@@ -95,10 +115,10 @@
     }
 
     .lt-emblem {
-      width: 54px;
-      height: 54px;
+      width: 50px;
+      height: 50px;
       flex-shrink: 0;
-      border-radius: 16px;
+      border-radius: 15px;
       background: linear-gradient(145deg, #ffffff, #e8f0fe);
       border: 2.5px solid var(--gold);
       box-shadow: 0 6px 16px rgba(13, 71, 161, 0.18), inset 0 1px 2px #ffffff;
@@ -107,9 +127,15 @@
       justify-content: center;
       font-weight: 900;
       font-style: italic;
-      font-size: 22px;
+      font-size: 21px;
       color: var(--blue-royal);
       letter-spacing: -1px;
+    }
+
+    #login-screen .lt-emblem {
+      width: 44px;
+      height: 44px;
+      font-size: 18px;
     }
 
     .brand-center-stack {
@@ -120,10 +146,14 @@
 
     .brand-main-title {
       margin: 0;
-      font-size: 22px;
+      font-size: 21px;
       font-weight: 900;
-      line-height: 1.2;
+      line-height: 1.15;
       color: var(--blue-dark);
+    }
+
+    #login-screen .brand-main-title {
+      font-size: 19px;
     }
 
     .brand-main-title .gold-part {
@@ -131,8 +161,8 @@
     }
 
     .brand-system-sub {
-      margin: 2px 0 5px;
-      font-size: 12px;
+      margin: 1px 0 4px;
+      font-size: 11.5px;
       font-weight: 800;
       color: var(--blue-royal);
     }
@@ -141,11 +171,11 @@
       display: inline-block;
       background: linear-gradient(135deg, var(--blue-royal), var(--blue-dark));
       color: #fef08a;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
-      padding: 3px 10px;
+      padding: 2px 9px;
       border-radius: 999px;
-      border: 1px solid rgba(251, 192, 45, 0.6);
+      border: 1px solid rgba(251, 192, 45, 0.65);
       box-shadow: 0 3px 8px rgba(5, 28, 66, 0.2);
     }
 
@@ -162,24 +192,19 @@
       justify-content: center;
       cursor: pointer;
       box-shadow: 0 6px 14px rgba(13, 71, 161, 0.28);
-      transition: transform 0.14s ease, box-shadow 0.14s ease;
     }
 
-    .hamburger-btn:active {
-      transform: translateY(2px);
-    }
-
-    /* 4 Stat Cards Grid */
-    .stats-strip-4 {
+    /* 3 Top Stat Cards (Customers, Suppliers, Balance) */
+    .stats-strip-3 {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 7px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
       padding: 10px 12px 6px;
     }
 
     .mini-stat-card {
       border-radius: 16px;
-      padding: 9px 5px;
+      padding: 9px 6px;
       text-align: center;
       border: 1px solid rgba(255, 255, 255, 0.9);
       box-shadow:
@@ -193,17 +218,12 @@
       transform: translateY(2px);
     }
 
-    .mini-stat-card.s-invoices {
+    .mini-stat-card.s-customers {
       background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
       border-bottom: 3px solid #2563eb;
     }
 
-    .mini-stat-card.s-purchases {
-      background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
-      border-bottom: 3px solid #16a34a;
-    }
-
-    .mini-stat-card.s-sales {
+    .mini-stat-card.s-suppliers {
       background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
       border-bottom: 3px solid #eab308;
     }
@@ -214,37 +234,42 @@
     }
 
     .mini-stat-icon {
-      width: 24px;
-      height: 24px;
-      margin: 0 auto 4px;
+      width: 22px;
+      height: 22px;
+      margin: 0 auto 3px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .mini-stat-title {
-      font-size: 10px;
-      font-weight: 800;
-      color: var(--blue-dark);
-      line-height: 1.25;
-      margin-bottom: 3px;
-    }
-
-    .mini-stat-num {
-      font-size: 13.5px;
+      font-size: 11px;
       font-weight: 900;
       color: var(--blue-dark);
-      line-height: 1.15;
+      line-height: 1.25;
+      margin-bottom: 4px;
     }
 
-    .mini-stat-sub {
-      font-size: 9.5px;
-      font-weight: 700;
-      color: var(--muted);
-      margin-top: 1px;
+    .stat-currency-stack {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
     }
 
-    /* Low stock red alert banner (hidden unless low stock exists) */
+    .stat-curr-line {
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(13, 71, 161, 0.12);
+      border-radius: 7px;
+      padding: 1px 6px;
+      line-height: 1.3;
+      width: 100%;
+      text-align: center;
+    }
+
     .low-stock-red-alert {
       margin: 8px 12px 2px;
       padding: 11px 13px;
@@ -261,7 +286,7 @@
       font-weight: 800;
     }
 
-    /* 8 Main 3D Glossy Blue Cards in 2-column grid */
+    /* Main 3D Glossy Blue Cards in 2-column grid */
     .main-modules-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -288,10 +313,9 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      min-height: 104px;
+      min-height: 102px;
     }
 
-    /* Glossy top highlight sheen */
     .glossy-3d-card::before {
       content: "";
       position: absolute;
@@ -304,7 +328,6 @@
       border-radius: 20px 20px 50% 50% / 20px 20px 16px 16px;
     }
 
-    /* Golden corner accent */
     .glossy-3d-card::after {
       content: "";
       position: absolute;
@@ -318,21 +341,8 @@
       pointer-events: none;
     }
 
-    .glossy-3d-card:hover {
-      filter: brightness(1.04);
-      box-shadow:
-        0 14px 24px rgba(5, 28, 66, 0.32),
-        0 4px 0 #041533,
-        0 0 16px rgba(251, 192, 45, 0.22),
-        inset 0 2px 3px rgba(255, 255, 255, 0.55);
-    }
-
     .glossy-3d-card:active {
       transform: translateY(3px);
-      box-shadow:
-        0 5px 10px rgba(5, 28, 66, 0.24),
-        0 1px 0 #041533,
-        inset 0 2px 5px rgba(4, 21, 51, 0.45);
     }
 
     .card-top-row {
@@ -344,24 +354,19 @@
     }
 
     .card-3d-icon-box {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       flex-shrink: 0;
       border-radius: 13px;
       background: rgba(255, 255, 255, 0.16);
       border: 1px solid rgba(255, 255, 255, 0.32);
-      box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 4px 8px rgba(0, 0, 0, 0.2);
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .card-title-group {
-      min-width: 0;
-    }
-
     .card-main-label {
-      font-size: 16px;
+      font-size: 15.5px;
       font-weight: 900;
       color: #ffffff;
       line-height: 1.2;
@@ -399,7 +404,6 @@
       box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
     }
 
-    /* Lower sections: Recent Activities & Last 7 Days Sales */
     .lower-widgets-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -462,18 +466,13 @@
       cursor: pointer;
     }
 
-    .view-all-pill-btn:active {
-      transform: translateY(1px);
-    }
-
-    /* 7-day bar chart */
     .bars-7d-wrap {
       display: grid;
       grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 5px;
       align-items: end;
-      height: 118px;
-      padding: 14px 10px 6px;
+      height: 114px;
+      padding: 12px 10px 6px;
       background: linear-gradient(180deg, #f8fbff 0%, #eff6ff 100%);
     }
 
@@ -499,8 +498,6 @@
       min-height: 8px;
       border-radius: 6px 6px 2px 2px;
       background: linear-gradient(180deg, #3b82f6 0%, #0d47a1 100%);
-      box-shadow: 0 3px 6px rgba(13, 71, 161, 0.25);
-      transition: height 0.35s ease;
     }
 
     .bar-date-label {
@@ -512,21 +509,34 @@
       white-space: nowrap;
     }
 
-    /* Bottom Footer */
     .mobile-app-footer {
       margin-top: auto;
       background: #ffffff;
       border-top: 1px solid #e2e8f0;
-      padding: 10px 14px;
+      padding: 9px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       font-size: 11px;
       font-weight: 800;
       color: var(--muted);
+      flex-shrink: 0;
     }
 
-    /* Slide-out Drawer */
+    .luxury-address-banner {
+      width: 100%;
+      text-align: center;
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-royal) 65%, var(--blue-mid) 100%);
+      color: #fef08a;
+      border: 1.5px solid var(--gold);
+      border-radius: 14px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-weight: 900;
+      box-shadow: 0 6px 16px rgba(5, 28, 66, 0.22);
+      letter-spacing: 0.2px;
+    }
+
     .drawer-backdrop {
       position: fixed;
       inset: 0;
@@ -562,7 +572,6 @@
       font-size: 13px;
       font-weight: 800;
       cursor: pointer;
-      transition: all 0.15s ease;
     }
 
     .drawer-nav-btn.active-gold {
@@ -572,7 +581,6 @@
       box-shadow: 0 4px 12px rgba(251, 192, 45, 0.4);
     }
 
-    /* Sub-view Cards & Tables */
     .subview-card {
       background: #ffffff;
       border: 1px solid #dbeafe;
@@ -592,17 +600,17 @@
     .field-grid {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 10px;
+      gap: 7px;
+      margin-bottom: 9px;
       align-items: center;
     }
 
     .field-grid input, .field-grid select {
-      padding: 8px 10px;
+      padding: 7px 9px;
       border: 1px solid #cbd5e1;
       border-radius: 10px;
       font-family: inherit;
-      font-size: 12.5px;
+      font-size: 12px;
       background: #f8fafc;
       color: var(--ink);
       min-width: 0;
@@ -649,45 +657,144 @@
       font-weight: 800;
     }
 
-    /* Login luxury screen */
+    /* Single-screen Login layout */
     .luxury-login-box {
-      padding: 24px 18px;
+      flex: 1;
+      padding: 8px 14px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      justify-content: space-between;
+      gap: 8px;
+      overflow: hidden;
     }
 
     .showcase-4-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
+      gap: 7px;
     }
 
     .showcase-mini-card {
       background: #ffffff;
-      border: 1.5px solid rgba(251, 192, 45, 0.7);
-      border-radius: 14px;
+      border: 1.5px solid rgba(251, 192, 45, 0.78);
+      border-radius: 13px;
       overflow: hidden;
-      box-shadow: 0 6px 14px rgba(13, 71, 161, 0.12);
+      box-shadow: 0 5px 12px rgba(13, 71, 161, 0.12);
     }
 
     .showcase-mini-card img {
       width: 100%;
-      height: 76px;
+      height: 58px;
       object-fit: cover;
       display: block;
     }
 
     .showcase-mini-label {
-      padding: 5px 6px;
-      font-size: 11px;
-      font-weight: 800;
+      padding: 4px 5px;
+      font-size: 10.5px;
+      font-weight: 900;
       text-align: center;
       color: var(--blue-dark);
-      background: #f8fbff;
+      background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
+      line-height: 1.2;
     }
 
-    /* Custom Modal & Toast (replaces alert/confirm) */
+    .hero-slogan-luxury {
+      text-align: center;
+      font-size: 14.5px;
+      font-weight: 900;
+      color: var(--blue-dark);
+      background: linear-gradient(90deg, rgba(251, 192, 45, 0.18), rgba(13, 71, 161, 0.1), rgba(251, 192, 45, 0.18));
+      border-top: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      border-radius: 12px;
+      padding: 6px 8px;
+      line-height: 1.3;
+    }
+
+    .login-card-panel {
+      background: #ffffff;
+      border: 1.5px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 10px 12px;
+      box-shadow: 0 8px 20px rgba(13, 71, 161, 0.1);
+    }
+
+    .login-extra-perk {
+      background: linear-gradient(135deg, #eff6ff 0%, #fffbeb 100%);
+      border: 1px dashed var(--gold-dark);
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--blue-dark);
+      text-align: center;
+    }
+
+    .currency-stack-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--blue-royal);
+    }
+
+    /* Invoice Template HTML + CSS (Blue + White + Yellow) */
+    .invoice-print-sheet {
+      background: #ffffff;
+      border: 2px solid var(--blue-royal);
+      border-radius: 14px;
+      overflow: hidden;
+      color: var(--ink);
+    }
+
+    .inv-sheet-header {
+      background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-royal) 100%);
+      color: #ffffff;
+      padding: 12px 14px;
+      border-bottom: 4px solid var(--gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .inv-sheet-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f8fbff;
+      border-bottom: 1.5px solid #dbeafe;
+    }
+
+    .inv-client-plain {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--blue-dark);
+    }
+
+    .inv-no-side {
+      text-align: left;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--blue-royal);
+    }
+
+    .inv-total-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 14px;
+      background: linear-gradient(90deg, #fffbeb 0%, #fef3c7 100%);
+      border-top: 2.5px solid var(--gold);
+      font-weight: 900;
+      color: var(--blue-dark);
+      font-size: 13.5px;
+    }
+
     .overlay-modal {
       position: fixed;
       inset: 0;
@@ -704,8 +811,8 @@
       border-radius: 20px;
       border-top: 5px solid var(--gold);
       width: 100%;
-      max-width: 420px;
-      max-height: 85vh;
+      max-width: 430px;
+      max-height: 86vh;
       overflow-y: auto;
       padding: 16px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -733,7 +840,7 @@
       }
       #print-statement-area {
         display: block !important;
-        padding: 14px;
+        padding: 12px;
         direction: rtl;
       }
     }
@@ -741,7 +848,7 @@
 </head>
 <body>
 
-  <!-- Login Gate Screen -->
+  <!-- Login Gate Screen (Single Screen, No Scroll) -->
   <div id="login-screen" class="phone-frame-shell">
     <div class="top-brand-header">
       <div class="header-content">
@@ -749,64 +856,63 @@
         <div class="brand-center-stack">
           <h1 class="brand-main-title">لمسات <span class="gold-part">التقنية</span></h1>
           <div class="brand-system-sub">نظام الإدارة المتكامل</div>
-          <div class="brand-pill-tag">لصيانة الطابعات وآلات التصوير وعدادات الفلوس</div>
+          <div class="brand-pill-tag">صيانة الطابعات والتصوير وعدادات الفلوس والأحبار</div>
         </div>
-        <div class="lt-emblem" style="font-size:15px;font-style:normal;">★</div>
+        <div class="lt-emblem" style="font-size:14px;font-style:normal;">★</div>
       </div>
-      <svg class="header-wave-svg" viewBox="0 0 460 36" preserveAspectRatio="none">
-        <path d="M0,18 Q130,36 270,16 T460,20 L460,36 L0,36 Z" fill="#fbc02d" opacity="0.45" />
-        <path d="M0,24 Q160,8 310,24 T460,18 L460,36 L0,36 Z" fill="#0d47a1" opacity="0.18" />
+      <svg class="header-wave-svg" viewBox="0 0 460 32" preserveAspectRatio="none">
+        <path d="M0,16 Q130,32 270,14 T460,18 L460,32 L0,32 Z" fill="#fbc02d" opacity="0.45" />
+        <path d="M0,22 Q160,7 310,22 T460,16 L460,32 L0,32 Z" fill="#0d47a1" opacity="0.18" />
       </svg>
     </div>
 
     <div class="luxury-login-box">
       <div class="showcase-4-grid">
         <div class="showcase-mini-card">
-          <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=400&q=75" alt="طابعات" onerror="this.style.display='none'" />
-          <div class="showcase-mini-label">طابعات ليزر ومكتبية</div>
+          <img src="https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?auto=format&fit=crop&w=400&q=75" alt="طابعات إبسون و HP" onerror="this.style.display='none'" />
+          <div class="showcase-mini-label">صيانة الطابعات (Epson &amp; HP)</div>
         </div>
         <div class="showcase-mini-card">
-          <img src="https://images.unsplash.com/photo-1589330694653-ded6df03f754?auto=format&fit=crop&w=400&q=75" alt="آلات تصوير" onerror="this.style.display='none'" />
-          <div class="showcase-mini-label">آلات تصوير المستندات</div>
+          <img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&w=400&q=75" alt="صيانة آلات تصوير المستندات" onerror="this.style.display='none'" />
+          <div class="showcase-mini-label">صيانة آلات تصوير المستندات</div>
         </div>
         <div class="showcase-mini-card">
-          <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=75" alt="أحبار" onerror="this.style.display='none'" />
-          <div class="showcase-mini-label">أحبار وقطع غيار</div>
+          <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=75" alt="بيع الأحبار وقطع الغيار" onerror="this.style.display='none'" />
+          <div class="showcase-mini-label">بيع الأحبار وقطع الغيار</div>
         </div>
         <div class="showcase-mini-card">
-          <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=75" alt="عدادات الفلوس" onerror="this.style.display='none'" />
-          <div class="showcase-mini-label">عدادات الفلوس</div>
+          <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=400&q=75" alt="صيانة عدادات الفلوس" onerror="this.style.display='none'" />
+          <div class="showcase-mini-label">صيانة عدادات الفلوس</div>
         </div>
       </div>
 
-      <div style="background:#ffffff;border:1px solid #dbeafe;border-radius:18px;padding:16px;box-shadow:0 8px 20px rgba(13,71,161,0.08);">
-        <div style="text-align:center;font-weight:900;color:var(--blue-dark);font-size:15px;margin-bottom:4px;">تسجيل الدخول إلى النظام</div>
-        <div style="text-align:center;font-size:11.5px;color:var(--muted);margin-bottom:12px;">خبرة تُنجز العمل • وثقة تُبنى مع كل عميل</div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <input type="text" id="login-user" placeholder="اسم المستخدم" style="padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:12px;font-family:inherit;font-size:13px;" />
-          <input type="password" id="login-pass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') handleLogin()" style="padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:12px;font-family:inherit;font-size:13px;" />
-          <button type="button" class="act-btn primary" style="padding:11px;font-size:14px;border:2px solid var(--gold);" onclick="handleLogin()">دخول إلى النظام</button>
-          <div id="login-error" style="color:var(--danger);font-size:12px;font-weight:800;text-align:center;min-height:18px;"></div>
+      <div class="hero-slogan-luxury">خبرة تُنجز العمل • وثقة تُبنى مع كل عميل</div>
+
+      <div class="login-card-panel">
+        <div style="text-align:center;font-weight:900;color:var(--blue-dark);font-size:14px;margin-bottom:8px;">تسجيل الدخول إلى النظام</div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <input type="text" id="login-user" placeholder="اسم المستخدم" style="padding:8px 11px;border:1.5px solid #cbd5e1;border-radius:11px;font-family:inherit;font-size:12.5px;" />
+          <input type="password" id="login-pass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter') handleLogin()" style="padding:8px 11px;border:1.5px solid #cbd5e1;border-radius:11px;font-family:inherit;font-size:12.5px;" />
+          <button type="button" class="act-btn primary" style="padding:9px;font-size:13.5px;border:2px solid var(--gold);" onclick="handleLogin()">دخول إلى النظام</button>
+          <div id="login-error" style="color:var(--danger);font-size:11.5px;font-weight:800;text-align:center;min-height:16px;"></div>
         </div>
       </div>
-    </div>
 
-    <div class="mobile-app-footer">
-      <span>📍 حضرموت - القطن - المرقدة</span>
-      <button type="button" class="act-btn ghost sm" onclick="showToast('الدعم الفني: 771220178 - 773557399')">🎧 الدعم الفني</button>
+      <div class="login-extra-perk">⚡ متابعة فورية للحسابات والمخزون والفواتير بدقة واحترافية</div>
+
+      <div class="luxury-address-banner">📍 العنوان: حضرموت - القطن - المرقدة</div>
     </div>
   </div>
 
   <!-- Main Mobile App Shell -->
   <div id="app-shell" class="phone-frame-shell hidden">
-    <!-- Top Header -->
     <header class="top-brand-header no-print">
       <div class="header-content">
         <div class="lt-emblem" onclick="navigateTo('dashboard')" style="cursor:pointer;">LT</div>
         <div class="brand-center-stack">
           <h1 class="brand-main-title">لمسات <span class="gold-part">التقنية</span></h1>
           <div class="brand-system-sub">نظام الإدارة المتكامل</div>
-          <div class="brand-pill-tag">لصيانة الطابعات وآلات التصوير وعدادات الفلوس</div>
+          <div class="brand-pill-tag">صيانة الطابعات والتصوير وعدادات الفلوس والأحبار</div>
         </div>
         <button type="button" class="hamburger-btn" aria-label="فتح القائمة الجانبية" onclick="openDrawer()">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
@@ -816,70 +922,54 @@
           </svg>
         </button>
       </div>
-      <svg class="header-wave-svg" viewBox="0 0 460 36" preserveAspectRatio="none">
-        <path d="M0,18 Q130,36 270,16 T460,20 L460,36 L0,36 Z" fill="#fbc02d" opacity="0.45" />
-        <path d="M0,24 Q160,8 310,24 T460,18 L460,36 L0,36 Z" fill="#0d47a1" opacity="0.18" />
+      <svg class="header-wave-svg" viewBox="0 0 460 32" preserveAspectRatio="none">
+        <path d="M0,16 Q130,32 270,14 T460,18 L460,32 L0,32 Z" fill="#fbc02d" opacity="0.45" />
+        <path d="M0,22 Q160,7 310,22 T460,16 L460,32 L0,32 Z" fill="#0d47a1" opacity="0.18" />
       </svg>
     </header>
 
-    <!-- 4 Top Stat Cards -->
-    <section class="stats-strip-4 no-print" aria-label="بطاقات الإحصائيات">
-      <div class="mini-stat-card s-invoices" onclick="navigateTo('invoices')">
+    <!-- 3 Top Stat Cards: إجمالي العملاء | إجمالي الموردين | الرصيد الحالي -->
+    <section class="stats-strip-3 no-print" aria-label="بطاقات الإحصائيات">
+      <div class="mini-stat-card s-customers" onclick="navigateTo('customers')">
         <div class="mini-stat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="#2563eb"><path d="M6 2h9l5 5v15a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm8 1.5V8h4.5L14 3.5zM8 12h8v2H8v-2zm0 4h8v2H8v-2z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
         </div>
-        <div class="mini-stat-title">عدد الفواتير</div>
-        <div class="mini-stat-num" id="stat-invoices-count">0</div>
-        <div class="mini-stat-sub">فاتورة</div>
+        <div class="mini-stat-title">إجمالي العملاء</div>
+        <div id="stat-customers-stack" class="stat-currency-stack"></div>
       </div>
 
-      <div class="mini-stat-card s-purchases" onclick="navigateTo('purchases')">
+      <div class="mini-stat-card s-suppliers" onclick="navigateTo('suppliers')">
         <div class="mini-stat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="#16a34a"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zM7.17 14.75l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0 0 20 4H5.21l-.94-2H1v2h2l3.6 7.59-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7.42c-.14 0-.25-.11-.25-.25z"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#ca8a04"><path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 2.3L18.4 8 12 11.7 5.6 8 12 4.3zM5 10.1l6 3.4v6.2l-6-3.4v-6.2zm8 9.6v-6.2l6-3.4v6.2l-6 3.4z"/></svg>
         </div>
-        <div class="mini-stat-title">إجمالي المشتريات</div>
-        <div class="mini-stat-num" id="stat-purchases-val">0</div>
-        <div class="mini-stat-sub" id="stat-purchases-curr">ر.ي</div>
-      </div>
-
-      <div class="mini-stat-card s-sales" onclick="navigateTo('reports')">
-        <div class="mini-stat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="#ca8a04"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z" opacity="0.4"/></svg>
-        </div>
-        <div class="mini-stat-title">إجمالي المبيعات</div>
-        <div class="mini-stat-num" id="stat-sales-val">0</div>
-        <div class="mini-stat-sub" id="stat-sales-curr">ر.ي</div>
+        <div class="mini-stat-title">إجمالي الموردين</div>
+        <div id="stat-suppliers-stack" class="stat-currency-stack"></div>
       </div>
 
       <div class="mini-stat-card s-balance" onclick="navigateTo('statement')">
         <div class="mini-stat-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="#7c3aed"><path d="M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72zM20 9v6h-7V9h7zM5 19V5h14v2h-6c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2h6v2H5z"/><circle cx="16" cy="12" r="1.5"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#7c3aed"><path d="M21 7.28V5c0-1.1-.9-2-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2v-2.28A2 2 0 0 0 22 15V9a2 2 0 0 0-1-1.72zM20 9v6h-7V9h7z"/></svg>
         </div>
         <div class="mini-stat-title">الرصيد الحالي</div>
-        <div class="mini-stat-num" id="stat-balance-val">0</div>
-        <div class="mini-stat-sub" id="stat-balance-curr">ر.ي</div>
+        <div id="stat-balance-stack" class="stat-currency-stack"></div>
       </div>
     </section>
 
-    <!-- Low Stock Red Alert Banner (only shown when item <= minAlert) -->
     <div id="low-stock-alert-box" class="low-stock-red-alert hidden no-print"></div>
 
     <!-- DASHBOARD HOME VIEW -->
     <div id="view-dashboard" class="app-view">
-      <!-- 8 Main 3D Glossy Cards (2-column grid) -->
       <section class="main-modules-grid" aria-label="الأقسام الرئيسية">
-        <!-- 1. المخزون -->
         <button type="button" class="glossy-3d-card" onclick="navigateTo('inventory')">
           <div class="card-top-row">
             <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path d="M3 10L12 3L21 10V20H3V10Z" fill="#ffffff" fill-opacity="0.92" />
                 <rect x="7" y="13" width="4.5" height="4.5" rx="1" fill="#fbc02d" />
                 <rect x="12.5" y="13" width="4.5" height="4.5" rx="1" fill="#fbc02d" />
-                <rect x="9.8" y="8.5" width="4.5" height="4" rx="1" fill="#0d47a1" />
               </svg>
             </div>
-            <div class="card-title-group">
+            <div>
               <div class="card-main-label">المخزون</div>
               <div class="card-sub-desc">إدارة الأصناف والمخزون</div>
             </div>
@@ -887,131 +977,83 @@
           <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
         </button>
 
-        <!-- 2. الفواتير -->
         <button type="button" class="glossy-3d-card" onclick="navigateTo('invoices')">
           <div class="card-top-row">
             <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect x="5" y="3" width="14" height="6" rx="1.5" fill="#ffffff" />
                 <rect x="3" y="8" width="18" height="9" rx="2.5" fill="#e0f2fe" />
                 <rect x="6" y="14" width="12" height="7" rx="1.5" fill="#fbc02d" />
               </svg>
             </div>
-            <div class="card-title-group">
+            <div>
               <div class="card-main-label">الفواتير</div>
-              <div class="card-sub-desc">بيع وشراء وخدمات</div>
+              <div class="card-sub-desc">إنشاء ومعاينة وطباعة</div>
             </div>
           </div>
           <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
         </button>
 
-        <!-- 3. العملاء -->
         <button type="button" class="glossy-3d-card" onclick="navigateTo('customers')">
           <div class="card-top-row">
             <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="8" r="3.4" fill="#ffffff" />
                 <path d="M6 19C6 16.2 8.7 14.2 12 14.2C15.3 14.2 18 16.2 18 19V20H6V19Z" fill="#ffffff" />
-                <circle cx="6.5" cy="9.5" r="2.3" fill="#fbc02d" />
                 <circle cx="17.5" cy="9.5" r="2.3" fill="#fbc02d" />
               </svg>
             </div>
-            <div class="card-title-group">
+            <div>
               <div class="card-main-label">العملاء</div>
-              <div class="card-sub-desc">إدارة العملاء</div>
+              <div class="card-sub-desc">إدارة العملاء وكشوفاتهم</div>
             </div>
           </div>
           <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
         </button>
 
-        <!-- 4. الموردون -->
         <button type="button" class="glossy-3d-card" onclick="navigateTo('suppliers')">
           <div class="card-top-row">
             <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <path d="M3.5 11.5L8 7.5L12 10.5L16 7.5L20.5 11.5L16.5 16.5L12 14.5L7.5 16.5L3.5 11.5Z" fill="#ffffff" />
                 <circle cx="12" cy="14" r="3" fill="#fbc02d" />
               </svg>
             </div>
-            <div class="card-title-group">
+            <div>
               <div class="card-main-label">الموردون</div>
-              <div class="card-sub-desc">إدارة الموردين</div>
+              <div class="card-sub-desc">إدارة الموردين والتوريد</div>
             </div>
           </div>
           <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
         </button>
 
-        <!-- 5. المشتريات -->
-        <button type="button" class="glossy-3d-card" onclick="navigateTo('purchases')">
-          <div class="card-top-row">
-            <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M2 4H5.2L7.4 14H18.2L20.5 6.5H6.2" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
-                <circle cx="8.5" cy="18.5" r="2" fill="#fbc02d" />
-                <circle cx="17" cy="18.5" r="2" fill="#fbc02d" />
-              </svg>
-            </div>
-            <div class="card-title-group">
-              <div class="card-main-label">المشتريات</div>
-              <div class="card-sub-desc">إدارة المشتريات</div>
-            </div>
-          </div>
-          <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
-        </button>
-
-        <!-- 6. المصروفات -->
-        <button type="button" class="glossy-3d-card" onclick="navigateTo('expenses')">
-          <div class="card-top-row">
-            <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <rect x="4" y="3" width="12" height="18" rx="2" fill="#ffffff" />
-                <line x1="7" y1="8" x2="13" y2="8" stroke="#0d47a1" stroke-width="2" />
-                <line x1="7" y1="12" x2="12" y2="12" stroke="#0d47a1" stroke-width="2" />
-                <circle cx="17.5" cy="16.5" r="4.5" fill="#fbc02d" />
-              </svg>
-            </div>
-            <div class="card-title-group">
-              <div class="card-main-label">المصروفات</div>
-              <div class="card-sub-desc">إدارة المصروفات</div>
-            </div>
-          </div>
-          <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
-        </button>
-
-        <!-- 7. كشف الحساب -->
         <button type="button" class="glossy-3d-card" onclick="navigateTo('statement')">
           <div class="card-top-row">
             <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect x="5" y="2.5" width="14" height="19" rx="2.5" fill="#ffffff" />
                 <rect x="7.5" y="5" width="9" height="4" rx="1" fill="#0d47a1" />
-                <circle cx="8.5" cy="12.5" r="1.3" fill="#fbc02d" />
-                <circle cx="12" cy="12.5" r="1.3" fill="#0d47a1" />
-                <circle cx="15.5" cy="12.5" r="1.3" fill="#fbc02d" />
-                <circle cx="8.5" cy="16.5" r="1.3" fill="#0d47a1" />
-                <circle cx="12" cy="16.5" r="1.3" fill="#fbc02d" />
-                <circle cx="15.5" cy="16.5" r="1.3" fill="#0d47a1" />
+                <circle cx="12" cy="14.5" r="2" fill="#fbc02d" />
               </svg>
             </div>
-            <div class="card-title-group">
+            <div>
               <div class="card-main-label">كشف الحساب</div>
-              <div class="card-sub-desc">متابعة الحسابات</div>
+              <div class="card-sub-desc">متابعة كشوفات الحساب</div>
             </div>
           </div>
           <div class="card-bottom-row"><span class="gold-arrow-circle">&lt;</span></div>
         </button>
 
-        <!-- 8. التقارير -->
         <button type="button" class="glossy-3d-card" onclick="navigateTo('reports')">
           <div class="card-top-row">
             <div class="card-3d-icon-box">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect x="4" y="12" width="3.5" height="8" rx="1" fill="#ffffff" />
                 <rect x="10.2" y="8" width="3.5" height="12" rx="1" fill="#fbc02d" />
                 <rect x="16.5" y="4" width="3.5" height="16" rx="1" fill="#ffffff" />
               </svg>
             </div>
-            <div class="card-title-group">
+            <div>
               <div class="card-main-label">التقارير</div>
               <div class="card-sub-desc">تقارير شاملة ومفصلة</div>
             </div>
@@ -1020,7 +1062,6 @@
         </button>
       </section>
 
-      <!-- Recent Activities & Last 7 Days Sales -->
       <section class="lower-widgets-grid">
         <div class="widget-box-card">
           <div class="widget-header-bar">
@@ -1041,20 +1082,20 @@
       </section>
     </div>
 
-    <!-- INVENTORY VIEW -->
+    <!-- INVENTORY VIEW (Default currency USD) -->
     <div id="view-inventory" class="app-view hidden">
       <div class="subview-card manager-only">
         <h3 id="inv-form-title">إضافة صنف جديد إلى المخزون</h3>
         <div class="field-grid">
           <input type="text" id="inv-name" list="all-items-suggestions" placeholder="اسم الصنف (مثال: حبر شارب أسود)" style="flex:2;min-width:160px;" />
-          <input type="number" id="inv-qty" placeholder="العدد" min="0" style="width:85px;" />
-          <input type="number" id="inv-min-alert" placeholder="حد التنبيه" min="0" style="width:95px;" />
-          <input type="number" step="0.01" id="inv-cost" placeholder="التكلفة" min="0" style="width:95px;" />
-          <input type="number" step="0.01" id="inv-price" placeholder="البيع" min="0" style="width:95px;" />
+          <input type="number" id="inv-qty" placeholder="العدد" min="0" style="width:80px;" />
+          <input type="number" id="inv-min-alert" placeholder="حد التنبيه" min="0" style="width:90px;" />
+          <input type="number" step="0.01" id="inv-cost" placeholder="التكلفة" min="0" style="width:90px;" />
+          <input type="number" step="0.01" id="inv-price" placeholder="البيع" min="0" style="width:90px;" />
           <select id="inv-curr">
-            <option value="YER">YER</option>
-            <option value="SAR">SAR</option>
-            <option value="USD">USD</option>
+            <option value="USD" selected>USD (دولار)</option>
+            <option value="YER">YER (يمني)</option>
+            <option value="SAR">SAR (سعودي)</option>
           </select>
           <button type="button" class="act-btn primary" onclick="saveInventoryItem()">حفظ الصنف</button>
           <button type="button" class="act-btn ghost" onclick="cancelInventoryEdit()">إلغاء</button>
@@ -1104,8 +1145,8 @@
         <div id="customers-clean-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
 
         <div class="field-grid">
-          <select id="selected-customer-id" onchange="renderCustomerWorkspace()" style="flex:1;min-width:160px;"></select>
-          <button type="button" class="act-btn gold sm" onclick="openPdfActionModal('customer')">كشف حساب PDF</button>
+          <select id="selected-customer-id" onchange="renderCustomerWorkspace()" style="flex:1;min-width:150px;"></select>
+          <button type="button" class="act-btn gold sm" onclick="openCustomerInvoicePreviewFlow()">اختيار فاتورة ومعاينة</button>
         </div>
 
         <div id="customer-workspace" class="hidden" style="background:#f8fbff;border:1px solid #dbeafe;border-radius:14px;padding:10px;">
@@ -1115,8 +1156,8 @@
               <div id="cust-ws-meta" style="font-size:11px;color:var(--muted);"></div>
             </div>
             <div class="field-grid manager-only" style="margin:0;">
-              <input type="text" id="cust-edit-name" placeholder="الاسم" style="width:110px;" />
-              <input type="text" id="cust-edit-phone" placeholder="الهاتف" style="width:105px;" />
+              <input type="text" id="cust-edit-name" placeholder="الاسم" style="width:105px;" />
+              <input type="text" id="cust-edit-phone" placeholder="الهاتف" style="width:100px;" />
               <button type="button" class="act-btn ghost sm" onclick="updateSelectedCustomer()">تعديل</button>
               <button type="button" class="act-btn danger sm" onclick="deleteSelectedCustomer()">حذف العميل</button>
             </div>
@@ -1128,9 +1169,9 @@
               <input type="date" id="pay-tx-date" />
               <input type="number" step="0.01" id="pay-tx-amount" placeholder="المبلغ" style="width:95px;" />
               <select id="pay-tx-curr">
+                <option value="USD">USD</option>
                 <option value="YER">YER</option>
                 <option value="SAR">SAR</option>
-                <option value="USD">USD</option>
               </select>
               <input type="text" id="pay-tx-note" placeholder="البيان" style="flex:1;min-width:110px;" />
               <button type="button" class="act-btn primary sm" onclick="saveCustomerPayment()">حفظ التسديد</button>
@@ -1142,10 +1183,11 @@
               <thead>
                 <tr>
                   <th>التاريخ</th>
-                  <th>الأصناف</th>
+                  <th>البيان</th>
                   <th>عليه</th>
                   <th>له</th>
                   <th>الرصيد</th>
+                  <th>معاينة</th>
                   <th class="manager-only">حذف</th>
                 </tr>
               </thead>
@@ -1156,7 +1198,7 @@
       </div>
     </div>
 
-    <!-- SUPPLIERS & PURCHASES VIEW -->
+    <!-- SUPPLIERS VIEW -->
     <div id="view-suppliers" class="app-view hidden">
       <div class="subview-card manager-only">
         <h3>إضافة مورد جديد</h3>
@@ -1169,7 +1211,7 @@
 
       <div class="subview-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <h3 id="sup-section-heading" style="margin:0;">الموردون والمشتريات</h3>
+          <h3 id="sup-section-heading" style="margin:0;">الموردون</h3>
           <button type="button" class="act-btn ghost sm" onclick="navigateTo('dashboard')">الرئيسية</button>
         </div>
         <div id="suppliers-clean-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;"></div>
@@ -1186,24 +1228,25 @@
               <div id="sup-ws-meta" style="font-size:11px;color:var(--muted);"></div>
             </div>
             <div class="field-grid manager-only" style="margin:0;">
-              <input type="text" id="sup-edit-name" placeholder="الاسم" style="width:110px;" />
-              <input type="text" id="sup-edit-phone" placeholder="الهاتف" style="width:105px;" />
+              <input type="text" id="sup-edit-name" placeholder="الاسم" style="width:105px;" />
+              <input type="text" id="sup-edit-phone" placeholder="الهاتف" style="width:100px;" />
               <button type="button" class="act-btn ghost sm" onclick="updateSelectedSupplier()">تعديل</button>
               <button type="button" class="act-btn danger sm" onclick="deleteSelectedSupplier()">حذف المورد</button>
             </div>
           </div>
 
           <div class="manager-only" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:10px;">
-            <div style="font-size:12px;font-weight:800;margin-bottom:6px;">تسجيل عملية شراء / توريد</div>
+            <div style="font-size:12px;font-weight:800;margin-bottom:6px;">إضافة أصناف / عملية توريد للمورد دفعة واحدة</div>
             <div class="field-grid">
               <input type="date" id="sup-tx-date" />
               <input type="text" id="sup-tx-invoice-no" placeholder="رقم الفاتورة" style="width:105px;" />
-              <input type="number" step="0.01" id="sup-tx-amount" placeholder="المبلغ" style="width:95px;" />
               <select id="sup-tx-curr">
                 <option value="USD" selected>USD</option>
                 <option value="YER">YER</option>
                 <option value="SAR">SAR</option>
+                <option value="OTHER">عملة أخرى...</option>
               </select>
+              <input type="text" id="sup-tx-custom-curr" placeholder="اسم العملة" style="width:85px;display:none;" />
               <select id="sup-tx-side">
                 <option value="credit" selected>له</option>
                 <option value="debit">عليه</option>
@@ -1213,9 +1256,18 @@
                 <option value="none">بدون تأثير</option>
               </select>
             </div>
+
+            <div style="display:grid;grid-template-columns:1.6fr 0.7fr 0.85fr 0.85fr auto;gap:4px;font-size:10.5px;font-weight:800;color:var(--blue-dark);padding:0 4px 3px;">
+              <span>الصنف</span>
+              <span>العدد</span>
+              <span>سعر التكلفة</span>
+              <span>سعر البيع</span>
+              <span></span>
+            </div>
             <div id="sup-lines-container"></div>
+
             <div class="field-grid" style="margin:6px 0 0;">
-              <button type="button" class="act-btn ghost sm" onclick="addLineRow('sup')">+ إضافة صنف</button>
+              <button type="button" class="act-btn gold sm" onclick="addSupItemRow()">+ إضافة صنف جديد</button>
               <button type="button" class="act-btn primary sm" onclick="saveSupplierTransaction()">حفظ العملية</button>
             </div>
           </div>
@@ -1250,9 +1302,9 @@
           <input type="date" id="inv-date" />
           <input type="text" id="inv-note" placeholder="البيان" style="flex:1;min-width:120px;" />
           <select id="inv-curr">
-            <option value="YER">YER</option>
-            <option value="SAR">SAR</option>
-            <option value="USD">USD</option>
+            <option value="YER">YER (يمني)</option>
+            <option value="SAR">SAR (سعودي)</option>
+            <option value="USD">USD (دولار)</option>
           </select>
           <select id="inv-side">
             <option value="debit" selected>عليه</option>
@@ -1262,7 +1314,7 @@
         </div>
         <div id="inv-lines-container"></div>
         <div class="field-grid" style="margin-top:6px;">
-          <button type="button" class="act-btn ghost sm" onclick="addLineRow('inv')">+ إضافة صنف</button>
+          <button type="button" class="act-btn ghost sm" onclick="addInvLineRow()">+ إضافة صنف</button>
           <button type="button" class="act-btn primary sm" onclick="saveInvoice()">حفظ الفاتورة</button>
           <button type="button" class="act-btn ghost sm" onclick="cancelInvoiceEdit()">إلغاء</button>
         </div>
@@ -1285,44 +1337,6 @@
               </tr>
             </thead>
             <tbody id="invoices-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- EXPENSES VIEW -->
-    <div id="view-expenses" class="app-view hidden">
-      <div class="subview-card manager-only">
-        <h3>تسجيل مصروف</h3>
-        <div class="field-grid">
-          <input type="date" id="exp-date" />
-          <input type="text" id="exp-title" list="all-items-suggestions" placeholder="البيان" style="flex:1;min-width:140px;" />
-          <input type="number" step="0.01" id="exp-amount" placeholder="المبلغ" style="width:100px;" />
-          <select id="exp-curr">
-            <option value="YER">YER</option>
-            <option value="SAR">SAR</option>
-            <option value="USD">USD</option>
-          </select>
-          <button type="button" class="act-btn primary sm" onclick="saveExpense()">حفظ</button>
-        </div>
-      </div>
-
-      <div class="subview-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-          <h3 style="margin:0;">قائمة المصروفات</h3>
-          <button type="button" class="act-btn ghost sm" onclick="navigateTo('dashboard')">الرئيسية</button>
-        </div>
-        <div class="table-scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>التاريخ</th>
-                <th>البيان</th>
-                <th>المبلغ</th>
-                <th class="manager-only">حذف</th>
-              </tr>
-            </thead>
-            <tbody id="expenses-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -1355,10 +1369,9 @@
       </div>
     </div>
 
-    <!-- Bottom App Footer -->
     <footer class="mobile-app-footer no-print">
       <span>📍 حضرموت - القطن - المرقدة</span>
-      <button type="button" class="act-btn ghost sm" onclick="showToast('الدعم الفني: 771220178 - 773557399')">🎧 الدعم الفني</button>
+      <button type="button" class="act-btn ghost sm" onclick="navigateTo('dashboard')">🏠 الرئيسية</button>
     </footer>
 
     <div id="print-statement-area" class="hidden"></div>
@@ -1379,8 +1392,6 @@
       <button type="button" class="drawer-nav-btn" data-nav="customers" onclick="drawerSelect('customers')">العملاء</button>
       <button type="button" class="drawer-nav-btn" data-nav="suppliers" onclick="drawerSelect('suppliers')">الموردون</button>
       <button type="button" class="drawer-nav-btn" data-nav="invoices" onclick="drawerSelect('invoices')">الفواتير</button>
-      <button type="button" class="drawer-nav-btn" data-nav="purchases" onclick="drawerSelect('purchases')">المشتريات</button>
-      <button type="button" class="drawer-nav-btn" data-nav="expenses" onclick="drawerSelect('expenses')">المصروفات</button>
       <button type="button" class="drawer-nav-btn" data-nav="statement" onclick="drawerSelect('statement')">كشف الحساب</button>
       <button type="button" class="drawer-nav-btn" data-nav="reports" onclick="drawerSelect('reports')">التقارير</button>
       <button type="button" class="drawer-nav-btn" data-nav="settings" onclick="drawerSelect('settings')">الإعدادات</button>
@@ -1388,7 +1399,7 @@
     </aside>
   </div>
 
-  <!-- Custom Modal (PDF / Activities / Confirm) -->
+  <!-- Custom Modal -->
   <div id="custom-modal" class="overlay-modal hidden no-print">
     <div class="overlay-modal-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -1401,14 +1412,12 @@
   </div>
 
   <div id="toast-banner" class="toast-banner hidden"></div>
-
   <datalist id="all-items-suggestions"></datalist>
 
   <script>
-    const STORAGE_KEY = 'lamasat_tech_v8_data';
-    const CURRENCIES = ['YER', 'SAR', 'USD'];
+    const STORAGE_KEY = 'lamasat_tech_v9_data';
+    const BASE_CURRENCIES = ['USD', 'YER', 'SAR'];
 
-    // Supabase Client Setup
     const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -1418,8 +1427,12 @@
     let editingInventoryId = null;
     let editingInvoiceId = null;
     let currentNavKey = 'dashboard';
-    let currentPdfPartyType = 'supplier';
     let pendingConfirmCallback = null;
+
+    document.getElementById('sup-tx-curr').addEventListener('change', e => {
+      const customInp = document.getElementById('sup-tx-custom-curr');
+      customInp.style.display = e.target.value === 'OTHER' ? 'inline-block' : 'none';
+    });
 
     function showToast(msg) {
       const el = document.getElementById('toast-banner');
@@ -1465,8 +1478,7 @@
         suppliers: [],
         customers: [],
         transactions: [],
-        invoices: [],
-        expenses: []
+        invoices: []
       };
     }
 
@@ -1486,9 +1498,7 @@
         supabaseClient.from('lamasat_data')
           .upsert({ id: 1, data: state })
           .then(({ error }) => {
-            if (error) {
-              showToast('تعذر المزامنة السحابية: ' + error.message);
-            }
+            if (error) showToast('تعذر المزامنة السحابية: ' + error.message);
           });
       }
     }
@@ -1573,7 +1583,7 @@
 
     function setDefaultDates() {
       const t = todayISO();
-      ['sup-tx-date', 'pay-tx-date', 'inv-date', 'exp-date'].forEach(id => {
+      ['sup-tx-date', 'pay-tx-date', 'inv-date'].forEach(id => {
         const el = document.getElementById(id);
         if (el && !el.value) el.value = t;
       });
@@ -1605,11 +1615,9 @@
 
     function navigateTo(navKey) {
       currentNavKey = navKey;
-
       document.querySelectorAll('.drawer-nav-btn').forEach(btn => {
         btn.classList.toggle('active-gold', btn.dataset.nav === navKey);
       });
-
       document.querySelectorAll('.app-view').forEach(v => v.classList.add('hidden'));
 
       if (navKey === 'dashboard') {
@@ -1618,14 +1626,10 @@
         document.getElementById('view-inventory').classList.remove('hidden');
       } else if (navKey === 'customers') {
         document.getElementById('view-customers').classList.remove('hidden');
-      } else if (navKey === 'suppliers' || navKey === 'purchases') {
+      } else if (navKey === 'suppliers') {
         document.getElementById('view-suppliers').classList.remove('hidden');
-        document.getElementById('sup-section-heading').textContent =
-          navKey === 'purchases' ? 'إدارة المشتريات والموردين' : 'الموردون والمشتريات';
       } else if (navKey === 'invoices') {
         document.getElementById('view-invoices').classList.remove('hidden');
-      } else if (navKey === 'expenses') {
-        document.getElementById('view-expenses').classList.remove('hidden');
       } else {
         document.getElementById('view-statement').classList.remove('hidden');
         const titles = {
@@ -1640,9 +1644,16 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function currencyArabicLabel(curr) {
+      if (curr === 'USD') return 'دولار';
+      if (curr === 'YER') return 'يمني';
+      if (curr === 'SAR') return 'سعودي';
+      return curr;
+    }
+
     function fmt(amount, curr) {
       const n = Number(amount || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
-      return curr ? `${n} ${curr}` : n;
+      return curr ? `${n} ${currencyArabicLabel(curr)}` : n;
     }
 
     function escapeHtml(str) {
@@ -1653,11 +1664,52 @@
         .replace(/"/g, '&quot;');
     }
 
+    function getAllCurrencies() {
+      const set = new Set(BASE_CURRENCIES);
+      state.transactions.forEach(t => { if (t.currency) set.add(t.currency.trim()); });
+      state.inventory.forEach(i => { if (i.currency) set.add(i.currency.trim()); });
+      state.invoices.forEach(v => { if (v.currency) set.add(v.currency.trim()); });
+      return Array.from(set);
+    }
+
+    function computePartyBalancesByCurrency(partyType, partyId = null) {
+      const map = {};
+      state.transactions
+        .filter(t => t.partyType === partyType && (!partyId || t.partyId === partyId))
+        .forEach(t => {
+          const c = (t.currency || 'USD').trim();
+          const amt = Number(t.amount) || 0;
+          const delta = t.side === 'credit' ? -amt : amt;
+          map[c] = (map[c] || 0) + delta;
+        });
+      return map;
+    }
+
+    function renderActiveCurrencyStack(balanceMap, containerId, emptyLabel = '0 دولار') {
+      const entries = Object.entries(balanceMap).filter(([, val]) => Math.abs(Number(val) || 0) > 0.0001);
+      const el = document.getElementById(containerId);
+      if (entries.length === 0) {
+        el.innerHTML = `<div class="stat-curr-line">${escapeHtml(emptyLabel)}</div>`;
+        return;
+      }
+      el.innerHTML = entries.map(([curr, val]) => {
+        const absVal = Math.abs(Number(val) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+        return `<div class="stat-curr-line">${absVal} ${escapeHtml(currencyArabicLabel(curr))}</div>`;
+      }).join('');
+    }
+
+    function renderInlineActiveCurrencies(balanceMap) {
+      const entries = Object.entries(balanceMap).filter(([, val]) => Math.abs(Number(val) || 0) > 0.0001);
+      if (entries.length === 0) return '<span style="font-size:10.5px;color:var(--muted);">لا يوجد رصيد</span>';
+      return `<div class="currency-stack-badge">${entries.map(([curr, val]) =>
+        `<span>${Math.abs(Number(val) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${escapeHtml(currencyArabicLabel(curr))}</span>`
+      ).join('')}</div>`;
+    }
+
     function refreshItemSuggestions() {
       const set = new Set();
       state.inventory.forEach(i => i.name && set.add(i.name.trim()));
       state.invoices.forEach(inv => (inv.items || []).forEach(it => it.itemName && set.add(it.itemName.trim())));
-      state.expenses.forEach(e => e.title && set.add(e.title.trim()));
       document.getElementById('all-items-suggestions').innerHTML =
         Array.from(set).map(n => `<option value="${escapeHtml(n)}"></option>`).join('');
     }
@@ -1670,7 +1722,7 @@
       const minAlert = Number(document.getElementById('inv-min-alert').value) || 0;
       const cost = Number(document.getElementById('inv-cost').value) || 0;
       const price = Number(document.getElementById('inv-price').value) || 0;
-      const currency = document.getElementById('inv-curr').value;
+      const currency = document.getElementById('inv-curr').value || 'USD';
       if (!name) return showToast('يرجى إدخال اسم الصنف');
 
       if (editingInventoryId) {
@@ -1709,7 +1761,7 @@
       document.getElementById('inv-min-alert').value = item.minAlert || 0;
       document.getElementById('inv-cost').value = item.cost || 0;
       document.getElementById('inv-price').value = item.price || 0;
-      document.getElementById('inv-curr').value = item.currency || 'YER';
+      document.getElementById('inv-curr').value = item.currency || 'USD';
     }
 
     function cancelInventoryEdit() {
@@ -1718,6 +1770,7 @@
       ['inv-name', 'inv-qty', 'inv-min-alert', 'inv-cost', 'inv-price'].forEach(id => {
         document.getElementById(id).value = '';
       });
+      document.getElementById('inv-curr').value = 'USD';
     }
 
     function deleteInventoryItem(id) {
@@ -1730,7 +1783,7 @@
       });
     }
 
-    function adjustInventoryByName(name, deltaQty, unitPrice, curr, isPurchase) {
+    function adjustInventoryByName(name, deltaQty, unitCost, unitPrice, curr, isPurchase) {
       if (!name || !deltaQty) return;
       let item = state.inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
       if (!item) {
@@ -1739,15 +1792,15 @@
           name,
           qty: 0,
           minAlert: 0,
-          cost: isPurchase ? (unitPrice || 0) : 0,
-          price: !isPurchase ? (unitPrice || 0) : 0,
-          currency: curr || 'YER'
+          cost: isPurchase ? (unitCost || 0) : 0,
+          price: unitPrice || 0,
+          currency: curr || 'USD'
         };
         state.inventory.push(item);
       }
       item.qty = Number(item.qty || 0) + Number(deltaQty);
-      if (isPurchase && unitPrice > 0) item.cost = unitPrice;
-      if (!isPurchase && unitPrice > 0) item.price = unitPrice;
+      if (isPurchase && unitCost > 0) item.cost = unitCost;
+      if (unitPrice > 0) item.price = unitPrice;
     }
 
     function applyTransactionStockEffect(items, partyType, stockMode, curr, factor = 1) {
@@ -1755,25 +1808,76 @@
       items.forEach(it => {
         const q = (Number(it.qty) || 0) * factor;
         if (partyType === 'supplier' && stockMode === 'add') {
-          adjustInventoryByName(it.itemName, q, it.unitPrice, curr, true);
+          adjustInventoryByName(it.itemName, q, it.costPrice || it.unitPrice, it.sellPrice || 0, curr, true);
         } else if (partyType === 'customer' && stockMode === 'deduct') {
-          adjustInventoryByName(it.itemName, -q, it.unitPrice, curr, false);
+          adjustInventoryByName(it.itemName, -q, 0, it.unitPrice, curr, false);
         }
       });
     }
 
-    // Line items helper
+    // Supplier multi-row items: الصنف | العدد | سعر التكلفة | سعر البيع
     function initLineContainers() {
-      ['sup', 'inv'].forEach(p => {
-        const c = document.getElementById(`${p}-lines-container`);
-        if (c && c.children.length === 0) addLineRow(p);
-      });
+      const supC = document.getElementById('sup-lines-container');
+      if (supC && supC.children.length === 0) {
+        addSupItemRow();
+        addSupItemRow();
+        addSupItemRow();
+      }
+      const invC = document.getElementById('inv-lines-container');
+      if (invC && invC.children.length === 0) {
+        addInvLineRow();
+      }
     }
 
-    function addLineRow(prefix, preset = null) {
-      const container = document.getElementById(`${prefix}-lines-container`);
+    function addSupItemRow(preset = null) {
+      const container = document.getElementById('sup-lines-container');
       const row = document.createElement('div');
-      row.className = 'field-grid';
+      row.className = 'sup-item-row';
+      row.style.cssText = 'display:grid;grid-template-columns:1.6fr 0.7fr 0.85fr 0.85fr auto;gap:4px;background:#f1f5f9;padding:5px;border-radius:9px;margin-bottom:5px;align-items:center;';
+      row.innerHTML = `
+        <input type="text" class="sup-line-name" list="all-items-suggestions" value="${escapeHtml(preset ? preset.itemName : '')}" placeholder="اسم الصنف" style="padding:6px 7px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;min-width:0;" />
+        <input type="number" min="1" value="${preset ? preset.qty : ''}" class="sup-line-qty" placeholder="العدد" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;min-width:0;" />
+        <input type="number" step="0.01" min="0" value="${preset ? preset.costPrice : ''}" class="sup-line-cost" placeholder="التكلفة" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;min-width:0;" />
+        <input type="number" step="0.01" min="0" value="${preset ? preset.sellPrice : ''}" class="sup-line-sell" placeholder="البيع" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;min-width:0;" />
+        <button type="button" class="act-btn danger sm" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function collectSupLines() {
+      const rows = document.querySelectorAll('#sup-lines-container .sup-item-row');
+      const items = [];
+      rows.forEach(r => {
+        const itemName = r.querySelector('.sup-line-name').value.trim();
+        const qty = Number(r.querySelector('.sup-line-qty').value) || 0;
+        const costPrice = Number(r.querySelector('.sup-line-cost').value) || 0;
+        const sellPrice = Number(r.querySelector('.sup-line-sell').value) || 0;
+        if (itemName && qty > 0) {
+          items.push({
+            itemName,
+            qty,
+            costPrice,
+            sellPrice,
+            unitPrice: costPrice,
+            lineTotal: qty * costPrice
+          });
+        }
+      });
+      return items;
+    }
+
+    function resetSupLines() {
+      const container = document.getElementById('sup-lines-container');
+      container.innerHTML = '';
+      addSupItemRow();
+      addSupItemRow();
+      addSupItemRow();
+    }
+
+    function addInvLineRow(preset = null) {
+      const container = document.getElementById('inv-lines-container');
+      const row = document.createElement('div');
+      row.className = 'field-grid inv-item-row';
       row.style.background = '#f1f5f9';
       row.style.padding = '6px';
       row.style.borderRadius = '10px';
@@ -1786,8 +1890,8 @@
       container.appendChild(row);
     }
 
-    function collectLines(prefix) {
-      const rows = document.querySelectorAll(`#${prefix}-lines-container .field-grid`);
+    function collectInvLines() {
+      const rows = document.querySelectorAll('#inv-lines-container .inv-item-row');
       const items = [];
       rows.forEach(r => {
         const itemName = r.querySelector('.line-name').value.trim();
@@ -1800,17 +1904,17 @@
       return items;
     }
 
-    function setLines(prefix, items) {
-      const container = document.getElementById(`${prefix}-lines-container`);
+    function setInvLines(items) {
+      const container = document.getElementById('inv-lines-container');
       container.innerHTML = '';
       if (Array.isArray(items) && items.length > 0) {
-        items.forEach(it => addLineRow(prefix, it));
+        items.forEach(it => addInvLineRow(it));
       } else {
-        addLineRow(prefix);
+        addInvLineRow();
       }
     }
 
-    // Customers & Deletion
+    // Customers CRUD
     function addCustomerQuick() {
       if (!currentSession || currentSession.role !== 'manager') return showToast('متاح لحساب المدير فقط');
       const name = document.getElementById('new-cust-name').value.trim();
@@ -1902,7 +2006,7 @@
       showToast('تم تسجيل التسديد');
     }
 
-    // Suppliers & Deletion
+    // Suppliers CRUD
     function addSupplierQuick() {
       if (!currentSession || currentSession.role !== 'manager') return showToast('متاح لحساب المدير فقط');
       const name = document.getElementById('new-sup-name').value.trim();
@@ -1958,14 +2062,15 @@
 
       const date = document.getElementById('sup-tx-date').value || todayISO();
       const invoiceNo = document.getElementById('sup-tx-invoice-no').value.trim();
-      const currency = document.getElementById('sup-tx-curr').value || 'USD';
+      let currency = document.getElementById('sup-tx-curr').value || 'USD';
+      if (currency === 'OTHER') {
+        currency = document.getElementById('sup-tx-custom-curr').value.trim() || 'USD';
+      }
       const side = document.getElementById('sup-tx-side').value;
       const stockMode = document.getElementById('sup-tx-stock-mode').value;
-      const items = collectLines('sup');
-      const itemsSum = items.reduce((s, it) => s + it.lineTotal, 0);
-      const rawAmount = Number(document.getElementById('sup-tx-amount').value) || 0;
-      const amount = rawAmount > 0 ? rawAmount : itemsSum;
-      if (amount <= 0 && items.length === 0) return showToast('أدخل المبلغ أو صنفاً');
+      const items = collectSupLines();
+      const itemsCostSum = items.reduce((s, it) => s + (Number(it.qty) * Number(it.costPrice || 0)), 0);
+      if (items.length === 0 || itemsCostSum <= 0) return showToast('أدخل صنفاً والعدد وسعر التكلفة');
 
       applyTransactionStockEffect(items, 'supplier', stockMode, currency, 1);
       state.transactions.push({
@@ -1975,22 +2080,22 @@
         partyName: sup.name,
         date,
         invoiceNo,
-        amount,
+        amount: itemsCostSum,
         currency,
         side,
         stockMode,
         source: 'purchase',
         items,
-        note: invoiceNo || 'شراء من مورد'
+        note: invoiceNo || 'توريد أصناف من مورد'
       });
 
       document.getElementById('sup-tx-invoice-no').value = '';
-      document.getElementById('sup-tx-amount').value = '';
-      setLines('sup', []);
+      document.getElementById('sup-tx-custom-curr').value = '';
+      resetSupLines();
       saveState();
       renderAll();
       renderSupplierWorkspace();
-      showToast('تم تسجيل عملية المورد');
+      showToast('تم تسجيل الأصناف وعملية المورد');
     }
 
     // Invoices
@@ -2001,7 +2106,7 @@
       const note = document.getElementById('inv-note').value.trim();
       const currency = document.getElementById('inv-curr').value;
       const side = document.getElementById('inv-side').value;
-      const items = collectLines('inv');
+      const items = collectInvLines();
       const itemsTotal = items.reduce((s, it) => s + it.lineTotal, 0);
       const overrideAmt = Number(document.getElementById('inv-amount-override').value) || 0;
       const amount = overrideAmt > 0 ? overrideAmt : itemsTotal;
@@ -2043,7 +2148,7 @@
           source: 'invoice',
           invoiceId: invId,
           items,
-          note: note || invId
+          note: note || `فاتورة رقم ${invId}`
         });
       }
 
@@ -2064,7 +2169,7 @@
       document.getElementById('inv-curr').value = inv.currency || 'YER';
       document.getElementById('inv-side').value = inv.side || 'debit';
       document.getElementById('inv-amount-override').value = inv.amount || '';
-      setLines('inv', inv.items);
+      setInvLines(inv.items);
     }
 
     function cancelInvoiceEdit() {
@@ -2073,7 +2178,7 @@
       ['inv-customer-name', 'inv-note', 'inv-amount-override'].forEach(id => {
         document.getElementById(id).value = '';
       });
-      setLines('inv', []);
+      setInvLines([]);
     }
 
     function deleteInvoice(invId) {
@@ -2089,19 +2194,122 @@
       });
     }
 
-    function printInvoice(invId) {
+    // Workflow: العميل ← كشف الحساب ← اختيار الفاتورة ← معاينة الفاتورة ← طباعة
+    function openCustomerInvoicePreviewFlow() {
+      const custId = document.getElementById('selected-customer-id').value;
+      const cust = state.customers.find(c => c.id === custId);
+      if (!cust) return showToast('اختر عميلاً أولاً');
+      const custInvoices = state.invoices.filter(inv => inv.customerId === cust.id || inv.customerName === cust.name);
+      if (custInvoices.length === 0) return showToast('لا توجد فواتير مسجلة لهذا العميل');
+
+      document.getElementById('custom-modal-title').textContent = `كشف حساب ${cust.name} — اختيار الفاتورة`;
+      document.getElementById('custom-modal-body').innerHTML = `
+        <div style="margin-bottom:8px;font-weight:800;color:var(--blue-royal);">اختر الفاتورة لمعاينتها وطباعتها:</div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          ${custInvoices.map(inv => `
+            <button type="button" class="act-btn ghost" style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid #bfdbfe;" onclick="openInvoicePreviewModal('${inv.id}')">
+              <span>فاتورة #${escapeHtml(inv.id)} — ${escapeHtml(inv.date)}</span>
+              <strong style="color:var(--blue-dark);">${fmt(inv.amount, inv.currency)}</strong>
+            </button>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('custom-modal-actions').innerHTML = `<button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>`;
+      document.getElementById('custom-modal').classList.remove('hidden');
+    }
+
+    function openInvoicePreviewModal(invId) {
       const inv = state.invoices.find(i => i.id === invId);
       if (!inv) return;
-      const rows = (inv.items || []).map(it =>
-        `<tr><td>${escapeHtml(it.itemName)}</td><td>${Number(it.qty || 0)}</td><td>${fmt(it.unitPrice, inv.currency)}</td><td>${fmt((it.qty || 0) * (it.unitPrice || 0), inv.currency)}</td></tr>`
-      ).join('');
+
+      const custTxs = state.transactions.filter(t =>
+        t.partyType === 'customer' && (t.partyId === inv.customerId || t.partyName === inv.customerName)
+      );
+
+      let running = 0;
+      const rowsHtml = custTxs.map(t => {
+        const amt = Number(t.amount) || 0;
+        const debit = t.side === 'credit' ? 0 : amt;
+        const credit = t.side === 'credit' ? amt : 0;
+        running += (debit - credit);
+        const itemsDesc = (t.items && t.items.length > 0)
+          ? t.items.map(it => `${escapeHtml(it.itemName)} (${it.qty})`).join('، ')
+          : escapeHtml(t.note || 'حركة حساب');
+        return `
+          <tr>
+            <td>${escapeHtml(t.date || '-')}</td>
+            <td>${itemsDesc}</td>
+            <td>${debit > 0 ? Number(debit).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '-'}</td>
+            <td>${credit > 0 ? Number(credit).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '-'}</td>
+            <td>${Number(Math.abs(running)).toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+          </tr>
+        `;
+      }).join('');
+
+      const totalDue = Math.max(0, running);
+      const currAr = currencyArabicLabel(inv.currency || 'USD');
+
+      const sheetHtml = `
+        <div id="invoice-printable-template" class="invoice-print-sheet">
+          <div class="inv-sheet-header">
+            <div>
+              <div style="font-size:15px;font-weight:900;color:#fef08a;">لمسات التقنية</div>
+              <div style="font-size:10.5px;color:#e0f2fe;">حضرموت - القطن - المرقدة</div>
+            </div>
+            <div style="background:var(--gold);color:var(--blue-dark);font-weight:900;font-size:11.5px;padding:3px 10px;border-radius:999px;">
+              فاتورة وكشف حساب
+            </div>
+          </div>
+
+          <div class="inv-sheet-meta-row">
+            <div class="inv-client-plain">${escapeHtml(inv.customerName)}</div>
+            <div class="inv-no-side">
+              <div>رقم الفاتورة: <strong>${escapeHtml(inv.id)}</strong></div>
+              <div style="color:var(--muted);font-size:11px;">التاريخ: ${escapeHtml(inv.date || '-')}</div>
+            </div>
+          </div>
+
+          <div class="table-scroll" style="padding:8px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>التاريخ</th>
+                  <th>البيان</th>
+                  <th>عليه</th>
+                  <th>له</th>
+                  <th>الرصيد</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml || '<tr><td colspan="5" style="text-align:center;">لا توجد حركات مسجلة</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="inv-total-strip">
+            <span>إجمالي ما عليكم:</span>
+            <span>${Number(totalDue).toLocaleString('en-US', { maximumFractionDigits: 2 })} — ${escapeHtml(currAr)}</span>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('custom-modal-title').textContent = `معاينة الفاتورة ${inv.id}`;
+      document.getElementById('custom-modal-body').innerHTML = sheetHtml;
+      document.getElementById('custom-modal-actions').innerHTML = `
+        <button type="button" class="act-btn primary sm" onclick="printInvoiceTemplate('${inv.id}')">🖨️ طباعة الفاتورة</button>
+        <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>
+      `;
+      document.getElementById('custom-modal').classList.remove('hidden');
+    }
+
+    function printInvoiceTemplate() {
+      const sheet = document.getElementById('invoice-printable-template');
+      if (!sheet) return;
+      const html = sheet.outerHTML;
+      closeCustomModal();
       const printArea = document.getElementById('print-statement-area');
       printArea.classList.remove('hidden');
-      printArea.innerHTML = `
-        <h3 style="text-align:center;">لمسات التقنية — فاتورة ${escapeHtml(inv.id)}</h3>
-        <p>العميل: ${escapeHtml(inv.customerName)} | التاريخ: ${escapeHtml(inv.date)}</p>
-        <table><thead><tr><th>الصنف</th><th>العدد</th><th>السعر</th><th>الإجمالي</th></tr></thead><tbody>${rows || '<tr><td colspan="4">-</td></tr>'}</tbody></table>
-      `;
+      printArea.innerHTML = html;
       window.print();
       setTimeout(() => { printArea.classList.add('hidden'); printArea.innerHTML = ''; }, 400);
     }
@@ -2121,35 +2329,8 @@
       });
     }
 
-    // Expenses
-    function saveExpense() {
-      if (!currentSession || currentSession.role !== 'manager') return showToast('متاح لحساب المدير فقط');
-      const date = document.getElementById('exp-date').value || todayISO();
-      const title = document.getElementById('exp-title').value.trim();
-      const amount = Number(document.getElementById('exp-amount').value) || 0;
-      const currency = document.getElementById('exp-curr').value;
-      if (!title || amount <= 0) return showToast('أدخل البيان ومبلغاً صحيحاً');
-      state.expenses.push({ id: 'exp_' + Date.now(), date, title, amount, currency });
-      document.getElementById('exp-title').value = '';
-      document.getElementById('exp-amount').value = '';
-      saveState();
-      renderAll();
-      showToast('تم حفظ المصروف');
-    }
-
-    function deleteExpense(id) {
-      if (!currentSession || currentSession.role !== 'manager') return;
-      openConfirmModal('حذف هذا المصروف؟', () => {
-        state.expenses = state.expenses.filter(e => e.id !== id);
-        saveState();
-        renderAll();
-        showToast('تم حذف المصروف');
-      });
-    }
-
-    // PDF Statement Modal
+    // PDF Statement Modal for Supplier
     function openPdfActionModal(partyType) {
-      currentPdfPartyType = partyType;
       const isSup = partyType === 'supplier';
       const selId = document.getElementById(isSup ? 'selected-supplier-id' : 'selected-customer-id').value;
       const party = (isSup ? state.suppliers : state.customers).find(p => p.id === selId);
@@ -2180,7 +2361,6 @@
       setTimeout(() => { area.classList.add('hidden'); area.innerHTML = ''; }, 400);
     }
 
-    // Backup JSON
     function exportBackupJSON() {
       const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -2210,7 +2390,6 @@
       reader.readAsText(file);
     }
 
-    // Recent Activities & 7-Day Sales Chart
     function buildRecentActivities() {
       const list = [];
       state.invoices.slice().reverse().forEach(inv => {
@@ -2223,10 +2402,7 @@
         list.push({ text: `تم سداد مبلغ من عميل: ${tx.partyName}`, dot: '#eab308' });
       });
       state.transactions.filter(t => t.partyType === 'supplier').slice().reverse().forEach(tx => {
-        list.push({ text: `تم تسجيل عملية شراء : ${tx.partyName}`, dot: '#0d47a1' });
-      });
-      state.expenses.slice().reverse().forEach(exp => {
-        list.push({ text: `تم تسجيل مصروف : ${exp.title}`, dot: '#dc2626' });
+        list.push({ text: `تم تسجيل توريد من مورد : ${tx.partyName}`, dot: '#0d47a1' });
       });
 
       if (list.length === 0) {
@@ -2268,7 +2444,7 @@
 
       const maxVal = Math.max(...days.map(d => d.total), 1);
       container.innerHTML = days.map(d => {
-        const pct = Math.max(10, Math.round((d.total / maxVal) * 72));
+        const pct = Math.max(10, Math.round((d.total / maxVal) * 70));
         const valText = d.total > 0 ? Number(d.total).toLocaleString('en-US', { maximumFractionDigits: 0 }) : '0';
         return `
           <div class="bar-col-item">
@@ -2306,28 +2482,21 @@
     function renderAll() {
       refreshItemSuggestions();
 
-      // Top 4 Stats (defaulting primary display to YER or first non-zero)
-      const totalInvoices = state.invoices.length;
-      const totalPurchasesYER = state.transactions
-        .filter(t => t.partyType === 'supplier' && (t.currency || 'YER') === 'YER')
-        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-      const totalSalesYER = state.transactions
-        .filter(t => t.partyType === 'customer' && t.side !== 'credit' && (t.currency || 'YER') === 'YER')
-        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-      const totalCreditsYER = state.transactions
-        .filter(t => t.partyType === 'customer' && t.side === 'credit' && (t.currency || 'YER') === 'YER')
-        .reduce((s, t) => s + (Number(t.amount) || 0), 0);
-      const totalExpensesYER = state.expenses
-        .filter(e => (e.currency || 'YER') === 'YER')
-        .reduce((s, e) => s + (Number(e.amount) || 0), 0);
-      const currentBalanceYER = totalSalesYER + totalCreditsYER - totalPurchasesYER - totalExpensesYER;
+      // Top 3 Stats: Customers, Suppliers, Balance (vertical currency stacks, dynamic currencies)
+      const custTotals = computePartyBalancesByCurrency('customer');
+      const supTotals = computePartyBalancesByCurrency('supplier');
+      const allCurrs = getAllCurrencies();
+      const netBalance = {};
+      allCurrs.forEach(c => {
+        const val = (custTotals[c] || 0) - (supTotals[c] || 0);
+        if (Math.abs(val) > 0.0001) netBalance[c] = val;
+      });
 
-      document.getElementById('stat-invoices-count').textContent = totalInvoices.toLocaleString('en-US');
-      document.getElementById('stat-purchases-val').textContent = totalPurchasesYER.toLocaleString('en-US', { maximumFractionDigits: 0 });
-      document.getElementById('stat-sales-val').textContent = totalSalesYER.toLocaleString('en-US', { maximumFractionDigits: 0 });
-      document.getElementById('stat-balance-val').textContent = currentBalanceYER.toLocaleString('en-US', { maximumFractionDigits: 0 });
+      renderActiveCurrencyStack(custTotals, 'stat-customers-stack', '0 دولار');
+      renderActiveCurrencyStack(supTotals, 'stat-suppliers-stack', '0 دولار');
+      renderActiveCurrencyStack(netBalance, 'stat-balance-stack', '0 دولار');
 
-      // Low Stock Alerts: hidden unless item <= minAlert; full text & amounts in red
+      // Low Stock Alerts
       const lowItems = state.inventory.filter(i => (Number(i.minAlert) || 0) > 0 && (Number(i.qty) || 0) <= (Number(i.minAlert) || 0));
       const alertBox = document.getElementById('low-stock-alert-box');
       if (lowItems.length > 0) {
@@ -2347,7 +2516,6 @@
         alertBox.innerHTML = '';
       }
 
-      // Recent Activities (top 3 on dashboard)
       const activities = buildRecentActivities().slice(0, 3);
       document.getElementById('recent-activities-list').innerHTML = activities.map(a => `
         <div class="activity-item-row">
@@ -2366,7 +2534,7 @@
           <td>${Number(item.minAlert || 0)}</td>
           <td class="manager-only">${fmt(item.cost, item.currency)}</td>
           <td>${fmt(item.price, item.currency)}</td>
-          <td>${escapeHtml(item.currency)}</td>
+          <td>${escapeHtml(currencyArabicLabel(item.currency || 'USD'))}</td>
           <td class="manager-only">
             <button type="button" class="act-btn warn sm" onclick="startEditInventory('${item.id}')">تعديل</button>
             <button type="button" class="act-btn danger sm" onclick="deleteInventoryItem('${item.id}')">حذف</button>
@@ -2374,36 +2542,48 @@
         </tr>
       `).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد أصناف</td></tr>';
 
-      // Customers list & select
+      // Customers list & totals beside name (only non-zero currencies)
       const custSel = document.getElementById('selected-customer-id');
       const prevCust = custSel.value;
       custSel.innerHTML = '<option value="">-- اختر عميلاً --</option>' +
         state.customers.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
       if (prevCust && state.customers.some(c => c.id === prevCust)) custSel.value = prevCust;
 
-      document.getElementById('customers-clean-list').innerHTML = state.customers.map(c => `
-        <div onclick="document.getElementById('selected-customer-id').value='${c.id}';renderCustomerWorkspace();" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fbff;border:1px solid #dbeafe;border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:800;">
-          <span>${escapeHtml(c.name)}</span>
-          <span style="color:var(--blue-royal);">${escapeHtml(c.phone || '')}</span>
-        </div>
-      `).join('') || '<div style="font-size:12px;color:var(--muted);">لا يوجد عملاء بعد</div>';
+      document.getElementById('customers-clean-list').innerHTML = state.customers.map(c => {
+        const cBal = computePartyBalancesByCurrency('customer', c.id);
+        return `
+          <div onclick="document.getElementById('selected-customer-id').value='${c.id}';renderCustomerWorkspace();" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fbff;border:1px solid #dbeafe;border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:800;">
+            <div>
+              <div>${escapeHtml(c.name)}</div>
+              <div style="font-size:10.5px;color:var(--muted);">${escapeHtml(c.phone || '')}</div>
+            </div>
+            ${renderInlineActiveCurrencies(cBal)}
+          </div>
+        `;
+      }).join('') || '<div style="font-size:12px;color:var(--muted);">لا يوجد عملاء بعد</div>';
 
       document.getElementById('customers-datalist').innerHTML =
         state.customers.map(c => `<option value="${escapeHtml(c.name)}"></option>`).join('');
 
-      // Suppliers list & select
+      // Suppliers list & totals beside name (only non-zero currencies)
       const supSel = document.getElementById('selected-supplier-id');
       const prevSup = supSel.value;
       supSel.innerHTML = '<option value="">-- اختر مورداً --</option>' +
         state.suppliers.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
       if (prevSup && state.suppliers.some(s => s.id === prevSup)) supSel.value = prevSup;
 
-      document.getElementById('suppliers-clean-list').innerHTML = state.suppliers.map(s => `
-        <div onclick="document.getElementById('selected-supplier-id').value='${s.id}';renderSupplierWorkspace();" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fbff;border:1px solid #dbeafe;border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:800;">
-          <span>${escapeHtml(s.name)}</span>
-          <span style="color:var(--blue-royal);">${escapeHtml(s.phone || '')}</span>
-        </div>
-      `).join('') || '<div style="font-size:12px;color:var(--muted);">لا يوجد موردون بعد</div>';
+      document.getElementById('suppliers-clean-list').innerHTML = state.suppliers.map(s => {
+        const sBal = computePartyBalancesByCurrency('supplier', s.id);
+        return `
+          <div onclick="document.getElementById('selected-supplier-id').value='${s.id}';renderSupplierWorkspace();" style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8fbff;border:1px solid #dbeafe;border-radius:10px;cursor:pointer;font-size:12.5px;font-weight:800;">
+            <div>
+              <div>${escapeHtml(s.name)}</div>
+              <div style="font-size:10.5px;color:var(--muted);">${escapeHtml(s.phone || '')}</div>
+            </div>
+            ${renderInlineActiveCurrencies(sBal)}
+          </div>
+        `;
+      }).join('') || '<div style="font-size:12px;color:var(--muted);">لا يوجد موردون بعد</div>';
 
       // Invoices table
       document.getElementById('invoices-tbody').innerHTML = state.invoices.map(inv => `
@@ -2413,22 +2593,12 @@
           <td>${escapeHtml(inv.customerName)}</td>
           <td>${fmt(inv.amount, inv.currency)}</td>
           <td>
-            <button type="button" class="act-btn gold sm" onclick="printInvoice('${inv.id}')">طباعة</button>
+            <button type="button" class="act-btn gold sm" onclick="openInvoicePreviewModal('${inv.id}')">معاينة / طباعة</button>
             <button type="button" class="act-btn warn sm manager-only" onclick="startEditInvoice('${inv.id}')">تعديل</button>
             <button type="button" class="act-btn danger sm manager-only" onclick="deleteInvoice('${inv.id}')">حذف</button>
           </td>
         </tr>
       `).join('') || '<tr><td colspan="5" style="text-align:center;">لا توجد فواتير</td></tr>';
-
-      // Expenses table
-      document.getElementById('expenses-tbody').innerHTML = state.expenses.map(e => `
-        <tr>
-          <td>${escapeHtml(e.date)}</td>
-          <td>${escapeHtml(e.title)}</td>
-          <td>${fmt(e.amount, e.currency)}</td>
-          <td class="manager-only"><button type="button" class="act-btn danger sm" onclick="deleteExpense('${e.id}')">حذف</button></td>
-        </tr>
-      `).join('') || '<tr><td colspan="4" style="text-align:center;">لا توجد مصروفات</td></tr>';
 
       renderCustomerWorkspace();
       renderSupplierWorkspace();
@@ -2448,26 +2618,30 @@
       document.getElementById('cust-edit-phone').value = cust.phone || '';
 
       const txs = state.transactions.filter(t => t.partyType === 'customer' && t.partyId === cust.id);
-      const running = { YER: 0, SAR: 0, USD: 0 };
+      const running = {};
       document.getElementById('cust-tx-tbody').innerHTML = txs.map(t => {
-        const c = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
+        const c = (t.currency || 'USD').trim();
         const amt = Number(t.amount) || 0;
         const onHim = t.side === 'credit' ? 0 : amt;
         const forHim = t.side === 'credit' ? amt : 0;
         running[c] = (running[c] || 0) + (onHim - forHim);
         const bal = running[c];
-        const itemsText = (t.items || []).map(i => `${escapeHtml(i.itemName)} (${i.qty})`).join(', ') || escapeHtml(t.note || '-');
+        const descText = (t.items || []).map(i => `${escapeHtml(i.itemName)} (${i.qty})`).join(', ') || escapeHtml(t.note || '-');
+        const previewBtn = t.invoiceId
+          ? `<button type="button" class="act-btn gold sm" onclick="openInvoicePreviewModal('${t.invoiceId}')">فاتورة</button>`
+          : '-';
         return `
           <tr>
             <td>${escapeHtml(t.date)}</td>
-            <td>${itemsText}</td>
+            <td>${descText}</td>
             <td>${onHim ? fmt(onHim, c) : '-'}</td>
             <td>${forHim ? fmt(forHim, c) : '-'}</td>
             <td>${fmt(Math.abs(bal), c)} (${bal >= 0 ? 'عليه' : 'له'})</td>
+            <td>${previewBtn}</td>
             <td class="manager-only"><button type="button" class="act-btn danger sm" onclick="deleteTransaction('${t.id}')">✕</button></td>
           </tr>
         `;
-      }).join('') || '<tr><td colspan="6" style="text-align:center;">لا توجد عمليات</td></tr>';
+      }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد عمليات</td></tr>';
       applyRolePermissions();
     }
 
@@ -2483,9 +2657,9 @@
       document.getElementById('sup-edit-phone').value = sup.phone || '';
 
       const txs = state.transactions.filter(t => t.partyType === 'supplier' && t.partyId === sup.id);
-      const running = { YER: 0, SAR: 0, USD: 0 };
+      const running = {};
       document.getElementById('sup-tx-tbody').innerHTML = txs.map(t => {
-        const c = CURRENCIES.includes(t.currency) ? t.currency : 'USD';
+        const c = (t.currency || 'USD').trim();
         const amt = Number(t.amount) || 0;
         const onHim = t.side === 'credit' ? 0 : amt;
         const forHim = t.side === 'credit' ? amt : 0;
@@ -2510,4 +2684,4 @@
     initLineContainers();
   </script>
 </body>
-  </html>
+</html>
