@@ -1766,6 +1766,13 @@
       return s;
     }
 
+    function getSelectedInvoiceCurrency() {
+      const sel = document.getElementById('inv-curr');
+      if (!sel) return 'YER';
+      const optVal = sel.options && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex].value : sel.value;
+      return normalizeCurrencyCode(optVal || sel.value || 'YER');
+    }
+
     function currencyArabicLabel(curr) {
       const code = normalizeCurrencyCode(curr);
       if (code === 'USD') return 'دولار';
@@ -2357,8 +2364,7 @@
       const custName = document.getElementById('inv-customer-name').value.trim();
       const date = document.getElementById('inv-date').value || todayISO();
       const note = document.getElementById('inv-note').value.trim();
-      const currSel = document.getElementById('inv-curr');
-      const currency = normalizeCurrencyCode(currSel ? currSel.value : 'YER');
+      const currency = getSelectedInvoiceCurrency();
       const side = document.getElementById('inv-side').value;
       const items = collectInvLines();
       const itemsTotal = items.reduce((s, it) => s + it.lineTotal, 0);
