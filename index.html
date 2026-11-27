@@ -2302,79 +2302,1013 @@
       document.getElementById('sup-edit-phone').value = sup.phone || '';
 
       const running = { YER: 0, SAR: 0, USD: 0 };
-      document.getElementById('sup-tx-tbody').innerHTML = txs.map(t => {
-        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'USD';
-        const amt = Number(t.amount) || 0;
-        const onHim = t.side === 'credit' ? 0 : amt;
-        const forHim = t.side === 'credit' ? amt : 0;
-        running[curr] = (running[curr] || 0) + (onHim - forHim);
-        const bal = running[curr];
-        const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
+<script>
+  const STORAGE_KEY = 'lamasat_tech_v8_data';
+  const BG_IMAGE_KEY = 'lamasat_tech_bg_image_v1';
+  const CURRENCIES = ['YER', 'SAR', 'USD'];
+  
+  // 1. تسجيل الدخول المحلي (يعمل فوراً حتى لو انقطع الإنترنت)
+  const USERS = {
+    Mt: { pass: 'Lamasat2026', role: 'manager', label: 'المدير' },
+    'طارق': { pass: 'Tarek2026', role: 'employee', label: '' }
+  };
 
-        return `
-          <tr>
-            <td>${escapeHtml(t.date)}</td>
-            <td>${escapeHtml(t.invoiceNo || '-')}</td>
-            <td>${formatItemsPerLine(t.items)}</td>
-            <td>${onHim ? fmt(onHim, curr) : '-'}</td>
-            <td>${forHim ? fmt(forHim, curr) : '-'}</td>
-            <td>${balText}</td>
-            <td class="manager-only">
-              <button class="btn warn sm" onclick="startEditTransaction('sup', '${t.id}')">تعديل</button>
-              <button class="btn danger sm" onclick="deleteTransaction('${t.id}')">حذف</button>
-            </td>
-          </tr>
-        `;
-      }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد عمليات لهذا المورد</td></tr>';
-      applyRolePermissions();
+  let state = loadState();
+  let currentSession = null;
+  let editingInventoryId = null;
+  let editingTxId = { sup: null, cust: null };
+  let editingInvoiceId = null;
+  let editingExpenseId = null;
+  let activeTabName = 'dashboard';
+  let currentPdfPartyType = 'supplier';
+
+  // 2. إعدادات Supabase (بشكل آمن لا يسبب شاشة سوداء)
+  const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
+  let supabaseClient = null;
+  try {
+    if (window.supabase) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     }
+  } catch (e) {
+    console.warn('تعذر الاتصال بالسحابة، سيعمل التطبيق محلياً.');
+  }
 
-    function renderCustomerWorkspace() {
-      const custId = document.getElementById('selected-customer-id').value;
-      const ws = document.getElementById('customer-workspace');
-      const cust = state.customers.find(c => c.id === custId);
-      if (!cust) {
-        ws.classList.add('hidden');
-        return;
-      }
-      ws.classList.remove('hidden');
+  function todayISO() {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
 
-      const txs = state.transactions.filter(t => t.partyType === 'customer' && t.partyId === cust.id);
-      document.getElementById('cust-ws-title').textContent = cust.name;
-      document.getElementById('cust-ws-meta').textContent = `${cust.phone || ''} | ${formatCustomerBalanceSummary(cust.id)}`;
-      document.getElementById('cust-edit-name').value = cust.name;
-      document.getElementById('cust-edit-phone').value = cust.phone || '';
+  function defaultState() {
+    return { inventory: [], suppliers: [], customers: [], transactions: [], invoices: [], expenses: [] };
+  }
 
-      const running = { YER: 0, SAR: 0, USD: 0 };
-      document.getElementById('cust-tx-tbody').innerHTML = txs.map(t => {
-        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
-        const amt = Number(t.amount) || 0;
-        const onHim = t.side === 'credit' ? 0 : amt;
-        const forHim = t.side === 'credit' ? amt : 0;
-        running[curr] = (running[curr] || 0) + (onHim - forHim);
-        const bal = running[curr];
-        const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      return Object.assign(defaultState(), JSON.parse(raw));
+    } catch { return defaultState(); }
+  }
 
-        return `
-          <tr>
-            <td>${escapeHtml(t.date)}</td>
-            <td>${escapeHtml(t.invoiceNo || '-')}</td>
-            <td>${formatItemsPerLine(t.items)}</td>
-            <td>${onHim ? fmt(onHim, curr) : '-'}</td>
-            <td>${forHim ? fmt(forHim, curr) : '-'}</td>
-            <td>${balText}</td>
-            <td>${escapeHtml(t.note || '-')}</td>
-            <td class="manager-only">
-              <button class="btn warn sm" onclick="startEditTransaction('cust', '${t.id}')">تعديل</button>
-              <button class="btn danger sm" onclick="deleteTransaction('${t.id}')">حذف</button>
-            </td>
-          </tr>
-        `;
-      }).join('') || '<tr><td colspan="8" style="text-align:center;">لا توجد عمليات لهذا العميل</td></tr>';
-      applyRolePermissions();
+  // 3. دالة الحفظ (تحفظ محلياً فوراً، وتحفظ في السحابة في الخلفية)
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    
+    if (supabaseClient && currentSession) {
+      supabaseClient.from('lamasat_data')
+        .upsert({ id: 1, data: state })
+        .then(({ error }) => {
+          if (error) console.error('خطأ حفظ سحابي:', error);
+        });
     }
+  }
 
+  function applyBackgroundImage() {
+    const wm = document.getElementById('screen-watermark');
+    const hdrLogo = document.getElementById('header-logo-img');
+    const savedImg = localStorage.getItem(BG_IMAGE_KEY);
+    if (savedImg) {
+      wm.style.backgroundImage = `url("${savedImg}")`;
+      hdrLogo.src = savedImg;
+      hdrLogo.classList.remove('hidden');
+    } else {
+      wm.style.backgroundImage = 'none';
+      hdrLogo.removeAttribute('src');
+      hdrLogo.classList.add('hidden');
+    }
+  }
+
+  function handleBgImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        localStorage.setItem(BG_IMAGE_KEY, e.target.result);
+        applyBackgroundImage();
+        alert('تم تعيين الشعار بنجاح.');
+      } catch { alert('حجم الصورة كبير جداً.'); }
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearBgImage() {
+    localStorage.removeItem(BG_IMAGE_KEY);
     applyBackgroundImage();
-  </script>
+  }
+
+  async function pickContactToInput(inputId) {
+    const inputEl = document.getElementById(inputId);
+    if (!inputEl) return;
+    if ('contacts' in navigator && typeof navigator.contacts.select === 'function') {
+      try {
+        const contacts = await navigator.contacts.select(['tel'], { multiple: false });
+        if (contacts && contacts.length > 0 && contacts[0].tel && contacts[0].tel.length > 0) {
+          inputEl.value = contacts[0].tel[0].replace(/\s+/g, '');
+          return;
+        }
+      } catch {}
+    }
+    const typed = prompt('أدخل أو الصق رقم الهاتف:');
+    if (typed !== null && typed.trim() !== '') inputEl.value = typed.trim();
+  }
+
+  // 4. دالة تسجيل الدخول (تفتح التطبيق محلياً فوراً ثم تجلب البيانات من السحابة)
+  async function handleLogin() {
+    const u = document.getElementById('login-user').value.trim();
+    const p = document.getElementById('login-pass').value;
+    const err = document.getElementById('login-error');
+    const matchedKey = Object.keys(USERS).find(k => k.toLowerCase() === u.toLowerCase());
+    const userObj = matchedKey ? USERS[matchedKey] : null;
+
+    if (userObj && userObj.pass === p) {
+      currentSession = { username: matchedKey, role: userObj.role, label: userObj.label };
+      err.textContent = '';
+      
+      // إخفاء شاشة الدخول وإظهار التطبيق فوراً
+      document.getElementById('login-screen').classList.add('hidden');
+      document.getElementById('app-shell').classList.remove('hidden');
+      
+      applyBackgroundImage();
+      setDefaultDates();
+      initLineContainers();
+      ensureCustomerDefaultCredit();
+      applyRolePermissions();
+      renderAll();
+
+      // محاولة جلب البيانات السحابية في الخلفية (بدون تعطيل التطبيق)
+      if (supabaseClient) {
+        try {
+          const { data: cloudData } = await supabaseClient.from('lamasat_data').select('data').eq('id', 1).single();
+          if (cloudData && cloudData.data) {
+            state = Object.assign(defaultState(), cloudData.data);
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            renderAll(); // تحديث الواجهة بالبيانات السحابية
+          }
+          
+          // تشغيل المزامنة اللحظية
+          supabaseClient.channel('lamasat_sync')
+            .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'lamasat_data' }, payload => {
+              if (payload.new.data) {
+                state = Object.assign(defaultState(), payload.new.data);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                renderAll();
+              }
+            }).subscribe();
+            
+        } catch (e) {
+          console.log('فشل المزامنة السحابية، التطبيق يعمل محلياً.');
+        }
+      }
+    } else {
+      err.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة.';
+    }
+  }
+
+  function ensureCustomerDefaultCredit() {
+    const supSide = document.getElementById('sup-tx-side');
+    if (supSide) supSide.value = 'credit';
+    const custSide = document.getElementById('cust-tx-side');
+    if (custSide) custSide.value = 'credit';
+    const invSide = document.getElementById('inv-side');
+    if (invSide) invSide.value = 'debit';
+  }
+
+  function logout() {
+    currentSession = null;
+    document.getElementById('app-shell').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-pass').value = '';
+  }
+
+  function setDefaultDates() {
+    const t = todayISO();
+    ['sup-tx-date', 'cust-tx-date', 'pay-tx-date', 'inv-date', 'exp-date'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && !el.value) el.value = t;
+    });
+    const yearEl = document.getElementById('filter-sales-year');
+    if (yearEl && !yearEl.value) yearEl.value = new Date().getFullYear();
+  }
+
+  function applyRolePermissions() {
+    const isManager = currentSession && currentSession.role === 'manager';
+    document.querySelectorAll('.manager-only').forEach(el => {
+      el.classList.toggle('hidden', !isManager);
+    });
+  }
+
+  function switchTab(tabName) {
+    activeTabName = tabName;
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+    document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    document.querySelectorAll('nav button').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tabName);
+    });
+    renderAll();
+  }
+
+  function fmt(amount, curr) {
+    const numStr = Number(amount || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+    return curr ? `${numStr} ${curr}` : numStr;
+  }
+
+  function formatByCurrencyInline(calcFn) {
+    return CURRENCIES.map(c => `<span class="curr-chip">${fmt(calcFn(c), c)}</span>`).join('');
+  }
+
+  function sideLabel(side) {
+    return side === 'credit' ? 'له' : 'عليه';
+  }
+
+  function escapeHtml(str) {
+    return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function getAllKnownItemNames() {
+    const namesSet = new Set();
+    state.inventory.forEach(i => { if (i.name) namesSet.add(i.name.trim()); });
+    state.transactions.forEach(t => { if (Array.isArray(t.items)) t.items.forEach(it => { if (it.itemName) namesSet.add(it.itemName.trim()); }); });
+    state.invoices.forEach(inv => { if (Array.isArray(inv.items)) inv.items.forEach(it => { if (it.itemName) namesSet.add(it.itemName.trim()); }); });
+    state.expenses.forEach(e => { if (e.title) namesSet.add(e.title.trim()); });
+    return Array.from(namesSet).filter(Boolean);
+  }
+
+  function refreshItemSuggestions() {
+    const dl = document.getElementById('all-items-suggestions');
+    if (!dl) return;
+    dl.innerHTML = getAllKnownItemNames().map(name => `<option value="${escapeHtml(name)}"></option>`).join('');
+  }
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.item-lookup-wrap')) {
+      document.querySelectorAll('.live-dropdown').forEach(dd => dd.classList.add('hidden'));
+    }
+  });
+
+  function renderSearchResults() {
+    const q = document.getElementById('global-search-input').value.trim().toLowerCase();
+    const box = document.getElementById('global-search-results');
+    if (!q) { box.classList.add('hidden'); box.innerHTML = ''; return; }
+
+    const isManager = currentSession && currentSession.role === 'manager';
+    const matchedItems = state.inventory.filter(i => String(i.name).toLowerCase().includes(q) || String(i.price).includes(q) || String(i.qty).includes(q) || (isManager && String(i.cost).includes(q)));
+    const matchedCustomers = state.customers.filter(c => String(c.name).toLowerCase().includes(q) || String(c.phone || '').includes(q));
+    const matchedSuppliers = state.suppliers.filter(s => String(s.name).toLowerCase().includes(q) || String(s.phone || '').includes(q));
+
+    const itemsBoxes = matchedItems.map((i, idx) => `<div class="search-item-box ${idx % 2 === 0 ? 'even-white' : 'odd-gray'}"><strong>${escapeHtml(i.name)}</strong> — العدد: ${Number(i.qty || 0)} — السعر: ${fmt(i.price, i.currency)}</div>`).join('');
+    const partyBoxes = [
+      ...matchedCustomers.map(c => `<div class="search-item-box even-white">عميل: <button class="btn secondary sm" onclick="openPartyFromSearch('customer','${c.id}')">${escapeHtml(c.name)}</button> ${escapeHtml(c.phone || '')}</div>`),
+      ...matchedSuppliers.map(s => `<div class="search-item-box odd-gray">مورد: <button class="btn secondary sm" onclick="openPartyFromSearch('supplier','${s.id}')">${escapeHtml(s.name)}</button> ${escapeHtml(s.phone || '')}</div>`)
+    ].join('');
+
+    box.classList.remove('hidden');
+    box.innerHTML = itemsBoxes + partyBoxes || `<div style="font-size:13px;color:var(--muted);">لا توجد نتائج مطابقة للبحث.</div>`;
+  }
+
+  function clearSearch() {
+    document.getElementById('global-search-input').value = '';
+    renderSearchResults();
+  }
+
+  function openPartyFromSearch(type, id) {
+    if (type === 'customer') { switchTab('customers'); document.getElementById('selected-customer-id').value = id; renderCustomerWorkspace(); }
+    else { switchTab('suppliers'); document.getElementById('selected-supplier-id').value = id; renderSupplierWorkspace(); }
+  }
+
+  function openQuickAddModal() {
+    if (!currentSession || currentSession.role !== 'manager') return alert('متاحة للمدير فقط.');
+    const targetType = activeTabName === 'suppliers' ? 'supplier' : 'customer';
+    if (targetType === 'supplier') switchTab('suppliers'); else switchTab('customers');
+    document.getElementById('modal-party-title').textContent = targetType === 'supplier' ? 'إضافة مورد جديد' : 'إضافة عميل جديد';
+    document.getElementById('modal-party-name').value = '';
+    document.getElementById('modal-party-phone').value = '';
+    document.getElementById('modal-party-notes').value = '';
+    document.getElementById('quick-add-modal').classList.remove('hidden');
+  }
+
+  function closeQuickAddModal() { document.getElementById('quick-add-modal').classList.add('hidden'); }
+
+  function savePartyFromModal() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const name = document.getElementById('modal-party-name').value.trim();
+    const phone = document.getElementById('modal-party-phone').value.trim();
+    const notes = document.getElementById('modal-party-notes').value.trim();
+    if (!name) return alert('أدخل الاسم.');
+
+    if (activeTabName === 'suppliers') {
+      const sup = { id: 'sup_' + Date.now(), name, phone, notes };
+      state.suppliers.push(sup); saveState(); closeQuickAddModal(); renderAll();
+      document.getElementById('selected-supplier-id').value = sup.id; renderSupplierWorkspace();
+    } else {
+      const cust = { id: 'cust_' + Date.now(), name, phone, notes };
+      state.customers.push(cust); saveState(); closeQuickAddModal(); renderAll();
+      document.getElementById('selected-customer-id').value = cust.id; renderCustomerWorkspace();
+    }
+  }
+
+  function saveInventoryItem() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const name = document.getElementById('inv-name').value.trim();
+    const qty = Number(document.getElementById('inv-qty').value) || 0;
+    const minAlert = Number(document.getElementById('inv-min-alert').value) || 0;
+    const cost = Number(document.getElementById('inv-cost').value) || 0;
+    const price = Number(document.getElementById('inv-price').value) || 0;
+    const curr = document.getElementById('inv-curr').value;
+    if (!name) return alert('أدخل اسم الصنف.');
+
+    if (editingInventoryId) {
+      const item = state.inventory.find(i => i.id === editingInventoryId);
+      if (item) { item.name = name; item.qty = qty; item.minAlert = minAlert; item.cost = cost; item.price = price; item.currency = curr; }
+      editingInventoryId = null;
+    } else {
+      const existing = state.inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.qty = Number(existing.qty || 0) + qty; existing.minAlert = minAlert;
+        if (cost > 0) existing.cost = cost; if (price > 0) existing.price = price; existing.currency = curr;
+      } else {
+        state.inventory.push({ id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name, qty, minAlert, cost, price, currency: curr });
+      }
+    }
+    cancelInventoryEdit(); saveState(); renderAll();
+  }
+
+  function startEditInventory(id) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const item = state.inventory.find(i => i.id === id);
+    if (!item) return;
+    editingInventoryId = id;
+    document.getElementById('inv-form-title').textContent = 'تعديل صنف في المخزون';
+    document.getElementById('inv-name').value = item.name; document.getElementById('inv-qty').value = item.qty;
+    document.getElementById('inv-min-alert').value = item.minAlert || 0; document.getElementById('inv-cost').value = item.cost;
+    document.getElementById('inv-price').value = item.price; document.getElementById('inv-curr').value = item.currency;
+  }
+
+  function cancelInventoryEdit() {
+    editingInventoryId = null;
+    document.getElementById('inv-form-title').textContent = 'إضافة صنف جديد إلى المخزون';
+    document.getElementById('inv-name').value = ''; document.getElementById('inv-qty').value = '';
+    document.getElementById('inv-min-alert').value = ''; document.getElementById('inv-cost').value = ''; document.getElementById('inv-price').value = '';
+  }
+
+  function adjustInventoryByName(name, deltaQty, unitPrice, curr, isPurchase) {
+    if (!name || !deltaQty) return;
+    let item = state.inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
+    if (!item) {
+      item = { id: 'inv_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), name, qty: 0, minAlert: 0, cost: isPurchase ? (unitPrice || 0) : 0, price: !isPurchase ? (unitPrice || 0) : 0, currency: curr || 'YER' };
+      state.inventory.push(item);
+    }
+    item.qty = Number(item.qty || 0) + Number(deltaQty);
+    if (isPurchase && unitPrice > 0) item.cost = unitPrice;
+    if (!isPurchase && unitPrice > 0) item.price = unitPrice;
+  }
+
+  function applyTransactionStockEffect(items, partyType, stockMode, curr, factor = 1) {
+    if (!Array.isArray(items) || stockMode === 'none') return;
+    items.forEach(it => {
+      const qty = (Number(it.qty) || 0) * factor;
+      if (partyType === 'supplier' && stockMode === 'add') adjustInventoryByName(it.itemName, qty, it.unitPrice, curr, true);
+      else if (partyType === 'customer' && stockMode === 'deduct') adjustInventoryByName(it.itemName, -qty, it.unitPrice, curr, false);
+    });
+  }
+
+  function deleteInventoryItem(id) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    if (!confirm('حذف الصنف من المخزون؟')) return;
+    state.inventory = state.inventory.filter(i => i.id !== id); saveState(); renderAll();
+  }
+
+  function initLineContainers() {
+    ['sup', 'cust', 'inv'].forEach(prefix => {
+      const container = document.getElementById(`${prefix}-lines-container`);
+      if (container && container.children.length === 0) addLineRow(prefix);
+    });
+  }
+
+  function addLineRow(prefix, preset = null) {
+    const container = document.getElementById(`${prefix}-lines-container`);
+    const div = document.createElement('div');
+    div.className = 'line-item-row';
+    div.innerHTML = `
+      <div class="item-lookup-wrap">
+        <input type="text" class="line-name" value="${escapeHtml(preset ? preset.itemName : '')}" placeholder="ابحث عن صنف..." oninput="filterInventoryForLine(this, '${prefix}')" onfocus="filterInventoryForLine(this, '${prefix}')" onchange="autofillLinePrice(this, '${prefix}')" />
+        <div class="live-dropdown hidden"></div>
+      </div>
+      <input type="number" step="1" min="1" value="${preset ? preset.qty : 1}" class="line-qty" placeholder="العدد" style="width:90px;" />
+      <input type="number" step="0.01" min="0" value="${preset ? preset.unitPrice : 0}" class="line-price" placeholder="سعر الوحدة" style="width:120px;" />
+      <button type="button" class="btn danger sm" onclick="this.parentElement.remove()">حذف</button>
+    `;
+    container.appendChild(div);
+  }
+
+  function filterInventoryForLine(inputEl, prefix) {
+    const wrap = inputEl.closest('.item-lookup-wrap');
+    const dropdown = wrap ? wrap.querySelector('.live-dropdown') : null;
+    if (!dropdown) return;
+    const q = inputEl.value.trim().toLowerCase();
+    const matches = state.inventory.filter(item => !q || String(item.name || '').toLowerCase().includes(q));
+    if (matches.length === 0) { dropdown.classList.add('hidden'); dropdown.innerHTML = ''; return; }
+    dropdown.innerHTML = matches.map(item => `
+      <div class="live-dropdown-item" onmousedown="selectInventoryItemForLine(event, this, '${prefix}', '${escapeHtml(item.name)}')">
+        <span><strong>${escapeHtml(item.name)}</strong> (متوفر: ${Number(item.qty || 0)})</span>
+        <span>${fmt(prefix === 'sup' ? (item.cost || item.price || 0) : (item.price || item.cost || 0), item.currency)}</span>
+      </div>
+    `).join('');
+    dropdown.classList.remove('hidden');
+  }
+
+  function selectInventoryItemForLine(event, itemEl, prefix, itemName) {
+    event.preventDefault();
+    const wrap = itemEl.closest('.item-lookup-wrap');
+    const inputEl = wrap ? wrap.querySelector('.line-name') : null;
+    const dropdown = wrap ? wrap.querySelector('.live-dropdown') : null;
+    if (inputEl) { inputEl.value = itemName; autofillLinePrice(inputEl, prefix); }
+    if (dropdown) dropdown.classList.add('hidden');
+  }
+
+  function autofillLinePrice(inputEl, prefix) {
+    const found = state.inventory.find(i => i.name.toLowerCase() === inputEl.value.trim().toLowerCase());
+    if (!found) return;
+    const row = inputEl.closest('.line-item-row');
+    const priceInput = row ? row.querySelector('.line-price') : null;
+    if (!priceInput) return;
+    priceInput.value = prefix === 'sup' ? (found.cost || found.price || 0) : (found.price || found.cost || 0);
+  }
+
+  function collectLines(prefix) {
+    const rows = document.querySelectorAll(`#${prefix}-lines-container .line-item-row`);
+    const items = [];
+    rows.forEach(r => {
+      const itemName = r.querySelector('.line-name').value.trim();
+      const qty = Number(r.querySelector('.line-qty').value) || 0;
+      const unitPrice = Number(r.querySelector('.line-price').value) || 0;
+      if (itemName && qty > 0) items.push({ itemName, qty, unitPrice, lineTotal: qty * unitPrice });
+    });
+    return items;
+  }
+
+  function setLines(prefix, items) {
+    const container = document.getElementById(`${prefix}-lines-container`);
+    container.innerHTML = '';
+    if (Array.isArray(items) && items.length > 0) items.forEach(it => addLineRow(prefix, it));
+    else addLineRow(prefix);
+  }
+
+  function formatItemsPerLine(items) {
+    if (!Array.isArray(items) || items.length === 0) return '-';
+    return items.map(i => `<div>${escapeHtml(i.itemName)} (${Number(i.qty || 0)} x ${fmt(i.unitPrice, '')})</div>`).join('');
+  }
+
+  function formatItemsPlainLines(items) {
+    if (!Array.isArray(items) || items.length === 0) return '-';
+    return items.map(i => `${escapeHtml(i.itemName)} (${Number(i.qty || 0)} x ${fmt(i.unitPrice, '')})`).join('<br/>');
+  }
+
+  function getPartyNetByCurrency(partyType, partyId, curr) {
+    const txs = state.transactions.filter(t => t.partyType === partyType && t.partyId === partyId && t.currency === curr);
+    const deb = txs.filter(t => t.side !== 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const cred = txs.filter(t => t.side === 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    return deb - cred;
+  }
+
+  function formatSupplierBalanceSummary(supId) {
+    const supTxs = state.transactions.filter(t => t.partyType === 'supplier' && t.partyId === supId);
+    const activeCurrencies = ['USD'];
+    supTxs.forEach(t => { if (t.currency && !activeCurrencies.includes(t.currency)) activeCurrencies.push(t.currency); });
+    return activeCurrencies.map(c => {
+      const net = getPartyNetByCurrency('supplier', supId, c);
+      return `${fmt(Math.abs(net), c)} (${net >= 0 ? 'عليه' : 'له'})`;
+    }).join(' | ');
+  }
+
+  function formatCustomerBalanceSummary(custId) {
+    return CURRENCIES.map(c => {
+      const net = getPartyNetByCurrency('customer', custId, c);
+      return `${fmt(Math.abs(net), c)} (${net >= 0 ? 'عليه' : 'له'})`;
+    }).join(' | ');
+  }
+
+  function updateSelectedSupplier() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const id = document.getElementById('selected-supplier-id').value;
+    const sup = state.suppliers.find(s => s.id === id);
+    if (!sup) return;
+    const newName = document.getElementById('sup-edit-name').value.trim();
+    const newPhone = document.getElementById('sup-edit-phone').value.trim();
+    if (newName) sup.name = newName; sup.phone = newPhone;
+    state.transactions.forEach(t => { if (t.partyType === 'supplier' && t.partyId === sup.id) t.partyName = sup.name; });
+    saveState(); renderAll(); renderSupplierWorkspace();
+  }
+
+  function saveSupplierTransaction() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const supId = document.getElementById('selected-supplier-id').value;
+    const sup = state.suppliers.find(s => s.id === supId);
+    if (!sup) return alert('اختر مورداً أولاً.');
+
+    const date = document.getElementById('sup-tx-date').value || todayISO();
+    const invoiceNo = document.getElementById('sup-tx-invoice-no').value.trim();
+    const curr = document.getElementById('sup-tx-curr').value || 'USD';
+    const side = document.getElementById('sup-tx-side').value;
+    const stockMode = document.getElementById('sup-tx-stock-mode').value;
+    const items = collectLines('sup');
+    const itemsSum = items.reduce((s, it) => s + it.lineTotal, 0);
+    const rawAmount = Number(document.getElementById('sup-tx-amount').value) || 0;
+    const amount = rawAmount > 0 ? rawAmount : itemsSum;
+
+    if (amount <= 0 && items.length === 0) return alert('أدخل المبلغ أو أضف صنفاً.');
+
+    if (editingTxId.sup) {
+      const oldTx = state.transactions.find(t => t.id === editingTxId.sup);
+      if (oldTx) {
+        applyTransactionStockEffect(oldTx.items, 'supplier', oldTx.stockMode, oldTx.currency, -1);
+        oldTx.date = date; oldTx.invoiceNo = invoiceNo; oldTx.amount = amount; oldTx.currency = curr;
+        oldTx.side = side; oldTx.stockMode = stockMode; oldTx.note = invoiceNo; oldTx.items = items;
+        applyTransactionStockEffect(oldTx.items, 'supplier', oldTx.stockMode, oldTx.currency, 1);
+      }
+      editingTxId.sup = null;
+    } else {
+      const tx = { id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), partyType: 'supplier', partyId: sup.id, partyName: sup.name, date, invoiceNo, amount, currency: curr, side, stockMode, source: 'manual', items, note: invoiceNo };
+      applyTransactionStockEffect(items, 'supplier', stockMode, curr, 1);
+      state.transactions.push(tx);
+    }
+    cancelEditTransaction('sup'); saveState(); renderAll(); renderSupplierWorkspace();
+  }
+
+  function ensureCustomerByName(name, phone = '') {
+    let cust = state.customers.find(c => c.name.trim().toLowerCase() === name.trim().toLowerCase());
+    if (!cust) { cust = { id: 'cust_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), name: name.trim(), phone, notes: '' }; state.customers.push(cust); }
+    return cust;
+  }
+
+  function updateSelectedCustomer() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const id = document.getElementById('selected-customer-id').value;
+    const cust = state.customers.find(c => c.id === id);
+    if (!cust) return;
+    const newName = document.getElementById('cust-edit-name').value.trim();
+    const newPhone = document.getElementById('cust-edit-phone').value.trim();
+    if (newName) cust.name = newName; cust.phone = newPhone;
+    state.transactions.forEach(t => { if (t.partyType === 'customer' && t.partyId === cust.id) t.partyName = cust.name; });
+    state.invoices.forEach(inv => { if (inv.customerId === cust.id) inv.customerName = cust.name; });
+    saveState(); renderAll(); renderCustomerWorkspace();
+  }
+
+  function saveCustomerPayment() {
+    if (!currentSession) return;
+    const custId = document.getElementById('selected-customer-id').value;
+    const cust = state.customers.find(c => c.id === custId);
+    if (!cust) return alert('اختر عميلاً أولاً.');
+
+    const date = document.getElementById('pay-tx-date').value || todayISO();
+    const amount = Number(document.getElementById('pay-tx-amount').value) || 0;
+    const curr = document.getElementById('pay-tx-curr').value;
+    const note = document.getElementById('pay-tx-note').value.trim() || 'تسديد';
+
+    if (amount <= 0) return alert('أدخل مبلغ التسديد.');
+
+    state.transactions.push({ id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), partyType: 'customer', partyId: cust.id, partyName: cust.name, date, invoiceNo: '', amount, currency: curr, side: 'credit', stockMode: 'none', source: 'payment', items: [], note });
+
+    document.getElementById('pay-tx-amount').value = '';
+    document.getElementById('pay-tx-note').value = '';
+    document.getElementById('pay-tx-date').value = todayISO();
+    saveState(); renderAll(); renderCustomerWorkspace(); alert('تم تسجيل التسديد بنجاح.');
+  }
+
+  function saveCustomerTransaction() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const custId = document.getElementById('selected-customer-id').value;
+    const cust = state.customers.find(c => c.id === custId);
+    if (!cust) return alert('اختر عميلاً أولاً.');
+
+    const date = document.getElementById('cust-tx-date').value || todayISO();
+    const invoiceNo = document.getElementById('cust-tx-invoice-no').value.trim();
+    const curr = document.getElementById('cust-tx-curr').value;
+    const side = document.getElementById('cust-tx-side').value;
+    const stockMode = document.getElementById('cust-tx-stock-mode').value;
+    const note = document.getElementById('cust-tx-note').value.trim();
+    const items = collectLines('cust');
+    const itemsSum = items.reduce((s, it) => s + it.lineTotal, 0);
+    const rawAmount = Number(document.getElementById('cust-tx-amount').value) || 0;
+    const amount = rawAmount > 0 ? rawAmount : itemsSum;
+
+    if (amount <= 0 && items.length === 0) return alert('أدخل المبلغ أو أضف صنفاً.');
+
+    if (editingTxId.cust) {
+      const oldTx = state.transactions.find(t => t.id === editingTxId.cust);
+      if (oldTx) {
+        applyTransactionStockEffect(oldTx.items, 'customer', oldTx.stockMode, oldTx.currency, -1);
+        oldTx.date = date; oldTx.invoiceNo = invoiceNo; oldTx.amount = amount; oldTx.currency = curr;
+        oldTx.side = side; oldTx.stockMode = stockMode; oldTx.note = note; oldTx.items = items;
+        applyTransactionStockEffect(oldTx.items, 'customer', oldTx.stockMode, oldTx.currency, 1);
+        if (oldTx.invoiceId) {
+          const inv = state.invoices.find(x => x.id === oldTx.invoiceId);
+          if (inv) { inv.date = date; inv.amount = amount; inv.currency = curr; inv.side = side; inv.note = note; inv.items = items; }
+        }
+      }
+      editingTxId.cust = null;
+    } else {
+      const tx = { id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), partyType: 'customer', partyId: cust.id, partyName: cust.name, date, invoiceNo, amount, currency: curr, side, stockMode, source: 'manual', items, note };
+      applyTransactionStockEffect(items, 'customer', stockMode, curr, 1);
+      state.transactions.push(tx);
+    }
+    cancelEditTransaction('cust'); saveState(); renderAll(); renderCustomerWorkspace();
+  }
+
+  function startEditTransaction(prefix, txId) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const tx = state.transactions.find(t => t.id === txId);
+    if (!tx) return;
+    editingTxId[prefix] = txId;
+    document.getElementById(`${prefix}-tx-form-title`).textContent = 'تعديل العملية المحددة';
+    document.getElementById(`${prefix}-tx-date`).value = tx.date || todayISO();
+    document.getElementById(`${prefix}-tx-amount`).value = tx.amount || 0;
+    document.getElementById(`${prefix}-tx-curr`).value = tx.currency || (prefix === 'sup' ? 'USD' : 'YER');
+    document.getElementById(`${prefix}-tx-side`).value = tx.side || 'credit';
+    if (prefix === 'sup') {
+      document.getElementById('sup-tx-invoice-no').value = tx.invoiceNo || '';
+      document.getElementById('sup-tx-stock-mode').value = tx.stockMode || 'add';
+    } else {
+      document.getElementById('cust-tx-invoice-no').value = tx.invoiceNo || '';
+      document.getElementById('cust-tx-stock-mode').value = tx.stockMode || 'deduct';
+      document.getElementById('cust-tx-note').value = tx.note || '';
+    }
+    setLines(prefix, tx.items);
+  }
+
+  function cancelEditTransaction(prefix) {
+    editingTxId[prefix] = null;
+    document.getElementById(`${prefix}-tx-form-title`).textContent = prefix === 'sup' ? 'تسجيل عملية جديدة للمورد' : 'تسجيل عملية جديدة للعميل';
+    document.getElementById(`${prefix}-tx-date`).value = todayISO(); document.getElementById(`${prefix}-tx-amount`).value = '';
+    if (prefix === 'sup') {
+      document.getElementById('sup-tx-invoice-no').value = ''; document.getElementById('sup-tx-curr').value = 'USD'; document.getElementById('sup-tx-side').value = 'credit';
+    } else {
+      document.getElementById('cust-tx-invoice-no').value = ''; document.getElementById('cust-tx-note').value = ''; document.getElementById('cust-tx-side').value = 'credit';
+    }
+    setLines(prefix, []);
+  }
+
+  function saveInvoice() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const custName = document.getElementById('inv-customer-name').value.trim();
+    const date = document.getElementById('inv-date').value || todayISO();
+    const note = document.getElementById('inv-note').value.trim();
+    const curr = document.getElementById('inv-curr').value;
+    const side = document.getElementById('inv-side').value;
+    const items = collectLines('inv');
+    const itemsTotal = items.reduce((s, it) => s + it.lineTotal, 0);
+    const overrideAmt = Number(document.getElementById('inv-amount-override').value) || 0;
+    const amount = overrideAmt > 0 ? overrideAmt : itemsTotal;
+
+    if (!custName) return alert('أدخل اسم العميل.');
+    if (amount <= 0 && items.length === 0) return alert('أدخل مبلغاً أو أضف صنفاً.');
+
+    const cust = ensureCustomerByName(custName);
+
+    if (editingInvoiceId) {
+      const oldInv = state.invoices.find(i => i.id === editingInvoiceId);
+      const linkedTx = state.transactions.find(t => t.invoiceId === editingInvoiceId);
+      if (oldInv) {
+        applyTransactionStockEffect(oldInv.items, 'customer', 'deduct', oldInv.currency, -1);
+        oldInv.date = date; oldInv.customerId = cust.id; oldInv.customerName = cust.name; oldInv.items = items;
+        oldInv.amount = amount; oldInv.currency = curr; oldInv.side = side; oldInv.note = note;
+        applyTransactionStockEffect(oldInv.items, 'customer', 'deduct', oldInv.currency, 1);
+      }
+      if (linkedTx) {
+        linkedTx.partyId = cust.id; linkedTx.partyName = cust.name; linkedTx.date = date; linkedTx.amount = amount;
+        linkedTx.currency = curr; linkedTx.side = side; linkedTx.items = items; linkedTx.note = note || editingInvoiceId;
+      }
+      editingInvoiceId = null;
+    } else {
+      const invId = 'INV-' + Date.now().toString().slice(-6);
+      state.invoices.push({ id: invId, date, customerId: cust.id, customerName: cust.name, items, amount, currency: curr, side, note });
+      applyTransactionStockEffect(items, 'customer', 'deduct', curr, 1);
+      state.transactions.push({ id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 5), partyType: 'customer', partyId: cust.id, partyName: cust.name, date, invoiceNo: invId, amount, currency: curr, side, stockMode: 'deduct', source: 'invoice', invoiceId: invId, items, note: note || invId });
+    }
+    cancelInvoiceEdit(); saveState(); renderAll();
+  }
+
+  function startEditInvoice(invId) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const inv = state.invoices.find(i => i.id === invId);
+    if (!inv) return;
+    editingInvoiceId = invId;
+    document.getElementById('inv-form-title').textContent = `تعديل الفاتورة ${invId}`;
+    document.getElementById('inv-customer-name').value = inv.customerName;
+    document.getElementById('inv-date').value = inv.date || todayISO();
+    document.getElementById('inv-note').value = inv.note || '';
+    document.getElementById('inv-curr').value = inv.currency || 'YER';
+    document.getElementById('inv-side').value = inv.side || 'credit';
+    document.getElementById('inv-amount-override').value = inv.amount || '';
+    setLines('inv', inv.items);
+  }
+
+  function cancelInvoiceEdit() {
+    editingInvoiceId = null;
+    document.getElementById('inv-form-title').textContent = 'إنشاء فاتورة جديدة';
+    document.getElementById('inv-customer-name').value = ''; document.getElementById('inv-date').value = todayISO();
+    document.getElementById('inv-note').value = ''; document.getElementById('inv-side').value = 'debit'; document.getElementById('inv-amount-override').value = '';
+    setLines('inv', []);
+  }
+
+  function printInvoice(invId) {
+    const inv = state.invoices.find(i => i.id === invId);
+    if (!inv) return;
+    const rows = (inv.items || []).map(it => `<tr><td style="border:1px solid #333;padding:6px;">${escapeHtml(it.itemName)}</td><td style="border:1px solid #333;padding:6px;">${Number(it.qty || 0)}</td><td style="border:1px solid #333;padding:6px;">${fmt(it.unitPrice, inv.currency)}</td><td style="border:1px solid #333;padding:6px;">${fmt((it.qty || 0) * (it.unitPrice || 0), inv.currency)}</td></tr>`).join('');
+    const printArea = document.getElementById('print-statement-area');
+    printArea.classList.remove('hidden');
+    printArea.innerHTML = `
+      <div style="padding:16px;font-family:Tahoma,Arial,sans-serif;direction:rtl;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr><th style="border:1px solid #333;padding:6px;">الصنف</th><th style="border:1px solid #333;padding:6px;">العدد</th><th style="border:1px solid #333;padding:6px;">سعر الوحدة</th><th style="border:1px solid #333;padding:6px;">الإجمالي</th></tr></thead>
+          <tbody>${rows || '<tr><td colspan="4" style="text-align:center;padding:8px;">-</td></tr>'}</tbody>
+        </table>
+      </div>`;
+    window.print();
+    setTimeout(() => { printArea.classList.add('hidden'); printArea.innerHTML = ''; }, 500);
+  }
+
+  function deleteTransaction(txId) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    if (!confirm('حذف هذه العملية؟')) return;
+    const tx = state.transactions.find(t => t.id === txId);
+    if (tx) {
+      applyTransactionStockEffect(tx.items, tx.partyType, tx.stockMode, tx.currency, -1);
+      if (tx.invoiceId) state.invoices = state.invoices.filter(inv => inv.id !== tx.invoiceId);
+    }
+    state.transactions = state.transactions.filter(t => t.id !== txId); saveState(); renderAll();
+  }
+
+  function deleteInvoice(invId) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    if (!confirm('حذف الفاتورة والعملية المرتبطة بها؟')) return;
+    const inv = state.invoices.find(i => i.id === invId);
+    if (inv) applyTransactionStockEffect(inv.items, 'customer', 'deduct', inv.currency, -1);
+    state.transactions = state.transactions.filter(t => t.invoiceId !== invId);
+    state.invoices = state.invoices.filter(i => i.id !== invId);
+    saveState(); renderAll();
+  }
+
+  function saveExpense() {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const date = document.getElementById('exp-date').value || todayISO();
+    const title = document.getElementById('exp-title').value.trim();
+    const amount = Number(document.getElementById('exp-amount').value) || 0;
+    const curr = document.getElementById('exp-curr').value;
+    if (!title || amount <= 0) return alert('أدخل البيان ومبلغاً صحيحاً.');
+
+    if (editingExpenseId) {
+      const exp = state.expenses.find(e => e.id === editingExpenseId);
+      if (exp) { exp.date = date; exp.title = title; exp.amount = amount; exp.currency = curr; }
+      editingExpenseId = null;
+    } else {
+      state.expenses.push({ id: 'exp_' + Date.now(), date, title, amount, currency: curr });
+    }
+    cancelExpenseEdit(); saveState(); renderAll();
+  }
+
+  function startEditExpense(id) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const exp = state.expenses.find(e => e.id === id);
+    if (!exp) return;
+    editingExpenseId = id;
+    document.getElementById('exp-form-title').textContent = 'تعديل مصروف';
+    document.getElementById('exp-date').value = exp.date || todayISO(); document.getElementById('exp-title').value = exp.title;
+    document.getElementById('exp-amount').value = exp.amount; document.getElementById('exp-curr').value = exp.currency;
+  }
+
+  function cancelExpenseEdit() {
+    editingExpenseId = null;
+    document.getElementById('exp-form-title').textContent = 'تسجيل مصروف';
+    document.getElementById('exp-date').value = todayISO(); document.getElementById('exp-title').value = ''; document.getElementById('exp-amount').value = '';
+  }
+
+  function deleteExpense(id) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    if (!confirm('حذف المصروف؟')) return;
+    state.expenses = state.expenses.filter(e => e.id !== id); saveState(); renderAll();
+  }
+
+  function buildStatementTableMarkup(partyType) {
+    const isSup = partyType === 'supplier';
+    const selectEl = document.getElementById(isSup ? 'selected-supplier-id' : 'selected-customer-id');
+    const party = (isSup ? state.suppliers : state.customers).find(p => p.id === selectEl.value);
+    if (!party) return null;
+    const txs = state.transactions.filter(t => t.partyType === partyType && t.partyId === party.id);
+    const runningByCurr = { YER: 0, SAR: 0, USD: 0 };
+    let headersHtml = '', rowsHtml = '';
+
+    if (isSup) {
+      headersHtml = `<tr><th style="border:1px solid #333;padding:6px;">التاريخ</th><th style="border:1px solid #333;padding:6px;">رقم الفاتورة</th><th style="border:1px solid #333;padding:6px;">الأصناف</th><th style="border:1px solid #333;padding:6px;">عليه</th><th style="border:1px solid #333;padding:6px;">له</th><th style="border:1px solid #333;padding:6px;">الرصيد</th></tr>`;
+      rowsHtml = txs.map(t => {
+        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'USD';
+        const amt = Number(t.amount) || 0; const isCredit = t.side === 'credit';
+        const onHim = isCredit ? 0 : amt; const forHim = isCredit ? amt : 0;
+        runningByCurr[curr] = (runningByCurr[curr] || 0) + (onHim - forHim);
+        const bal = runningByCurr[curr];
+        return `<tr><td style="border:1px solid #333;padding:6px;">${escapeHtml(t.date)}</td><td style="border:1px solid #333;padding:6px;">${escapeHtml(t.invoiceNo || '-')}</td><td style="border:1px solid #333;padding:6px;">${formatItemsPlainLines(t.items)}</td><td style="border:1px solid #333;padding:6px;">${onHim ? fmt(onHim, curr) : '-'}</td><td style="border:1px solid #333;padding:6px;">${forHim ? fmt(forHim, curr) : '-'}</td><td style="border:1px solid #333;padding:6px;">${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})</td></tr>`;
+      }).join('');
+    } else {
+      headersHtml = `<tr><th style="border:1px solid #333;padding:6px;">التاريخ</th><th style="border:1px solid #333;padding:6px;">الأصناف</th><th style="border:1px solid #333;padding:6px;">عليه</th><th style="border:1px solid #333;padding:6px;">له</th><th style="border:1px solid #333;padding:6px;">الرصيد</th></tr>`;
+      rowsHtml = txs.map(t => {
+        const curr = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
+        const amt = Number(t.amount) || 0; const isCredit = t.side === 'credit';
+        const onHim = isCredit ? 0 : amt; const forHim = isCredit ? amt : 0;
+        runningByCurr[curr] = (runningByCurr[curr] || 0) + (onHim - forHim);
+        const bal = runningByCurr[curr];
+        return `<tr><td style="border:1px solid #333;padding:6px;">${escapeHtml(t.date)}</td><td style="border:1px solid #333;padding:6px;">${formatItemsPlainLines(t.items)}</td><td style="border:1px solid #333;padding:6px;">${onHim ? fmt(onHim, curr) : '-'}</td><td style="border:1px solid #333;padding:6px;">${forHim ? fmt(forHim, curr) : '-'}</td><td style="border:1px solid #333;padding:6px;">${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})</td></tr>`;
+      }).join('');
+    }
+    return { party, txs, html: `<div style="padding:16px;font-family:Tahoma,Arial,sans-serif;direction:rtl;"><table style="width:100%;border-collapse:collapse;"><thead>${headersHtml}</thead><tbody>${rowsHtml || `<tr><td colspan="${isSup ? 6 : 5}" style="text-align:center;padding:8px;">-</td></tr>`}</tbody></table></div>` };
+  }
+
+  function openPdfActionModal(partyType) {
+    currentPdfPartyType = partyType;
+    const built = buildStatementTableMarkup(partyType);
+    if (!built) return alert(partyType === 'supplier' ? 'اختر مورداً أولاً.' : 'اختر عميلاً أولاً.');
+    document.getElementById('pdf-modal-title').textContent = partyType === 'supplier' ? `كشف حساب المورد: ${built.party.name}` : `كشف حساب العميل: ${built.party.name}`;
+    document.getElementById('pdf-modal-preview').innerHTML = built.html;
+    document.getElementById('pdf-action-modal').classList.remove('hidden');
+  }
+
+  function closePdfActionModal() { document.getElementById('pdf-action-modal').classList.add('hidden'); }
+
+  function openPrintFromModal() {
+    const built = buildStatementTableMarkup(currentPdfPartyType);
+    if (!built) return;
+    closePdfActionModal();
+    const printArea = document.getElementById('print-statement-area');
+    printArea.classList.remove('hidden'); printArea.innerHTML = built.html;
+    window.print();
+    setTimeout(() => { printArea.classList.add('hidden'); printArea.innerHTML = ''; }, 500);
+  }
+
+  async function shareStatementFromModal() {
+    const built = buildStatementTableMarkup(currentPdfPartyType);
+    if (!built) return;
+    const textLines = built.txs.map(t => `${t.date} | ${t.invoiceNo || '-'} | ${sideLabel(t.side)}: ${fmt(t.amount, t.currency)}`);
+    const shareText = textLines.length > 0 ? textLines.join('\n') : built.party.name;
+    if (navigator.share) {
+      try { await navigator.share({ title: built.party.name, text: shareText }); return; } catch {}
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(shareText); alert('تم نسخ كشف الحساب.');
+    } else { prompt('انسخ نص كشف الحساب:', shareText); }
+  }
+
+  function exportBackupJSON() {
+    const payload = Object.assign({}, state, { bgImage: localStorage.getItem(BG_IMAGE_KEY) || '' });
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = `lamasat-tech-backup-${todayISO()}.json`; a.click(); URL.revokeObjectURL(url);
+  }
+
+  function importBackupJSON(event) {
+    if (!currentSession || currentSession.role !== 'manager') return;
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        if (parsed.bgImage) { localStorage.setItem(BG_IMAGE_KEY, parsed.bgImage); applyBackgroundImage(); }
+        state = Object.assign(defaultState(), parsed); saveState(); renderAll(); alert('تمت استعادة النسخة الاحتياطية بنجاح.');
+      } catch { alert('ملف غير صالح.'); }
+    };
+    reader.readAsText(file);
+  }
+
+  function renderPeriodStatement() {
+    const fromD = document.getElementById('filter-from-date').value;
+    const toD = document.getElementById('filter-to-date').value;
+    const detailsWrap = document.getElementById('period-statement-details');
+    if (!fromD && !toD) { detailsWrap.classList.add('hidden'); return; }
+    detailsWrap.classList.remove('hidden');
+    const salesYear = String(document.getElementById('filter-sales-year').value || new Date().getFullYear());
+    const inRange = (d) => { if (!d) return false; if (fromD && d < fromD) return false; if (toD && d > toD) return false; return true; };
+    const filteredTx = state.transactions.filter(t => inRange(t.date));
+    const filteredExp = state.expenses.filter(e => inRange(e.date));
+    const yearSalesByCurr = (c) => state.transactions.filter(t => t.partyType === 'customer' && t.currency === c && String(t.date || '').startsWith(salesYear)).reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const periodOnHimByCurr = (c) => filteredTx.filter(t => t.currency === c && t.side !== 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const periodForHimByCurr = (c) => filteredTx.filter(t => t.currency === c && t.side === 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const periodExpByCurr = (c) => filteredExp.filter(e => e.currency === c).reduce((s, e) => s + (Number(e.amount) || 0), 0);
+
+    document.getElementById('period-statement-cards').innerHTML = `
+      <div class="stat ok"><div class="label">إجمالي مبيعات السنة (${escapeHtml(salesYear)})</div><div class="val inline-currencies">${formatByCurrencyInline(yearSalesByCurr)}</div></div>
+      <div class="stat warn"><div class="label">إجمالي عليه في الفترة المحددة</div><div class="val inline-currencies">${formatByCurrencyInline(periodOnHimByCurr)}</div></div>
+      <div class="stat err"><div class="label">إجمالي له والمصروفات في الفترة</div><div class="val inline-currencies">${formatByCurrencyInline(c => periodForHimByCurr(c) + periodExpByCurr(c))}</div></div>
+    `;
+
+    const rowsHtml = filteredTx.map(t => `<tr><td>${escapeHtml(t.date)}</td><td>${t.partyType === 'customer' ? 'عميل' : 'مورد'} - ${escapeHtml(t.partyName)}</td><td>${sideLabel(t.side)}</td><td>${escapeHtml(t.note || t.invoiceNo || '-')}</td><td>${fmt(t.amount, t.currency)}</td></tr>`).join('');
+    document.getElementById('period-statement-table-wrap').innerHTML = `<table><thead><tr><th>التاريخ</th><th>الجهة</th><th>عليه / له</th><th>البيان</th><th>المبلغ</th></tr></thead><tbody>${rowsHtml || '<tr><td colspan="5" style="text-align:center;">لا توجد حركات</td></tr>'}</tbody></table>`;
+  }
+
+  function resetPeriodFilters() {
+    document.getElementById('filter-from-date').value = ''; document.getElementById('filter-to-date').value = ''; renderPeriodStatement();
+  }
+
+  function renderAll() {
+    refreshItemSuggestions();
+    const salesByCurr = (c) => state.transactions.filter(t => t.partyType === 'customer' && t.currency === c).reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const receivablesByCurr = (c) => state.transactions.filter(t => t.partyType === 'customer' && t.currency === c && t.side !== 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+    const liabilitiesByCurr = (c) => {
+      const supDeb = state.transactions.filter(t => t.partyType === 'supplier' && t.currency === c && t.side !== 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      const allCred = state.transactions.filter(t => t.currency === c && t.side === 'credit').reduce((s, t) => s + (Number(t.amount) || 0), 0);
+      return supDeb + allCred;
+    };
+    document.getElementById('dashboard-stats').innerHTML = `
+      <div class="stat ok"><div class="label">إجمالي مبيعات</div><div class="val inline-currencies">${formatByCurrencyInline(salesByCurr)}</div></div>
+      <div class="stat warn"><div class="label">إجمالي مستحقات</div><div class="val inline-currencies">${formatByCurrencyInline(receivablesByCurr)}</div></div>
+      <div class="stat err"><div class="label">إجمالي التزامات</div><div class="val inline-currencies">${formatByCurrencyInline(liabilitiesByCurr)}</div></div>
+    `;
+
+    const lowItems = state.inventory.filter(i => (Number(i.minAlert) || 0) > 0 && (Number(i.qty) || 0) <= (Number(i.minAlert) || 0));
+    const alertBox = document.getElementById('low-stock-alert-box');
+    if (lowItems.length > 0) {
+      alertBox.className = 'alert-box';
+      alertBox.innerHTML = `<strong>تنبيهات انخفاض المخزون (${lowItems.length}):</strong><ul style="margin:6px 0 0;padding-right:18px;">${lowItems.map(i => `<li>${escapeHtml(i.name)} — العدد: ${Number(i.qty || 0)} | الحد الأدنى: ${Number(i.minAlert || 0)}</li>`).join('')}</ul>`;
+    } else {
+      alertBox.className = 'alert-ok'; alertBox.innerHTML = '<strong>تنبيهات المخزون:</strong> لا توجد أصناف منخفضة عن الحد الأدنى حالياً.';
+    }
+
+    renderPeriodStatement();
+    document.getElementById('inventory-tbody').innerHTML = state.inventory.map(item => `<tr><td>${escapeHtml(item.name)}</td><td><strong>${Number(item.qty || 0)}</strong></td><td>${Number(item.minAlert || 0)}</td><td class="manager-only">${fmt(item.cost, item.currency)}</td><td>${fmt(item.price, item.currency)}</td><td>${escapeHtml(item.currency)}</td><td class="manager-only"><button class="btn warn sm" onclick="startEditInventory('${item.id}')">تعديل</button><button class="btn danger sm" onclick="deleteInventoryItem('${item.id}')">حذف</button></td></tr>`).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد أصناف في المخزون</td></tr>';
+
+    const supSelect = document.getElementById('selected-supplier-id'); const prevSup = supSelect.value;
+    supSelect.innerHTML = '<option value="">-- اختر مورداً --</option>' + state.suppliers.map(s => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+    if (prevSup && state.suppliers.some(s => s.id === prevSup)) supSelect.value = prevSup;
+    document.getElementById('suppliers-clean-list').innerHTML = state.suppliers.map(s => `<div class="clean-party-row" onclick="selectPartyFromList('supplier','${s.id}')"><strong>${escapeHtml(s.name)}</strong><span class="party-balance">${formatSupplierBalanceSummary(s.id)}</span></div>`).join('') || '';
+
+    const custSelect = document.getElementById('selected-customer-id'); const prevCust = custSelect.value;
+    custSelect.innerHTML = '<option value="">-- اختر عميلاً --</option>' + state.customers.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+    if (prevCust && state.customers.some(c => c.id === prevCust)) custSelect.value = prevCust;
+    document.getElementById('customers-clean-list').innerHTML = state.customers.map(c => `<div class="clean-party-row" onclick="selectPartyFromList('customer','${c.id}')"><strong>${escapeHtml(c.name)}</strong><span class="party-balance">${formatCustomerBalanceSummary(c.id)}</span></div>`).join('') || '';
+    document.getElementById('customers-datalist').innerHTML = state.customers.map(c => `<option value="${escapeHtml(c.name)}"></option>`).join('');
+
+    document.getElementById('invoices-tbody').innerHTML = state.invoices.map(inv => {
+      const itemsDesc = (inv.items || []).map(i => `${escapeHtml(i.itemName)} x ${Number(i.qty || 0)}`).join('<br/>');
+      const fullDesc = [escapeHtml(inv.note || ''), itemsDesc].filter(Boolean).join('<br/>') || '-';
+      return `<tr><td>${escapeHtml(inv.id)}</td><td>${escapeHtml(inv.date)}</td><td><strong>${escapeHtml(inv.customerName)}</strong></td><td>${fullDesc}</td><td>${fmt(inv.amount, inv.currency)}</td><td>${sideLabel(inv.side)}</td><td><button class="btn yellow sm" onclick="printInvoice('${inv.id}')">طباعة</button><button class="btn warn sm manager-only" onclick="startEditInvoice('${inv.id}')">تعديل</button><button class="btn danger sm manager-only" onclick="deleteInvoice('${inv.id}')">حذف</button></td></tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد فواتير مسجلة</td></tr>';
+
+    document.getElementById('expenses-tbody').innerHTML = state.expenses.map(e => `<tr><td>${escapeHtml(e.date)}</td><td>${escapeHtml(e.title)}</td><td>${fmt(e.amount, e.currency)}</td><td>${escapeHtml(e.currency)}</td><td class="manager-only"><button class="btn warn sm" onclick="startEditExpense('${e.id}')">تعديل</button><button class="btn danger sm" onclick="deleteExpense('${e.id}')">حذف</button></td></tr>`).join('') || '<tr><td colspan="5" style="text-align:center;">لا توجد مصروفات مسجلة</td></tr>';
+
+    renderSupplierWorkspace(); renderCustomerWorkspace(); renderSearchResults(); applyRolePermissions();
+  }
+
+  function selectPartyFromList(partyType, id) {
+    if (partyType === 'supplier') { document.getElementById('selected-supplier-id').value = id; renderSupplierWorkspace(); }
+    else { document.getElementById('selected-customer-id').value = id; renderCustomerWorkspace(); }
+  }
+
+  function renderSupplierWorkspace() {
+    const supId = document.getElementById('selected-supplier-id').value;
+    const ws = document.getElementById('supplier-workspace');
+    const sup = state.suppliers.find(s => s.id === supId);
+    if (!sup) { ws.classList.add('hidden'); return; }
+    ws.classList.remove('hidden');
+    const txs = state.transactions.filter(t => t.partyType === 'supplier' && t.partyId === sup.id);
+    document.getElementById('sup-ws-title').textContent = sup.name;
+    document.getElementById('sup-ws-meta').textContent = `${sup.phone || ''} | ${formatSupplierBalanceSummary(sup.id)}`;
+    document.getElementById('sup-edit-name').value = sup.name; document.getElementById('sup-edit-phone').value = sup.phone || '';
+
+    const running = { YER: 0, SAR: 0, USD: 0 };
+    document.getElementById('sup-tx-tbody').innerHTML = txs.map(t => {
+      const curr = CURRENCIES.includes(t.currency) ? t.currency : 'USD';
+      const amt = Number(t.amount) || 0; const onHim = t.side === 'credit' ? 0 : amt; const forHim = t.side === 'credit' ? amt : 0;
+      running[curr] = (running[curr] || 0) + (onHim - forHim);
+      const bal = running[curr]; const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
+      return `<tr><td>${escapeHtml(t.date)}</td><td>${escapeHtml(t.invoiceNo || '-')}</td><td>${formatItemsPerLine(t.items)}</td><td>${onHim ? fmt(onHim, curr) : '-'}</td><td>${forHim ? fmt(forHim, curr) : '-'}</td><td>${balText}</td><td class="manager-only"><button class="btn warn sm" onclick="startEditTransaction('sup', '${t.id}')">تعديل</button><button class="btn danger sm" onclick="deleteTransaction('${t.id}')">حذف</button></td></tr>`;
+    }).join('') || '<tr><td colspan="7" style="text-align:center;">لا توجد عمليات لهذا المورد</td></tr>';
+    applyRolePermissions();
+  }
+
+  function renderCustomerWorkspace() {
+    const custId = document.getElementById('selected-customer-id').value;
+    const ws = document.getElementById('customer-workspace');
+    const cust = state.customers.find(c => c.id === custId);
+    if (!cust) { ws.classList.add('hidden'); return; }
+    ws.classList.remove('hidden');
+    const txs = state.transactions.filter(t => t.partyType === 'customer' && t.partyId === cust.id);
+    document.getElementById('cust-ws-title').textContent = cust.name;
+    document.getElementById('cust-ws-meta').textContent = `${cust.phone || ''} | ${formatCustomerBalanceSummary(cust.id)}`;
+    document.getElementById('cust-edit-name').value = cust.name; document.getElementById('cust-edit-phone').value = cust.phone || '';
+
+    const running = { YER: 0, SAR: 0, USD: 0 };
+    document.getElementById('cust-tx-tbody').innerHTML = txs.map(t => {
+      const curr = CURRENCIES.includes(t.currency) ? t.currency : 'YER';
+      const amt = Number(t.amount) || 0; const onHim = t.side === 'credit' ? 0 : amt; const forHim = t.side === 'credit' ? amt : 0;
+      running[curr] = (running[curr] || 0) + (onHim - forHim);
+      const bal = running[curr]; const balText = `${fmt(Math.abs(bal), curr)} (${bal >= 0 ? 'عليه' : 'له'})`;
+      return `<tr><td>${escapeHtml(t.date)}</td><td>${escapeHtml(t.invoiceNo || '-')}</td><td>${formatItemsPerLine(t.items)}</td><td>${onHim ? fmt(onHim, curr) : '-'}</td><td>${forHim ? fmt(forHim, curr) : '-'}</td><td>${balText}</td><td>${escapeHtml(t.note || '-')}</td><td class="manager-only"><button class="btn warn sm" onclick="startEditTransaction('cust', '${t.id}')">تعديل</button><button class="btn danger sm" onclick="deleteTransaction('${t.id}')">حذف</button></td></tr>`;
+    }).join('') || '<tr><td colspan="8" style="text-align:center;">لا توجد عمليات لهذا العميل</td></tr>';
+    applyRolePermissions();
+  }
+
+  applyBackgroundImage();
+</script>
 </body>
                </html>
