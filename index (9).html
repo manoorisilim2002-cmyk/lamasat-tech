@@ -803,8 +803,8 @@
               <option value="USD">USD</option>
             </select>
             <select id="inv-side">
-              <option value="credit" selected>له</option>
-              <option value="debit">عليه</option>
+              <option value="credit">له</option>
+              <option value="debit" selected>عليه</option>
             </select>
             <input type="number" step="0.01" id="inv-amount-override" placeholder="مبلغ مخصص" style="width:140px;" />
           </div>
@@ -956,7 +956,11 @@
     let currentPdfPartyType = 'supplier';
 
     function todayISO() {
-      return new Date().toISOString().slice(0, 10);
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
     }
 
     function defaultState() {
@@ -1067,7 +1071,7 @@
       const custSide = document.getElementById('cust-tx-side');
       if (custSide) custSide.value = 'credit';
       const invSide = document.getElementById('inv-side');
-      if (invSide) invSide.value = 'credit';
+      if (invSide) invSide.value = 'debit';
     }
 
     function logout() {
