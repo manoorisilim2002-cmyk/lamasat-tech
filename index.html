@@ -1381,7 +1381,7 @@
           <input type="date" id="inv-date" />
           <input type="text" id="inv-note" placeholder="البيان" style="flex:1;min-width:120px;" />
           <select id="inv-curr">
-            <option value="YER">YER (يمني)</option>
+            <option value="YER" selected>YER (يمني)</option>
             <option value="SAR">SAR (سعودي)</option>
             <option value="USD">USD (دولار)</option>
           </select>
@@ -1757,10 +1757,20 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function normalizeCurrencyCode(rawCurr) {
+      const s = String(rawCurr || '').trim().toUpperCase();
+      if (!s) return 'YER';
+      if (s === 'USD' || s === '$' || s.includes('دولار')) return 'USD';
+      if (s === 'SAR' || s.includes('سعودي')) return 'SAR';
+      if (s === 'YER' || s.includes('يمني')) return 'YER';
+      return s;
+    }
+
     function currencyArabicLabel(curr) {
-      if (curr === 'USD') return 'دولار';
-      if (curr === 'YER') return 'يمني';
-      if (curr === 'SAR') return 'سعودي';
+      const code = normalizeCurrencyCode(curr);
+      if (code === 'USD') return 'دولار';
+      if (code === 'YER') return 'يمني';
+      if (code === 'SAR') return 'سعودي';
       return curr;
     }
 
@@ -1779,9 +1789,9 @@
 
     function getAllCurrencies() {
       const set = new Set(BASE_CURRENCIES);
-      state.transactions.forEach(t => { if (t.currency) set.add(t.currency.trim()); });
-      state.inventory.forEach(i => { if (i.currency) set.add(i.currency.trim()); });
-      state.invoices.forEach(v => { if (v.currency) set.add(v.currency.trim()); });
+      state.transactions.forEach(t => { if (t.currency) set.add(normalizeCurrencyCode(t.currency)); });
+      state.inventory.forEach(i => { if (i.currency) set.add(normalizeCurrencyCode(i.currency)); });
+      state.invoices.forEach(v => { if (v.currency) set.add(normalizeCurrencyCode(v.currency)); });
       return Array.from(set);
     }
 
@@ -1790,7 +1800,7 @@
       state.transactions
         .filter(t => t.partyType === partyType && (!partyId || t.partyId === partyId))
         .forEach(t => {
-          const c = (t.currency || 'USD').trim();
+          const c = normalizeCurrencyCode(t.currency || 'USD');
           const amt = Number(t.amount) || 0;
           const delta = t.side === 'credit' ? -amt : amt;
           map[c] = (map[c] || 0) + delta;
@@ -1835,7 +1845,7 @@
       const minAlert = Number(document.getElementById('inv-min-alert').value) || 0;
       const cost = Number(document.getElementById('inv-cost').value) || 0;
       const price = Number(document.getElementById('inv-price').value) || 0;
-      const currency = document.getElementById('inv-curr').value || 'USD';
+      const currency = normalizeCurrencyCode(document.getElementById('inv-curr').value || 'USD');
       if (!name) return showToast('يرجى إدخال اسم الصنف');
 
       if (editingInventoryId) {
@@ -1874,7 +1884,7 @@
       document.getElementById('inv-min-alert').value = item.minAlert || 0;
       document.getElementById('inv-cost').value = item.cost || 0;
       document.getElementById('inv-price').value = item.price || 0;
-      document.getElementById('inv-curr').value = item.currency || 'USD';
+      document.getElementById('inv-curr').value = normalizeCurrencyCode(item.currency || 'USD');
     }
 
     function cancelInventoryEdit() {
@@ -1898,6 +1908,7 @@
 
     function adjustInventoryByName(name, deltaQty, unitCost, unitPrice, curr, isPurchase) {
       if (!name || !deltaQty) return;
+      const normCurr = normalizeCurrencyCode(curr || 'USD');
       let item = state.inventory.find(i => i.name.toLowerCase() === name.toLowerCase());
       if (!item) {
         item = {
@@ -1907,7 +1918,7 @@
           minAlert: 0,
           cost: isPurchase ? (unitCost || 0) : 0,
           price: unitPrice || 0,
-          currency: curr || 'USD'
+          currency: normCurr
         };
         state.inventory.push(item);
       }
@@ -1934,7 +1945,7 @@
       row.className = 'cust-item-row';
       row.style.cssText = 'display:grid;grid-template-columns:1.6fr 0.7fr 0.85fr auto;gap:5px;background:#f1f5f9;padding:5px;border-radius:9px;margin-bottom:5px;align-items:center;';
       const optionsHtml = '<option value="">-- اختر صنفاً --</option>' +
-        state.inventory.map(it => `<option value="${escapeHtml(it.name)}" data-price="${Number(it.price || 0)}">${escapeHtml(it.name)} (${Number(it.qty || 0)})</option>`).join('');
+        state.inventory.map(it => `<option value="${escapeHtml(it.name)}" data-price="${Number(it.price || 0)}" data-curr="${escapeHtml(normalizeCurrencyCode(it.currency || 'YER'))}">${escapeHtml(it.name)} (${Number(it.qty || 0)})</option>`).join('');
 
       row.innerHTML = `
         <select class="cust-line-select" onchange="onCustItemSelectChange(this)" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;background:#fff;min-width:0;">${optionsHtml}</select>
@@ -2142,7 +2153,7 @@
 
       const side = document.getElementById('cust-tx-side').value;
       const date = document.getElementById('pay-tx-date').value || todayISO();
-      const currency = document.getElementById('pay-tx-curr').value || 'YER';
+      const currency = normalizeCurrencyCode(document.getElementById('pay-tx-curr').value || 'YER');
 
       if (side === 'debit') {
         const items = collectCustLines();
@@ -2271,10 +2282,11 @@
       if (!sup) return showToast('اختر مورداً أولاً');
 
       const date = document.getElementById('sup-tx-date').value || todayISO();
-      let currency = document.getElementById('sup-tx-curr').value || 'USD';
-      if (currency === 'OTHER') {
-        currency = document.getElementById('sup-tx-custom-curr').value.trim() || 'USD';
+      let rawCurr = document.getElementById('sup-tx-curr').value || 'USD';
+      if (rawCurr === 'OTHER') {
+        rawCurr = document.getElementById('sup-tx-custom-curr').value.trim() || 'USD';
       }
+      const currency = normalizeCurrencyCode(rawCurr);
       const side = document.getElementById('sup-tx-side').value;
 
       if (side === 'debit') {
@@ -2345,7 +2357,8 @@
       const custName = document.getElementById('inv-customer-name').value.trim();
       const date = document.getElementById('inv-date').value || todayISO();
       const note = document.getElementById('inv-note').value.trim();
-      const currency = String(document.getElementById('inv-curr').value || 'YER').trim();
+      const currSel = document.getElementById('inv-curr');
+      const currency = normalizeCurrencyCode(currSel ? currSel.value : 'YER');
       const side = document.getElementById('inv-side').value;
       const items = collectInvLines();
       const itemsTotal = items.reduce((s, it) => s + it.lineTotal, 0);
@@ -2415,7 +2428,7 @@
       document.getElementById('inv-customer-name').value = inv.customerName;
       document.getElementById('inv-date').value = inv.date || todayISO();
       document.getElementById('inv-note').value = inv.note || '';
-      document.getElementById('inv-curr').value = inv.currency || 'YER';
+      document.getElementById('inv-curr').value = normalizeCurrencyCode(inv.currency || 'YER');
       document.getElementById('inv-side').value = inv.side || 'debit';
       document.getElementById('inv-amount-override').value = inv.amount || '';
       setInvLines(inv.items);
@@ -2427,6 +2440,8 @@
       ['inv-customer-name', 'inv-note', 'inv-amount-override'].forEach(id => {
         document.getElementById(id).value = '';
       });
+      document.getElementById('inv-curr').value = 'YER';
+      document.getElementById('inv-side').value = 'debit';
       setInvLines([]);
     }
 
@@ -2448,6 +2463,29 @@
       const party = (isSup ? state.suppliers : state.customers).find(p => p.id === partyId);
       if (!party) return { title: 'كشف حساب', text: '' };
 
+      const focusInv = focusInvoiceId ? state.invoices.find(i => i.id === focusInvoiceId) : null;
+
+      if (focusInv) {
+        const invCurr = normalizeCurrencyCode(focusInv.currency || 'YER');
+        const lines = [
+          `لمسات التقنية (حضرموت - القطن - المرقدة)`,
+          `فاتورة #${focusInv.id} — ${party.name}`,
+          `التاريخ: ${focusInv.date}`,
+          `العملة: ${currencyArabicLabel(invCurr)}`,
+          `------------------------------`
+        ];
+        if (Array.isArray(focusInv.items) && focusInv.items.length > 0) {
+          focusInv.items.forEach(it => {
+            lines.push(`• ${it.itemName} | العدد: ${it.qty} | الإجمالي: ${fmt(it.lineTotal, invCurr)}`);
+          });
+        } else {
+          lines.push(`• ${focusInv.note || 'فاتورة'} | المبلغ: ${fmt(focusInv.amount, invCurr)}`);
+        }
+        lines.push(`------------------------------`);
+        lines.push(`إجمالي الفاتورة: ${fmt(focusInv.amount, invCurr)}`);
+        return { title: `فاتورة #${focusInv.id} — ${party.name}`, text: lines.join('\n') };
+      }
+
       const txs = state.transactions.filter(t => t.partyType === partyType && (t.partyId === party.id || t.partyName === party.name));
       const balMap = computePartyBalancesByCurrency(partyType, party.id);
       const activeTotals = Object.entries(balMap)
@@ -2455,21 +2493,18 @@
         .map(([c, v]) => `${Math.abs(Number(v)).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${currencyArabicLabel(c)}`)
         .join(' | ') || '0 دولار';
 
-      const focusInv = focusInvoiceId ? state.invoices.find(i => i.id === focusInvoiceId) : null;
-      const docTitle = focusInv
-        ? `فاتورة #${focusInv.id} — ${party.name}`
-        : `${isSup ? 'كشف حساب مورد' : 'كشف حساب عميل'} — ${party.name}`;
+      const docTitle = `${isSup ? 'كشف حساب مورد' : 'كشف حساب عميل'} — ${party.name}`;
 
       const lines = [
         `لمسات التقنية (حضرموت - القطن - المرقدة)`,
         docTitle,
-        `التاريخ: ${focusInv ? focusInv.date : todayISO()}`,
+        `التاريخ: ${todayISO()}`,
         `------------------------------`
       ];
 
       txs.forEach(t => {
         const amt = Number(t.amount) || 0;
-        const c = (t.currency || 'USD').trim();
+        const c = normalizeCurrencyCode(t.currency || 'USD');
         const sideLabel = t.side === 'credit' ? 'له' : 'عليه';
         const desc = (t.items && t.items.length > 0)
           ? t.items.map(it => `${it.itemName} (${it.qty})`).join('، ')
@@ -2483,6 +2518,71 @@
       return { title: docTitle, text: lines.join('\n') };
     }
 
+    function buildSingleInvoiceHtml(inv) {
+      const invCurr = normalizeCurrencyCode(inv.currency || 'YER');
+      const itemsRows = (Array.isArray(inv.items) && inv.items.length > 0)
+        ? inv.items.map(it => `
+            <tr>
+              <td>${escapeHtml(it.itemName)}</td>
+              <td>${Number(it.qty || 0)}</td>
+              <td>${fmt(it.unitPrice, invCurr)}</td>
+              <td>${fmt(it.lineTotal, invCurr)}</td>
+            </tr>
+          `).join('')
+        : `
+            <tr>
+              <td>${escapeHtml(inv.note || 'فاتورة')}</td>
+              <td>1</td>
+              <td>${fmt(inv.amount, invCurr)}</td>
+              <td>${fmt(inv.amount, invCurr)}</td>
+            </tr>
+          `;
+
+      return `
+        <div id="invoice-printable-template" class="invoice-print-sheet">
+          <div class="inv-sheet-header">
+            <div>
+              <div style="font-size:15px;font-weight:900;color:#fef08a;">لمسات التقنية</div>
+              <div style="font-size:10.5px;color:#e0f2fe;">حضرموت - القطن - المرقدة</div>
+            </div>
+            <div style="background:var(--gold);color:var(--blue-dark);font-weight:900;font-size:11.5px;padding:3px 10px;border-radius:999px;">
+              فاتورة (${escapeHtml(currencyArabicLabel(invCurr))})
+            </div>
+          </div>
+
+          <div class="inv-sheet-meta-row">
+            <div class="inv-client-plain">${escapeHtml(inv.customerName)}</div>
+            <div class="inv-no-side">
+              <div>رقم الفاتورة: <strong>${escapeHtml(inv.id)}</strong></div>
+              <div style="color:var(--muted);font-size:11px;">التاريخ: ${escapeHtml(inv.date || '-')}</div>
+              <div style="color:var(--blue-royal);font-size:11px;">العملة: <strong>${escapeHtml(currencyArabicLabel(invCurr))}</strong></div>
+            </div>
+          </div>
+
+          <div class="table-scroll" style="padding:8px;">
+            <table>
+              <thead>
+                <tr>
+                  <th>الصنف / البيان</th>
+                  <th>العدد</th>
+                  <th>السعر</th>
+                  <th>الإجمالي</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsRows}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="inv-total-strip">
+            <span>إجمالي الفاتورة (${escapeHtml(currencyArabicLabel(invCurr))}):</span>
+            <span>${fmt(inv.amount, invCurr)}</span>
+          </div>
+        </div>
+      `;
+    }
+
     function buildUnifiedStatementHtml(partyType, partyId, focusInvoiceId = null) {
       const isSup = partyType === 'supplier';
       const party = (isSup ? state.suppliers : state.customers).find(p => p.id === partyId);
@@ -2492,7 +2592,7 @@
       let running = 0;
       const rowsHtml = txs.map(t => {
         const amt = Number(t.amount) || 0;
-        const c = (t.currency || 'USD').trim();
+        const c = normalizeCurrencyCode(t.currency || 'USD');
         const debit = t.side === 'credit' ? 0 : amt;
         const credit = t.side === 'credit' ? amt : 0;
         running += (debit - credit);
@@ -2628,7 +2728,7 @@
         <div style="margin-bottom:8px;font-weight:800;color:var(--blue-royal);">اختر الفاتورة لمعاينتها أو طباعتها أو مشاركتها:</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           ${custInvoices.map(inv => `
-            <button type="button" class="act-btn ghost" style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid #bfdbfe;" onclick="openUnifiedStatementModal('customer', '${cust.id}', '${inv.id}')">
+            <button type="button" class="act-btn ghost" style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid #bfdbfe;" onclick="openInvoicePreviewModal('${inv.id}')">
               <span>فاتورة #${escapeHtml(inv.id)} — ${escapeHtml(inv.date)}</span>
               <strong style="color:var(--blue-dark);">${fmt(inv.amount, inv.currency)}</strong>
             </button>
@@ -2645,7 +2745,17 @@
     function openInvoicePreviewModal(invId) {
       const inv = state.invoices.find(i => i.id === invId);
       if (!inv) return;
-      openUnifiedStatementModal('customer', inv.customerId, inv.id);
+      const html = buildSingleInvoiceHtml(inv);
+      activeSharePayload = buildShareSummaryText('customer', inv.customerId, inv.id);
+
+      document.getElementById('custom-modal-title').textContent = `معاينة الفاتورة ${inv.id}`;
+      document.getElementById('custom-modal-body').innerHTML = html;
+      document.getElementById('custom-modal-actions').innerHTML = `
+        <button type="button" class="act-btn primary sm" onclick="printInvoiceTemplate()">🖨️ طباعة</button>
+        <button type="button" class="act-btn share sm" onclick="shareStatementOrInvoice()">📤 مشاركة</button>
+        <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>
+      `;
+      document.getElementById('custom-modal').classList.remove('hidden');
     }
 
     function printInvoiceTemplate() {
@@ -2946,7 +3056,7 @@
       const txs = state.transactions.filter(t => t.partyType === 'customer' && t.partyId === cust.id);
       const running = {};
       document.getElementById('cust-tx-tbody').innerHTML = txs.map(t => {
-        const c = (t.currency || 'USD').trim();
+        const c = normalizeCurrencyCode(t.currency || 'USD');
         const amt = Number(t.amount) || 0;
         const onHim = t.side === 'credit' ? 0 : amt;
         const forHim = t.side === 'credit' ? amt : 0;
@@ -2988,7 +3098,7 @@
       const txs = state.transactions.filter(t => t.partyType === 'supplier' && t.partyId === sup.id);
       const running = {};
       document.getElementById('sup-tx-tbody').innerHTML = txs.map(t => {
-        const c = (t.currency || 'USD').trim();
+        const c = normalizeCurrencyCode(t.currency || 'USD');
         const amt = Number(t.amount) || 0;
         const onHim = t.side === 'credit' ? 0 : amt;
         const forHim = t.side === 'credit' ? amt : 0;
