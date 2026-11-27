@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>اختبار Supabase</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:Tahoma,Arial,sans-serif;padding:16px;max-width:600px;margin:auto;background:#f1f5f9}
+h1{color:#0d47a1;font-size:18px}
+.test{background:#fff;padding:12px;margin:8px 0;border-radius:8px;border-right:4px solid #cbd5e1;font-size:13px}
+.test.ok{border-right-color:#15803d;background:#f0fdf4}
+.test.fail{border-right-color:#b91c1c;background:#fef2f2}
+.result{margin-top:6px;color:#475569;font-size:12px}
+.mono{font-family:monospace;direction:ltr;text-align:left;background:#f8fafc;padding:6px;border-radius:4px;margin-top:4px;font-size:11px;word-break:break-all}
+.summary{background:#e8f0fe;padding:16px;border-radius:8px;margin-top:20px}
+</style>
+</head>
+<body>
+<h1>🔍 اختبار الاتصال بـ Supabase</h1>
+<p style="font-size:13px">تختبر هذه الصفحة كلمات المرور الحالية. لا تحفظ أي بيانات.</p>
+<div id="tests"></div>
+<div id="summary" class="summary" style="display:none;"></div>
+<script>
+const URL_='https://suixnsyenyafdoewsvgp.supabase.co';
+const KEY='sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBn';
+let client;
+try{client=supabase.createClient(URL_,KEY)}catch(e){document.getElementById('tests').innerHTML='<div class="test fail">فشل تحميل Supabase: '+e.message+'</div>'}
+const TESTS=[
+{user:'Mt',email:'manoori.silim.2002@gmail.com',pass:'7735'},
+{user:'Mt',email:'manoori.silim.2002@gmail.com',pass:'123'},
+{user:'طارق',email:'moment.salm2000@gmail.com',pass:'123'},
+{user:'طارق',email:'moment.salm2000@gmail.com',pass:'7735'}
+];
+let okCount=0;
+function render(t,status,msg){const d=document.createElement('div');d.className='test '+status;d.innerHTML='<strong>'+t.user+'</strong> ('+t.email+') + كلمة مرور: <code>'+t.pass+'</code><div class="result">'+msg+'</div>';document.getElementById('tests').appendChild(d)}
+async function run(){if(!client)return;
+for(const t of TESTS){
+try{
+const{data,error}=await client.auth.signInWithPassword({email:t.email,password:t.pass});
+if(error){render(t,'fail','❌ '+error.message)}
+else{
+okCount++;
+let roleMsg='';
+try{
+const{data:rd,error:re}=await client.from('user_roles').select('role').eq('user_id',data.user.id).single();
+if(re)roleMsg='<div class="mono">user_roles: '+re.message+'</div>';
+else if(rd)roleMsg='<div class="result">✅ الدور: '+rd.role+'</div>';
+else roleMsg='<div class="result">⚠️ لا يوجد سجل دور</div>';
+}catch(e){roleMsg='<div class="mono">user_roles err: '+e.message+'</div>'}
+let dataMsg='';
+try{
+const{error:le}=await client.from('lamasat_data').select('id').eq('id',1).single();
+if(le)dataMsg='<div class="mono">lamasat_data: '+le.message+'</div>';
+else dataMsg='<div class="result">✅ lamasat_data قابل للقراءة</div>';
+}catch(e){dataMsg='<div class="mono">lamasat_data err: '+e.message+'</div>'}
+render(t,'ok','✅ الدخول نجح!'+roleMsg+dataMsg);
+await client.auth.signOut();
+}
+}catch(e){render(t,'fail','❌ '+e.message)}
+}
+const s=document.getElementById('summary');s.style.display='block';
+if(okCount>0){s.innerHTML='<h3 style="margin:0 0 8px">✅ نجح '+okCount+' من '+TESTS.length+'</h3><p style="margin:0">Supabase Auth يعمل! جاهزون للمزامنة.</p><p style="margin:8px 0 0;font-size:12px">📋 أرسلي لقطة شاشة لهذه الصفحة</p>'}
+else{s.innerHTML='<h3 style="margin:0 0 8px;color:#b91c1c">❌ فشلت كل المحاولات</h3><p style="margin:0">كلمات المرور لا تُقبل من Supabase. نحتاج إعادة تعيينها.</p><p style="margin:8px 0 0;font-size:12px">📋 أرسلي لقطة شاشة لهذه الصفحة</p>'}
+}
+run();
+</script>
+</body>
+</html>
