@@ -29,6 +29,8 @@
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
     }
 
     body {
@@ -65,7 +67,6 @@
       }
     }
 
-    /* Single-screen Login without scrolling */
     #login-screen {
       height: 100dvh;
       min-height: 100dvh;
@@ -194,7 +195,6 @@
       box-shadow: 0 6px 14px rgba(13, 71, 161, 0.28);
     }
 
-    /* 3 Top Stat Cards */
     .stats-strip-3 {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -286,7 +286,6 @@
       font-weight: 800;
     }
 
-    /* Main 3D Glossy Blue Cards */
     .main-modules-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -628,6 +627,7 @@
 
     .act-btn.primary { background: var(--blue-royal); color: #ffffff; }
     .act-btn.gold { background: var(--gold); color: var(--blue-dark); }
+    .act-btn.share { background: linear-gradient(135deg, #0284c7, #0369a1); color: #ffffff; }
     .act-btn.danger { background: var(--danger); color: #ffffff; }
     .act-btn.warn { background: #d97706; color: #ffffff; }
     .act-btn.ghost { background: #e2e8f0; color: var(--ink); }
@@ -658,7 +658,6 @@
       white-space: nowrap;
     }
 
-    /* Single-screen Login layout */
     .luxury-login-box {
       flex: 1;
       padding: 8px 14px;
@@ -742,13 +741,13 @@
       color: var(--blue-royal);
     }
 
-    /* Unified Statement & Invoice Template (Blue + White + Yellow) */
     .invoice-print-sheet {
       background: #ffffff;
-      border: 2px solid var(--blue-royal);
+      border: 2.5px solid var(--blue-royal);
       border-radius: 14px;
       overflow: hidden;
       color: var(--ink);
+      width: 100%;
     }
 
     .inv-sheet-header {
@@ -772,7 +771,7 @@
     }
 
     .inv-client-plain {
-      font-size: 14.5px;
+      font-size: 15px;
       font-weight: 900;
       color: var(--blue-dark);
     }
@@ -812,8 +811,8 @@
       border-radius: 20px;
       border-top: 5px solid var(--gold);
       width: 100%;
-      max-width: 440px;
-      max-height: 88vh;
+      max-width: 460px;
+      max-height: 90vh;
       overflow-y: auto;
       padding: 15px;
       box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
@@ -835,21 +834,69 @@
       box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
     }
 
+    @page {
+      size: A4 portrait;
+      margin: 10mm;
+    }
+
     @media print {
-      .no-print, .phone-frame-shell > :not(#print-statement-area) {
+      html, body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+
+      body.printing-statement > :not(#custom-modal) {
         display: none !important;
       }
-      #print-statement-area {
+
+      body.printing-statement #custom-modal {
+        position: static !important;
+        background: transparent !important;
+        padding: 0 !important;
         display: block !important;
-        padding: 10px;
-        direction: rtl;
+        width: 100% !important;
+        height: auto !important;
+      }
+
+      body.printing-statement .overlay-modal-card {
+        position: static !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        max-height: none !important;
+        overflow: visible !important;
+        box-shadow: none !important;
+        border: none !important;
+        border-radius: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      body.printing-statement .modal-chrome-bar,
+      body.printing-statement #custom-modal-actions {
+        display: none !important;
+      }
+
+      body.printing-statement #invoice-printable-template {
+        width: 100% !important;
+        max-width: 100% !important;
+        border: 2.5px solid #0d47a1 !important;
+        border-radius: 12px !important;
+        box-shadow: none !important;
+      }
+
+      body.printing-statement .table-scroll {
+        overflow: visible !important;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- Login Gate Screen (Single Screen, No Scroll) -->
+  <!-- Login Gate Screen -->
   <div id="login-screen" class="phone-frame-shell">
     <div class="top-brand-header">
       <div class="header-content">
@@ -907,7 +954,7 @@
 
   <!-- Main Mobile App Shell -->
   <div id="app-shell" class="phone-frame-shell hidden">
-    <header class="top-brand-header no-print">
+    <header class="top-brand-header">
       <div class="header-content">
         <div class="lt-emblem" onclick="navigateTo('dashboard')" style="cursor:pointer;">LT</div>
         <div class="brand-center-stack">
@@ -929,8 +976,8 @@
       </svg>
     </header>
 
-    <!-- 3 Top Stat Cards: إجمالي العملاء | إجمالي الموردين | الرصيد الحالي -->
-    <section class="stats-strip-3 no-print" aria-label="بطاقات الإحصائيات">
+    <!-- 3 Top Stat Cards -->
+    <section class="stats-strip-3" aria-label="بطاقات الإحصائيات">
       <div class="mini-stat-card s-customers" onclick="navigateTo('customers')">
         <div class="mini-stat-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="#2563eb"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
@@ -956,7 +1003,7 @@
       </div>
     </section>
 
-    <div id="low-stock-alert-box" class="low-stock-red-alert hidden no-print"></div>
+    <div id="low-stock-alert-box" class="low-stock-red-alert hidden"></div>
 
     <!-- DASHBOARD HOME VIEW -->
     <div id="view-dashboard" class="app-view">
@@ -1083,7 +1130,7 @@
       </section>
     </div>
 
-    <!-- INVENTORY VIEW (Default currency USD) -->
+    <!-- INVENTORY VIEW -->
     <div id="view-inventory" class="app-view hidden">
       <div class="subview-card manager-only">
         <h3 id="inv-form-title">إضافة صنف جديد إلى المخزون</h3>
@@ -1166,17 +1213,36 @@
           </div>
 
           <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:10px;">
-            <div style="font-size:12px;font-weight:800;margin-bottom:6px;">تسجيل تسديد من عميل</div>
-            <div class="field-grid" style="margin:0;">
-              <input type="date" id="pay-tx-date" />
-              <input type="number" step="0.01" id="pay-tx-amount" placeholder="المبلغ" style="width:95px;" />
-              <select id="pay-tx-curr">
-                <option value="USD">USD</option>
-                <option value="YER">YER</option>
-                <option value="SAR">SAR</option>
+            <div id="cust-form-mode-label" style="font-size:12px;font-weight:800;margin-bottom:6px;color:var(--blue-dark);">تسجيل عملية على العميل (عليه — اختيار صنف)</div>
+            <div class="field-grid">
+              <select id="cust-tx-side" onchange="toggleCustomerSideFields()" style="font-weight:900;border-color:var(--blue-royal);">
+                <option value="debit" selected>عليه</option>
+                <option value="credit">له</option>
               </select>
-              <input type="text" id="pay-tx-note" placeholder="البيان" style="flex:1;min-width:110px;" />
-              <button type="button" class="act-btn primary sm" onclick="saveCustomerPayment()">حفظ التسديد</button>
+              <input type="date" id="pay-tx-date" />
+              <select id="pay-tx-curr">
+                <option value="YER">YER (يمني)</option>
+                <option value="SAR">SAR (سعودي)</option>
+                <option value="USD">USD (دولار)</option>
+              </select>
+            </div>
+
+            <div id="cust-debit-fields-wrap">
+              <div id="cust-item-lines-container"></div>
+              <div class="field-grid" style="margin-bottom:6px;">
+                <button type="button" class="act-btn gold sm" onclick="addCustItemRow()">+ إضافة صنف</button>
+                <input type="number" step="0.01" id="cust-debit-custom-amt" placeholder="أو مبلغ مخصص" style="width:105px;" />
+                <input type="text" id="cust-debit-note" placeholder="ملاحظة إضافية" style="flex:1;min-width:110px;" />
+              </div>
+              <button type="button" class="act-btn primary sm" onclick="saveCustomerTransaction()">حفظ العملية (عليه)</button>
+            </div>
+
+            <div id="cust-credit-fields-wrap" class="hidden">
+              <div class="field-grid" style="margin-bottom:6px;">
+                <input type="text" id="pay-tx-note" placeholder="البيان (مثال: سداد جزء من الحساب)" style="flex:2;min-width:150px;" />
+                <input type="number" step="0.01" id="pay-tx-amount" placeholder="المبلغ المسدد" style="width:105px;" />
+              </div>
+              <button type="button" class="act-btn primary sm" onclick="saveCustomerTransaction()">حفظ العملية (له)</button>
             </div>
           </div>
 
@@ -1238,7 +1304,6 @@
             </div>
           </div>
 
-          <!-- Dynamic Supplier Form: switches fields between "له" and "عليه" -->
           <div class="manager-only" style="background:#ffffff;border:1px solid #e2e8f0;border-radius:10px;padding:8px;margin-bottom:10px;">
             <div style="font-size:12px;font-weight:800;margin-bottom:6px;" id="sup-form-mode-label">تسجيل توريد أصناف (له)</div>
             <div class="field-grid">
@@ -1256,7 +1321,6 @@
               <input type="text" id="sup-tx-custom-curr" placeholder="اسم العملة" style="width:85px;display:none;" />
             </div>
 
-            <!-- Fields shown when side === 'credit' (له) -->
             <div id="sup-credit-fields-wrap">
               <div class="field-grid">
                 <input type="text" id="sup-tx-invoice-no" placeholder="رقم الفاتورة" style="width:115px;" />
@@ -1279,7 +1343,6 @@
               </div>
             </div>
 
-            <!-- Fields shown when side === 'debit' (عليه): البيان والتاريخ والعملة والمبلغ -->
             <div id="sup-debit-fields-wrap" class="hidden">
               <div class="field-grid" style="margin-bottom:6px;">
                 <input type="text" id="sup-debit-note" placeholder="البيان (مثال: دفعة نقدية / تسديد للمورد)" style="flex:2;min-width:160px;" />
@@ -1366,7 +1429,6 @@
           <button type="button" class="act-btn ghost sm" onclick="navigateTo('dashboard')">الرئيسية</button>
         </div>
 
-        <!-- Direct access to Customer or Supplier statement -->
         <div style="background:#f8fbff;border:1.5px solid #bfdbfe;border-radius:14px;padding:10px;margin-bottom:12px;">
           <div style="font-size:12.5px;font-weight:900;color:var(--blue-dark);margin-bottom:7px;">فتح كشف حساب تفصيلي بالصيغة المعتمدة:</div>
           <div class="field-grid" style="margin-bottom:0;">
@@ -1399,16 +1461,14 @@
       </div>
     </div>
 
-    <footer class="mobile-app-footer no-print">
+    <footer class="mobile-app-footer">
       <span>📍 حضرموت - القطن - المرقدة</span>
       <button type="button" class="act-btn ghost sm" onclick="navigateTo('dashboard')">🏠 الرئيسية</button>
     </footer>
-
-    <div id="print-statement-area" class="hidden"></div>
   </div>
 
   <!-- Slide-out Navigation Drawer -->
-  <div id="drawer-backdrop" class="drawer-backdrop hidden no-print" onclick="closeDrawerOnBackdrop(event)">
+  <div id="drawer-backdrop" class="drawer-backdrop hidden" onclick="closeDrawerOnBackdrop(event)">
     <aside class="drawer-panel">
       <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.2);margin-bottom:6px;">
         <div>
@@ -1430,9 +1490,9 @@
   </div>
 
   <!-- Custom Modal -->
-  <div id="custom-modal" class="overlay-modal hidden no-print">
+  <div id="custom-modal" class="overlay-modal hidden">
     <div class="overlay-modal-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <div class="modal-chrome-bar" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
         <h3 id="custom-modal-title" style="margin:0;font-size:15px;color:var(--blue-dark);"></h3>
         <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">✕</button>
       </div>
@@ -1445,7 +1505,7 @@
   <datalist id="all-items-suggestions"></datalist>
 
   <script>
-    const STORAGE_KEY = 'lamasat_tech_v10_data';
+    const STORAGE_KEY = 'lamasat_tech_v12_data';
     const BASE_CURRENCIES = ['USD', 'YER', 'SAR'];
 
     const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
@@ -1458,6 +1518,7 @@
     let editingInvoiceId = null;
     let currentNavKey = 'dashboard';
     let pendingConfirmCallback = null;
+    let activeSharePayload = { title: '', text: '' };
 
     document.getElementById('sup-tx-curr').addEventListener('change', e => {
       const customInp = document.getElementById('sup-tx-custom-curr');
@@ -1472,6 +1533,16 @@
       document.getElementById('sup-form-mode-label').textContent = isCredit
         ? 'تسجيل توريد أصناف (له)'
         : 'تسجيل عملية على المورد (عليه — البيان والتاريخ والعملة)';
+    }
+
+    function toggleCustomerSideFields() {
+      const side = document.getElementById('cust-tx-side').value;
+      const isDebit = side === 'debit';
+      document.getElementById('cust-debit-fields-wrap').classList.toggle('hidden', !isDebit);
+      document.getElementById('cust-credit-fields-wrap').classList.toggle('hidden', isDebit);
+      document.getElementById('cust-form-mode-label').textContent = isDebit
+        ? 'تسجيل عملية على العميل (عليه — اختيار صنف)'
+        : 'تسجيل سداد من العميل (له — البيان)';
     }
 
     function showToast(msg) {
@@ -1501,6 +1572,7 @@
 
     function closeCustomModal() {
       pendingConfirmCallback = null;
+      document.body.classList.remove('printing-statement');
       document.getElementById('custom-modal').classList.add('hidden');
     }
 
@@ -1856,13 +1928,62 @@
       });
     }
 
-    // Supplier multi-row items: الصنف | العدد | سعر التكلفة | سعر البيع
+    function addCustItemRow() {
+      const container = document.getElementById('cust-item-lines-container');
+      const row = document.createElement('div');
+      row.className = 'cust-item-row';
+      row.style.cssText = 'display:grid;grid-template-columns:1.6fr 0.7fr 0.85fr auto;gap:5px;background:#f1f5f9;padding:5px;border-radius:9px;margin-bottom:5px;align-items:center;';
+      const optionsHtml = '<option value="">-- اختر صنفاً --</option>' +
+        state.inventory.map(it => `<option value="${escapeHtml(it.name)}" data-price="${Number(it.price || 0)}">${escapeHtml(it.name)} (${Number(it.qty || 0)})</option>`).join('');
+
+      row.innerHTML = `
+        <select class="cust-line-select" onchange="onCustItemSelectChange(this)" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;background:#fff;min-width:0;">${optionsHtml}</select>
+        <input type="number" min="1" value="1" class="cust-line-qty" placeholder="العدد" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;min-width:0;" />
+        <input type="number" step="0.01" min="0" value="0" class="cust-line-price" placeholder="السعر" style="padding:6px 6px;border:1px solid #cbd5e1;border-radius:8px;font-family:inherit;font-size:11.5px;min-width:0;" />
+        <button type="button" class="act-btn danger sm" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    function onCustItemSelectChange(sel) {
+      const opt = sel.options[sel.selectedIndex];
+      const price = opt ? Number(opt.dataset.price || 0) : 0;
+      const row = sel.closest('.cust-item-row');
+      if (row && price > 0) {
+        row.querySelector('.cust-line-price').value = price;
+      }
+    }
+
+    function collectCustLines() {
+      const rows = document.querySelectorAll('#cust-item-lines-container .cust-item-row');
+      const items = [];
+      rows.forEach(r => {
+        const itemName = r.querySelector('.cust-line-select').value.trim();
+        const qty = Number(r.querySelector('.cust-line-qty').value) || 0;
+        const unitPrice = Number(r.querySelector('.cust-line-price').value) || 0;
+        if (itemName && qty > 0) {
+          items.push({ itemName, qty, unitPrice, lineTotal: qty * unitPrice });
+        }
+      });
+      return items;
+    }
+
+    function resetCustLines() {
+      const c = document.getElementById('cust-item-lines-container');
+      c.innerHTML = '';
+      addCustItemRow();
+    }
+
     function initLineContainers() {
       const supC = document.getElementById('sup-lines-container');
       if (supC && supC.children.length === 0) {
         addSupItemRow();
         addSupItemRow();
         addSupItemRow();
+      }
+      const custC = document.getElementById('cust-item-lines-container');
+      if (custC && custC.children.length === 0) {
+        addCustItemRow();
       }
       const invC = document.getElementById('inv-lines-container');
       if (invC && invC.children.length === 0) {
@@ -2014,15 +2135,62 @@
       });
     }
 
-    function saveCustomerPayment() {
+    function saveCustomerTransaction() {
       const custId = document.getElementById('selected-customer-id').value;
       const cust = state.customers.find(c => c.id === custId);
       if (!cust) return showToast('اختر عميلاً أولاً');
+
+      const side = document.getElementById('cust-tx-side').value;
       const date = document.getElementById('pay-tx-date').value || todayISO();
+      const currency = document.getElementById('pay-tx-curr').value || 'YER';
+
+      if (side === 'debit') {
+        const items = collectCustLines();
+        const itemsSum = items.reduce((s, it) => s + it.lineTotal, 0);
+        const customAmt = Number(document.getElementById('cust-debit-custom-amt').value) || 0;
+        const amount = customAmt > 0 ? customAmt : itemsSum;
+        const extraNote = document.getElementById('cust-debit-note').value.trim();
+
+        if (amount <= 0 && items.length === 0) return showToast('اختر صنفاً أو أدخل مبلغاً');
+
+        if (items.length > 0) {
+          applyTransactionStockEffect(items, 'customer', 'deduct', currency, 1);
+        }
+
+        const desc = items.length > 0
+          ? items.map(i => `${i.itemName} (${i.qty})`).join('، ') + (extraNote ? ` - ${extraNote}` : '')
+          : (extraNote || 'عملية على العميل');
+
+        state.transactions.push({
+          id: 'tx_' + Date.now(),
+          partyType: 'customer',
+          partyId: cust.id,
+          partyName: cust.name,
+          date,
+          invoiceNo: '',
+          amount,
+          currency,
+          side: 'debit',
+          stockMode: items.length > 0 ? 'deduct' : 'none',
+          source: 'customer_item',
+          items,
+          note: desc
+        });
+
+        document.getElementById('cust-debit-custom-amt').value = '';
+        document.getElementById('cust-debit-note').value = '';
+        resetCustLines();
+        saveState();
+        renderAll();
+        renderCustomerWorkspace();
+        showToast('تم تسجيل العملية (عليه)');
+        return;
+      }
+
       const amount = Number(document.getElementById('pay-tx-amount').value) || 0;
-      const currency = document.getElementById('pay-tx-curr').value;
-      const note = document.getElementById('pay-tx-note').value.trim() || 'تسديد من عميل';
+      const note = document.getElementById('pay-tx-note').value.trim();
       if (amount <= 0) return showToast('أدخل مبلغ التسديد');
+      if (!note) return showToast('أدخل البيان');
 
       state.transactions.push({
         id: 'tx_' + Date.now(),
@@ -2039,12 +2207,13 @@
         items: [],
         note
       });
+
       document.getElementById('pay-tx-amount').value = '';
       document.getElementById('pay-tx-note').value = '';
       saveState();
       renderAll();
       renderCustomerWorkspace();
-      showToast('تم تسجيل التسديد');
+      showToast('تم تسجيل السداد (له)');
     }
 
     // Suppliers CRUD
@@ -2109,7 +2278,6 @@
       const side = document.getElementById('sup-tx-side').value;
 
       if (side === 'debit') {
-        // عليه: البيان والتاريخ والعملة والمبلغ
         const note = document.getElementById('sup-debit-note').value.trim();
         const amount = Number(document.getElementById('sup-debit-amount').value) || 0;
         if (!note || amount <= 0) return showToast('أدخل البيان والمبلغ');
@@ -2140,7 +2308,6 @@
         return;
       }
 
-      // له: توريد أصناف مع رقم الفاتورة
       const invoiceNo = document.getElementById('sup-tx-invoice-no').value.trim();
       const stockMode = document.getElementById('sup-tx-stock-mode').value;
       const items = collectSupLines();
@@ -2173,13 +2340,12 @@
       showToast('تم تسجيل الأصناف وعملية المورد');
     }
 
-    // Invoices
     function saveInvoice() {
       if (!currentSession || currentSession.role !== 'manager') return showToast('متاح لحساب المدير فقط');
       const custName = document.getElementById('inv-customer-name').value.trim();
       const date = document.getElementById('inv-date').value || todayISO();
       const note = document.getElementById('inv-note').value.trim();
-      const currency = document.getElementById('inv-curr').value;
+      const currency = String(document.getElementById('inv-curr').value || 'YER').trim();
       const side = document.getElementById('inv-side').value;
       const items = collectInvLines();
       const itemsTotal = items.reduce((s, it) => s + it.lineTotal, 0);
@@ -2197,7 +2363,7 @@
         if (oldInv) {
           applyTransactionStockEffect(oldInv.items, 'customer', 'deduct', oldInv.currency, -1);
           Object.assign(oldInv, { date, customerId: cust.id, customerName: cust.name, items, amount, currency, side, note });
-          applyTransactionStockEffect(oldInv.items, 'customer', 'deduct', oldInv.currency, 1);
+          applyTransactionStockEffect(oldInv.items, 'customer', 'deduct', currency, 1);
         }
         if (linkedTx) {
           Object.assign(linkedTx, { partyId: cust.id, partyName: cust.name, date, amount, currency, side, items, note: note || editingInvoiceId });
@@ -2206,7 +2372,15 @@
       } else {
         const invId = 'INV-' + Date.now().toString().slice(-6);
         state.invoices.push({
-          id: invId, date, customerId: cust.id, customerName: cust.name, items, amount, currency, side, note
+          id: invId,
+          date,
+          customerId: cust.id,
+          customerName: cust.name,
+          items,
+          amount,
+          currency,
+          side,
+          note
         });
         applyTransactionStockEffect(items, 'customer', 'deduct', currency, 1);
         state.transactions.push({
@@ -2230,7 +2404,7 @@
       cancelInvoiceEdit();
       saveState();
       renderAll();
-      showToast('تم حفظ الفاتورة');
+      showToast(`تم حفظ الفاتورة بعملة (${currencyArabicLabel(currency)})`);
     }
 
     function startEditInvoice(invId) {
@@ -2269,8 +2443,46 @@
       });
     }
 
-    // Unified Statement for Customer & Supplier:
-    // Columns: التاريخ | رقم الفاتورة | البيان | عليه | له | الرصيد
+    function buildShareSummaryText(partyType, partyId, focusInvoiceId = null) {
+      const isSup = partyType === 'supplier';
+      const party = (isSup ? state.suppliers : state.customers).find(p => p.id === partyId);
+      if (!party) return { title: 'كشف حساب', text: '' };
+
+      const txs = state.transactions.filter(t => t.partyType === partyType && (t.partyId === party.id || t.partyName === party.name));
+      const balMap = computePartyBalancesByCurrency(partyType, party.id);
+      const activeTotals = Object.entries(balMap)
+        .filter(([, v]) => Math.abs(Number(v) || 0) > 0.0001)
+        .map(([c, v]) => `${Math.abs(Number(v)).toLocaleString('en-US', { maximumFractionDigits: 2 })} ${currencyArabicLabel(c)}`)
+        .join(' | ') || '0 دولار';
+
+      const focusInv = focusInvoiceId ? state.invoices.find(i => i.id === focusInvoiceId) : null;
+      const docTitle = focusInv
+        ? `فاتورة #${focusInv.id} — ${party.name}`
+        : `${isSup ? 'كشف حساب مورد' : 'كشف حساب عميل'} — ${party.name}`;
+
+      const lines = [
+        `لمسات التقنية (حضرموت - القطن - المرقدة)`,
+        docTitle,
+        `التاريخ: ${focusInv ? focusInv.date : todayISO()}`,
+        `------------------------------`
+      ];
+
+      txs.forEach(t => {
+        const amt = Number(t.amount) || 0;
+        const c = (t.currency || 'USD').trim();
+        const sideLabel = t.side === 'credit' ? 'له' : 'عليه';
+        const desc = (t.items && t.items.length > 0)
+          ? t.items.map(it => `${it.itemName} (${it.qty})`).join('، ')
+          : (t.note || '-');
+        lines.push(`• ${t.date} | ${desc} | ${sideLabel}: ${fmt(amt, c)}`);
+      });
+
+      lines.push(`------------------------------`);
+      lines.push(`إجمالي ما عليكم: ${activeTotals}`);
+
+      return { title: docTitle, text: lines.join('\n') };
+    }
+
     function buildUnifiedStatementHtml(partyType, partyId, focusInvoiceId = null) {
       const isSup = partyType === 'supplier';
       const party = (isSup ? state.suppliers : state.customers).find(p => p.id === partyId);
@@ -2280,6 +2492,7 @@
       let running = 0;
       const rowsHtml = txs.map(t => {
         const amt = Number(t.amount) || 0;
+        const c = (t.currency || 'USD').trim();
         const debit = t.side === 'credit' ? 0 : amt;
         const credit = t.side === 'credit' ? amt : 0;
         running += (debit - credit);
@@ -2294,9 +2507,9 @@
             <td>${escapeHtml(t.date || '-')}</td>
             <td>${invNoDisplay}</td>
             <td>${descDisplay}</td>
-            <td>${debit > 0 ? Number(debit).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '-'}</td>
-            <td>${credit > 0 ? Number(credit).toLocaleString('en-US', { maximumFractionDigits: 2 }) : '-'}</td>
-            <td>${Number(Math.abs(running)).toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+            <td>${debit > 0 ? fmt(debit, c) : '-'}</td>
+            <td>${credit > 0 ? fmt(credit, c) : '-'}</td>
+            <td>${fmt(Math.abs(running), c)}</td>
           </tr>
         `;
       }).join('');
@@ -2362,15 +2575,43 @@
       const html = buildUnifiedStatementHtml(partyType, partyId, focusInvoiceId);
       if (!html) return;
 
+      activeSharePayload = buildShareSummaryText(partyType, partyId, focusInvoiceId);
+
       document.getElementById('custom-modal-title').textContent = focusInvoiceId
         ? `معاينة الفاتورة ${focusInvoiceId}`
         : (partyType === 'supplier' ? 'كشف حساب المورد' : 'كشف حساب العميل');
       document.getElementById('custom-modal-body').innerHTML = html;
       document.getElementById('custom-modal-actions').innerHTML = `
         <button type="button" class="act-btn primary sm" onclick="printInvoiceTemplate()">🖨️ طباعة</button>
+        <button type="button" class="act-btn share sm" onclick="shareStatementOrInvoice()">📤 مشاركة</button>
         <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>
       `;
       document.getElementById('custom-modal').classList.remove('hidden');
+    }
+
+    async function shareStatementOrInvoice() {
+      const { title, text } = activeSharePayload || {};
+      if (!text) return showToast('لا توجد بيانات للمشاركة');
+
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: title || 'كشف حساب', text });
+          return;
+        } catch (err) {
+          if (err && err.name === 'AbortError') return;
+        }
+      }
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast('تم نسخ نص الكشف لمشاركته في أي تطبيق');
+          return;
+        } catch {}
+      }
+
+      const waUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, '_blank', 'noopener,noreferrer');
     }
 
     function openCustomerInvoicePreviewFlow() {
@@ -2384,7 +2625,7 @@
 
       document.getElementById('custom-modal-title').textContent = `كشف حساب ${cust.name} — اختيار الفاتورة`;
       document.getElementById('custom-modal-body').innerHTML = `
-        <div style="margin-bottom:8px;font-weight:800;color:var(--blue-royal);">اختر الفاتورة لمعاينتها وطباعتها:</div>
+        <div style="margin-bottom:8px;font-weight:800;color:var(--blue-royal);">اختر الفاتورة لمعاينتها أو طباعتها أو مشاركتها:</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           ${custInvoices.map(inv => `
             <button type="button" class="act-btn ghost" style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid #bfdbfe;" onclick="openUnifiedStatementModal('customer', '${cust.id}', '${inv.id}')">
@@ -2410,13 +2651,11 @@
     function printInvoiceTemplate() {
       const sheet = document.getElementById('invoice-printable-template');
       if (!sheet) return;
-      const html = sheet.outerHTML;
-      closeCustomModal();
-      const printArea = document.getElementById('print-statement-area');
-      printArea.classList.remove('hidden');
-      printArea.innerHTML = html;
+      document.body.classList.add('printing-statement');
       window.print();
-      setTimeout(() => { printArea.classList.add('hidden'); printArea.innerHTML = ''; }, 400);
+      setTimeout(() => {
+        document.body.classList.remove('printing-statement');
+      }, 500);
     }
 
     function populateStatementPartySelect() {
@@ -2713,7 +2952,9 @@
         const forHim = t.side === 'credit' ? amt : 0;
         running[c] = (running[c] || 0) + (onHim - forHim);
         const bal = running[c];
-        const descText = (t.items || []).map(i => `${escapeHtml(i.itemName)} (${i.qty})`).join(', ') || escapeHtml(t.note || '-');
+        const descText = (t.items && t.items.length > 0)
+          ? t.items.map(i => `${escapeHtml(i.itemName)} (${i.qty})`).join('، ')
+          : escapeHtml(t.note || '-');
         const previewBtn = t.invoiceId
           ? `<button type="button" class="act-btn gold sm" onclick="openInvoicePreviewModal('${t.invoiceId}')">فاتورة</button>`
           : '-';
@@ -2733,7 +2974,6 @@
       applyRolePermissions();
     }
 
-    // Supplier workspace table reflects "عليه" (التاريخ | رقم الفاتورة | عليه | الرصيد) vs "له" (التاريخ | البيان | له | الرصيد)
     function renderSupplierWorkspace() {
       const id = document.getElementById('selected-supplier-id').value;
       const ws = document.getElementById('supplier-workspace');
@@ -2755,8 +2995,6 @@
         running[c] = (running[c] || 0) + (onHim - forHim);
         const bal = running[c];
 
-        // If "عليه" (debit): التاريخ | رقم الفاتورة | عليه | الرصيد
-        // If "له" (credit): التاريخ | البيان | له | الرصيد
         const refOrDesc = t.side === 'debit'
           ? `رقم الفاتورة: - | ${escapeHtml(t.note || '')}`
           : escapeHtml((t.items || []).map(i => `${i.itemName} (${i.qty})`).join('، ') || t.note || '-');
