@@ -25,11 +25,9 @@ const URL_='https://suixnsyenyafdoewsvgp.supabase.co';
 const KEY='sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
 let client;
 try{client=supabase.createClient(URL_,KEY)}catch(e){document.getElementById('tests').innerHTML='<div class="test fail">فشل تحميل Supabase: '+e.message+'</div>'}
-const TESTS=[
-{user:'Mt',email:'manoori.silim.2002@gmail.com',pass:'7735'},
-{user:'Mt',email:'manoori.silim.2002@gmail.com',pass:'123'},
-{user:'طارق',email:'moment.salm2000@gmail.com',pass:'123'},
-{user:'طارق',email:'moment.salm2000@gmail.com',pass:'7735'}
+const TESTS = [
+  { user: 'Mt', email: 'manoori.silim.2002@gmail.com', pass: 'Lamasat2026' },
+  { user: 'طارق', email: 'moment.salm2000@gmail.com', pass: 'Tarek2026' }
 ];
 let okCount=0;
 function render(t,status,msg){const d=document.createElement('div');d.className='test '+status;d.innerHTML='<strong>'+t.user+'</strong> ('+t.email+') + كلمة مرور: <code>'+t.pass+'</code><div class="result">'+msg+'</div>';document.getElementById('tests').appendChild(d)}
