@@ -743,6 +743,93 @@
       color: var(--blue-royal);
     }
 
+    /* Official Letterhead (كليشة لمسات التقنية) */
+    .official-letterhead-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      direction: rtl;
+      background: #ffffff;
+      border-bottom: 2px solid #cbd5e1;
+      padding: 10px 12px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .olh-col-ar {
+      width: 38%;
+      text-align: right;
+      line-height: 1.35;
+    }
+
+    .olh-col-center {
+      width: 24%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .olh-col-en {
+      width: 38%;
+      text-align: left;
+      direction: ltr;
+      line-height: 1.35;
+    }
+
+    .olh-title {
+      font-size: 15px;
+      font-weight: 900;
+      color: #1e3a8a;
+      margin: 0 0 2px 0;
+    }
+
+    .olh-subtitle {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #334155;
+      margin: 0 0 2px 0;
+    }
+
+    .olh-services {
+      font-size: 9px;
+      font-weight: 700;
+      color: #475569;
+      margin: 0 0 4px 0;
+    }
+
+    .olh-info {
+      font-size: 9px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 1px 0;
+    }
+
+    .olh-logo-img {
+      width: 56px;
+      height: 56px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto 3px;
+    }
+
+    .olh-center-ar {
+      font-size: 12px;
+      font-weight: 900;
+      color: #1e3a8a;
+      line-height: 1.2;
+    }
+
+    .olh-center-en {
+      font-size: 8.5px;
+      font-weight: 800;
+      color: #475569;
+      letter-spacing: 0.4px;
+      line-height: 1.2;
+    }
+
     .invoice-print-sheet {
       background: #ffffff;
       border: 2.5px solid var(--blue-royal);
@@ -755,7 +842,7 @@
     .inv-sheet-header {
       background: linear-gradient(135deg, var(--blue-dark) 0%, var(--blue-royal) 100%);
       color: #ffffff;
-      padding: 12px 14px;
+      padding: 9px 14px;
       border-bottom: 4px solid var(--gold);
       display: flex;
       justify-content: space-between;
@@ -813,7 +900,7 @@
       border-radius: 20px;
       border-top: 5px solid var(--gold);
       width: 100%;
-      max-width: 460px;
+      max-width: 480px;
       max-height: 90vh;
       overflow-y: auto;
       padding: 15px;
@@ -960,7 +1047,7 @@
 
       <div class="login-extra-perk">⚡ متابعة فورية للحسابات والمخزون والفواتير بدقة واحترافية</div>
 
-      <div class="luxury-address-banner">📍 العنوان: حضرموت - القطن - المرقدة</div>
+      <div class="luxury-address-banner">📍 العنوان: حضرموت - القطن - المرقدة - بجانب مغسلة بن اسحاق</div>
     </div>
   </div>
 
@@ -1477,7 +1564,7 @@
     </div>
 
     <footer class="mobile-app-footer">
-      <span>📍 حضرموت - القطن - المرقدة</span>
+      <span>📍 حضرموت - القطن - المرقدة - بجانب مغسلة بن اسحاق</span>
       <button type="button" class="act-btn ghost sm" onclick="navigateTo('dashboard')">🏠 الرئيسية</button>
     </footer>
   </div>
@@ -1523,6 +1610,61 @@
   <script>
     const STORAGE_KEY = 'lamasat_tech_v12_data';
     const BASE_CURRENCIES = ['USD', 'YER', 'SAR'];
+
+    // SVG شعار LT المدمج تلقائياً في الكليشة للعمل بدون اعتماد على مسار ملف خارجي
+    const OFFICIAL_LOGO_SVG_DATA_URI = "data:image/svg+xml;utf8," + encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+        <defs>
+          <linearGradient id="bGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#1e88e5"/>
+            <stop offset="55%" stop-color="#0d47a1"/>
+            <stop offset="100%" stop-color="#051c42"/>
+          </linearGradient>
+          <linearGradient id="gGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ffd54f"/>
+            <stop offset="100%" stop-color="#d49b00"/>
+          </linearGradient>
+        </defs>
+        <path d="M95,28 A44,44 0 1,0 98,86" fill="none" stroke="url(#bGrad)" stroke-width="11" stroke-linecap="round"/>
+        <path d="M24,78 A44,44 0 0,0 88,97" fill="none" stroke="url(#gGrad)" stroke-width="8" stroke-linecap="round"/>
+        <path d="M36,38 H47 V68 H64 V78 H36 Z" fill="url(#bGrad)"/>
+        <path d="M58,38 H88 V48 H78 V78 H68 V48 H58 Z" fill="url(#gGrad)"/>
+        <rect x="92" y="16" width="12" height="12" rx="2" fill="url(#gGrad)"/>
+        <rect x="106" y="28" width="9" height="9" rx="2" fill="url(#gGrad)"/>
+        <rect x="92" y="32" width="10" height="10" rx="2" fill="url(#gGrad)"/>
+      </svg>
+    `);
+
+    function buildOfficialLetterheadHtml() {
+      return `
+        <div class="official-letterhead-box">
+          <!-- 1. العمود الأيمن: عربي -->
+          <div class="olh-col-ar">
+            <div class="olh-title">لمسات التقنية</div>
+            <div class="olh-subtitle">لبيع وصيانة آلات التصوير والطابعات</div>
+            <div class="olh-services">آلات عد النقود - أنظمة مراقبة - كمبيوترات - أحبار وقطع غيار - تجهيزات مكتبية</div>
+            <div class="olh-info"><span style="color:#dc2626;">📍</span> حضرموت - القطن - المرقدة - بجانب مغسلة بن اسحاق</div>
+            <div class="olh-info" dir="ltr" style="text-align:right;">📞 774557399 - 771220178</div>
+          </div>
+
+          <!-- 2. العمود الأوسط: الشعار والاسم -->
+          <div class="olh-col-center">
+            <img src="${OFFICIAL_LOGO_SVG_DATA_URI}" alt="شعار لمسات التقنية" class="olh-logo-img" />
+            <div class="olh-center-ar">لمسات التقنية</div>
+            <div class="olh-center-en">LAMASAT AL-TEQNIYAH</div>
+          </div>
+
+          <!-- 3. العمود الأيسر: إنجليزي -->
+          <div class="olh-col-en">
+            <div class="olh-title">Lamasat Al-Teqniyah</div>
+            <div class="olh-subtitle">For sale and maintenance of photocopiers &amp; printers</div>
+            <div class="olh-services">Money counting machines - Surveillance systems - Computers - Inks &amp; spare parts - Office equipment</div>
+            <div class="olh-info"><span style="color:#dc2626;">📍</span> Hadhramout - Al-Qatn - Al-Marqadah - next to Bin Ishaq Laundry</div>
+            <div class="olh-info">📞 773557399 - 771220178</div>
+          </div>
+        </div>
+      `;
+    }
 
     const SUPABASE_URL = 'https://suixnsyenyafdoewsvgp.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_kga5065lgXNboRDc2-UJLg_L8p4zBnc';
@@ -1972,13 +2114,11 @@
 
       return `
         <div class="invoice-print-sheet">
+          ${buildOfficialLetterheadHtml()}
           <div class="inv-sheet-header">
-            <div>
-              <div style="font-size:16px;font-weight:900;color:#fef08a;">لمسات التقنية</div>
-              <div style="font-size:11px;color:#e0f2fe;">حضرموت - القطن - المرقدة</div>
-            </div>
-            <div style="background:var(--gold);color:var(--blue-dark);font-weight:900;font-size:12px;padding:4px 12px;border-radius:999px;">
-              تقرير المخزون والأعداد والأسعار
+            <div style="font-size:13px;font-weight:900;color:#fef08a;">تقرير المخزون والأعداد والأسعار</div>
+            <div style="background:var(--gold);color:var(--blue-dark);font-weight:900;font-size:11.5px;padding:3px 10px;border-radius:999px;">
+              المخزون
             </div>
           </div>
 
@@ -2662,13 +2802,11 @@
 
       return `
         <div id="invoice-printable-template" class="invoice-print-sheet">
+          ${buildOfficialLetterheadHtml()}
           <div class="inv-sheet-header">
-            <div>
-              <div style="font-size:15px;font-weight:900;color:#fef08a;">لمسات التقنية</div>
-              <div style="font-size:10.5px;color:#e0f2fe;">حضرموت - القطن - المرقدة</div>
-            </div>
+            <div style="font-size:13px;font-weight:900;color:#fef08a;">فاتورة مبيعات (${escapeHtml(currencyArabicLabel(invCurr))})</div>
             <div style="background:var(--gold);color:var(--blue-dark);font-weight:900;font-size:11.5px;padding:3px 10px;border-radius:999px;">
-              فاتورة (${escapeHtml(currencyArabicLabel(invCurr))})
+              ${escapeHtml(inv.id)}
             </div>
           </div>
 
@@ -2748,13 +2886,13 @@
 
       return `
         <div id="invoice-printable-template" class="invoice-print-sheet">
+          ${buildOfficialLetterheadHtml()}
           <div class="inv-sheet-header">
-            <div>
-              <div style="font-size:15px;font-weight:900;color:#fef08a;">لمسات التقنية</div>
-              <div style="font-size:10.5px;color:#e0f2fe;">حضرموت - القطن - المرقدة</div>
+            <div style="font-size:13px;font-weight:900;color:#fef08a;">
+              ${isSup ? 'كشف حساب مورد' : 'كشف حساب / فاتورة عميل'}
             </div>
             <div style="background:var(--gold);color:var(--blue-dark);font-weight:900;font-size:11.5px;padding:3px 10px;border-radius:999px;">
-              ${isSup ? 'كشف حساب مورد' : 'كشف حساب / فاتورة عميل'}
+              ${escapeHtml(party.name)}
             </div>
           </div>
 
