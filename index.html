@@ -890,6 +890,7 @@
       padding: 10px 12px;
       width: 100%;
       box-sizing: border-box;
+      flex-shrink: 0;
     }
 
     .olh-col-ar { width: 38%; text-align: right; line-height: 1.35; }
@@ -903,16 +904,34 @@
     .olh-center-ar { font-size: 12px; font-weight: 900; color: #1e3a8a; line-height: 1.2; }
     .olh-center-en { font-size: 8.5px; font-weight: 800; color: #475569; letter-spacing: 0.4px; line-height: 1.2; }
 
-    .invoice-print-sheet {
+    /* Full A4 Sheet Container & Multi-Page Flow */
+    .multi-page-a4-container {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      width: 100%;
+    }
+
+    .a4-full-page {
       background: #ffffff;
       border: 2.5px solid var(--blue-royal);
       border-radius: 14px;
       overflow: hidden;
       color: var(--ink);
       width: 100%;
+      min-height: 277mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
     }
 
-    /* Blue header bar hidden as requested */
+    .a4-page-top {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
     .inv-sheet-header {
       display: none !important;
     }
@@ -925,6 +944,7 @@
       padding: 10px 14px;
       background: #f8fbff;
       border-bottom: 1.5px solid #dbeafe;
+      flex-shrink: 0;
     }
 
     .inv-client-plain {
@@ -940,16 +960,53 @@
       color: var(--blue-royal);
     }
 
+    .a4-table-body-wrap {
+      padding: 10px 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .a4-table-body-wrap table {
+      height: 100%;
+      font-size: 12px;
+    }
+
+    .a4-table-body-wrap th,
+    .a4-table-body-wrap td {
+      padding: 8px 8px;
+    }
+
+    .a4-page-spacer-row td {
+      background: #ffffff;
+      color: transparent;
+      border-color: #f1f5f9;
+    }
+
     .inv-total-strip {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 14px;
+      padding: 11px 14px;
       background: linear-gradient(90deg, #fffbeb 0%, #fef3c7 100%);
       border-top: 2.5px solid var(--gold);
       font-weight: 900;
       color: var(--blue-dark);
-      font-size: 13px;
+      font-size: 13.5px;
+      flex-shrink: 0;
+    }
+
+    .a4-page-foot-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 14px;
+      background: #f8fbff;
+      border-top: 1px solid #dbeafe;
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--muted);
+      flex-shrink: 0;
     }
 
     .item-accounts-box {
@@ -976,7 +1033,7 @@
       border-radius: 20px;
       border-top: 5px solid var(--gold);
       width: 100%;
-      max-width: 480px;
+      max-width: 520px;
       max-height: 90vh;
       overflow-y: auto;
       padding: 15px;
@@ -1005,13 +1062,13 @@
       top: 0;
       width: 794px;
       background: #ffffff;
-      padding: 20px;
+      padding: 0;
       z-index: -10;
     }
 
     @page {
       size: A4 portrait;
-      margin: 10mm;
+      margin: 8mm;
     }
 
     @media print {
@@ -1055,12 +1112,24 @@
         display: none !important;
       }
 
-      body.printing-statement #invoice-printable-template {
+      body.printing-statement .multi-page-a4-container {
+        gap: 0 !important;
+      }
+
+      body.printing-statement .a4-full-page {
         width: 100% !important;
-        max-width: 100% !important;
-        border: 2.5px solid #0d47a1 !important;
-        border-radius: 12px !important;
+        min-height: 278mm !important;
+        height: 278mm !important;
+        border: 2px solid #0d47a1 !important;
+        border-radius: 8px !important;
         box-shadow: none !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+
+      body.printing-statement .a4-full-page:last-child {
+        page-break-after: auto !important;
+        break-after: auto !important;
       }
 
       body.printing-statement .table-scroll {
@@ -1115,9 +1184,8 @@
         <div style="text-align:center;font-weight:900;color:var(--blue-dark);font-size:14px;margin-bottom:7px;">تسجيل الدخول إلى النظام</div>
         <div style="display:flex;flex-direction:column;gap:7px;">
           <div class="fixed-user-pill">
-            <span>اسم المستخدم: لمسات التقنية</span>
-            <span style="font-size:10.5px;color:var(--blue-royal);">ثابت</span>
-          </div>
+  <span>لمسات التقنية</span>
+</div>
           <input type="password" id="login-pass" placeholder="أدخل كلمة المرور" onkeydown="if(event.key==='Enter') handleLogin()" style="padding:8px 11px;border:1.5px solid #cbd5e1;border-radius:11px;font-family:inherit;font-size:12.5px;" />
           <button type="button" class="act-btn primary" style="padding:9px;font-size:13.5px;border:2px solid var(--gold);" onclick="handleLogin()">دخول إلى النظام</button>
           <div id="login-error" style="color:var(--danger);font-size:11.5px;font-weight:800;text-align:center;min-height:15px;"></div>
@@ -1370,7 +1438,6 @@
 
     <!-- CUSTOMERS VIEW -->
     <div id="view-customers" class="app-view hidden">
-      <!-- Item -> Accounts Lookup in Customers -->
       <div class="subview-card">
         <h4>بحث صنف في حسابات المبيعات والمشتريات (العملاء والموردون)</h4>
         <div class="field-grid" style="margin-bottom:6px;">
@@ -1477,7 +1544,6 @@
 
     <!-- SUPPLIERS VIEW -->
     <div id="view-suppliers" class="app-view hidden">
-      <!-- Item -> Accounts Lookup in Suppliers -->
       <div class="subview-card">
         <h4>بحث صنف في حسابات الموردين والعملاء</h4>
         <div class="field-grid" style="margin-bottom:6px;">
@@ -1730,29 +1796,7 @@
     const STORAGE_KEY = 'lamasat_tech_v12_data';
     const BASE_CURRENCIES = ['USD', 'YER', 'SAR'];
     const FIXED_USERNAME = 'لمسات التقنية';
-
-    const OFFICIAL_LOGO_SVG_DATA_URI = "data:image/svg+xml;utf8," + encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
-        <defs>
-          <linearGradient id="bGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#1e88e5"/>
-            <stop offset="55%" stop-color="#0d47a1"/>
-            <stop offset="100%" stop-color="#051c42"/>
-          </linearGradient>
-          <linearGradient id="gGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#ffd54f"/>
-            <stop offset="100%" stop-color="#d49b00"/>
-          </linearGradient>
-        </defs>
-        <path d="M95,28 A44,44 0 1,0 98,86" fill="none" stroke="url(#bGrad)" stroke-width="11" stroke-linecap="round"/>
-        <path d="M24,78 A44,44 0 0,0 88,97" fill="none" stroke="url(#gGrad)" stroke-width="8" stroke-linecap="round"/>
-        <path d="M36,38 H47 V68 H64 V78 H36 Z" fill="url(#bGrad)"/>
-        <path d="M58,38 H88 V48 H78 V78 H68 V48 H58 Z" fill="url(#gGrad)"/>
-        <rect x="92" y="16" width="12" height="12" rx="2" fill="url(#gGrad)"/>
-        <rect x="106" y="28" width="9" height="9" rx="2" fill="url(#gGrad)"/>
-        <rect x="92" y="32" width="10" height="10" rx="2" fill="url(#gGrad)"/>
-      </svg>
-    `);
+    const ROWS_PER_A4_PAGE = 14;
 
     function buildOfficialLetterheadHtml() {
       return `
@@ -1766,7 +1810,26 @@
           </div>
 
           <div class="olh-col-center">
-            <img src="${OFFICIAL_LOGO_SVG_DATA_URI}" alt="شعار لمسات التقنية" class="olh-logo-img" />
+            <svg class="olh-logo-img" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="bGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#1e88e5"/>
+                  <stop offset="55%" stop-color="#0d47a1"/>
+                  <stop offset="100%" stop-color="#051c42"/>
+                </linearGradient>
+                <linearGradient id="gGrad" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#ffd54f"/>
+                  <stop offset="100%" stop-color="#d49b00"/>
+                </linearGradient>
+              </defs>
+              <path d="M95,28 A44,44 0 1,0 98,86" fill="none" stroke="url(#bGrad)" stroke-width="11" stroke-linecap="round"/>
+              <path d="M24,78 A44,44 0 0,0 88,97" fill="none" stroke="url(#gGrad)" stroke-width="8" stroke-linecap="round"/>
+              <path d="M36,38 H47 V68 H64 V78 H36 Z" fill="url(#bGrad)"/>
+              <path d="M58,38 H88 V48 H78 V78 H68 V48 H58 Z" fill="url(#gGrad)"/>
+              <rect x="92" y="16" width="12" height="12" rx="2" fill="url(#gGrad)"/>
+              <rect x="106" y="28" width="9" height="9" rx="2" fill="url(#gGrad)"/>
+              <rect x="92" y="32" width="10" height="10" rx="2" fill="url(#gGrad)"/>
+            </svg>
             <div class="olh-center-ar">لمسات التقنية</div>
             <div class="olh-center-en">LAMASAT AL-TEQNIYAH</div>
           </div>
@@ -1794,7 +1857,6 @@
     let pendingConfirmCallback = null;
     let activeShareMeta = { fileName: 'statement.pdf', title: 'كشف حساب' };
 
-    // Close autocomplete dropdowns on outside click
     document.addEventListener('click', e => {
       if (!e.target.closest('.ac-wrapper')) {
         document.querySelectorAll('.ac-dropdown').forEach(dd => dd.classList.add('hidden'));
@@ -1896,7 +1958,6 @@
       }
     }
 
-    // Fixed username "لمسات التقنية" + password check against manager then employee
     async function handleLogin() {
       const p = document.getElementById('login-pass').value;
       const err = document.getElementById('login-error');
@@ -2314,7 +2375,7 @@
       }
     }
 
-    // Item -> Accounts & Transactions Lookup (Suppliers purchased from + Customers sold to)
+    // Item -> Accounts & Transactions Lookup
     function getItemAccountsSummary(itemQuery) {
       const q = String(itemQuery || '').trim().toLowerCase();
       if (!q) return null;
@@ -2471,83 +2532,163 @@
       document.getElementById('custom-modal').classList.remove('hidden');
     }
 
-    // PDF Generation & Sharing Helpers
-    async function renderHtmlElementToPdfFile(htmlString, fileName) {
+    // Full A4 Multi-Page Builder
+    function buildFullA4PagesHtml({
+      partyOrTitle,
+      rightMetaHtml,
+      tableHeadersHtml,
+      rowHtmlList,
+      colSpanCount,
+      emptyRowText,
+      totalLabel,
+      totalValueHtml
+    }) {
+      const safeRows = rowHtmlList.length > 0
+        ? rowHtmlList
+        : [`<tr><td colspan="${colSpanCount}" style="text-align:center;">${escapeHtml(emptyRowText)}</td></tr>`];
+
+      const chunks = [];
+      for (let i = 0; i < safeRows.length; i += ROWS_PER_A4_PAGE) {
+        chunks.push(safeRows.slice(i, i + ROWS_PER_A4_PAGE));
+      }
+
+      const totalPages = chunks.length;
+
+      return `
+        <div id="invoice-printable-template" class="multi-page-a4-container">
+          ${chunks.map((chunk, idx) => {
+            const isLastPage = idx === totalPages - 1;
+            const missingRows = Math.max(0, ROWS_PER_A4_PAGE - chunk.length);
+            const fillerCells = Array.from({ length: colSpanCount }, () => '&nbsp;').map(c => `<td>${c}</td>`).join('');
+            const fillerRows = Array.from({ length: missingRows }, () => `<tr class="a4-page-spacer-row">${fillerCells}</tr>`).join('');
+
+            return `
+              <section class="a4-full-page">
+                <div class="a4-page-top">
+                  ${buildOfficialLetterheadHtml()}
+                  <div class="inv-sheet-meta-row">
+                    <div class="inv-client-plain">${escapeHtml(partyOrTitle)}</div>
+                    <div class="inv-no-side">${rightMetaHtml}</div>
+                  </div>
+                  <div class="a4-table-body-wrap">
+                    <table>
+                      <thead>
+                        <tr>${tableHeadersHtml}</tr>
+                      </thead>
+                      <tbody>
+                        ${chunk.join('')}
+                        ${fillerRows}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div>
+                  ${isLastPage ? `
+                    <div class="inv-total-strip">
+                      <span>${escapeHtml(totalLabel)}</span>
+                      <span>${totalValueHtml}</span>
+                    </div>
+                  ` : ''}
+                  <div class="a4-page-foot-meta">
+                    <span>لمسات التقنية • حضرموت - القطن - المرقدة</span>
+                    <span>صفحة ${idx + 1} من ${totalPages}</span>
+                  </div>
+                </div>
+              </section>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    // PDF Generation & Opening in Samsung Notes / Reader
+    async function renderMultiPagePdfBlob(multiPageElement, fileName) {
       if (!window.html2canvas || !window.jspdf || !window.jspdf.jsPDF) {
         throw new Error('PDF libraries not loaded');
       }
-      const sandbox = document.getElementById('pdf-render-sandbox');
-      sandbox.innerHTML = `<div style="direction:rtl;font-family:'Cairo',Tahoma,sans-serif;background:#ffffff;width:754px;">${htmlString}</div>`;
-      const target = sandbox.firstElementChild;
-
-      const canvas = await window.html2canvas(target, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
-      });
-
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-
-      const pageWidth = pdf.internal.pageSize.getWidth() - 16;
-      const pageHeight = pdf.internal.pageSize.getHeight() - 16;
-      const imgProps = pdf.getImageProperties(imgData);
-      const ratio = imgProps.height / imgProps.width;
-      const renderedHeight = pageWidth * ratio;
-
-      if (renderedHeight <= pageHeight) {
-        pdf.addImage(imgData, 'PNG', 8, 8, pageWidth, renderedHeight);
-      } else {
-        let heightLeft = renderedHeight;
-        let position = 8;
-        pdf.addImage(imgData, 'PNG', 8, position, pageWidth, renderedHeight);
-        heightLeft -= pageHeight;
-        while (heightLeft > 0) {
-          position = heightLeft - renderedHeight + 8;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 8, position, pageWidth, renderedHeight);
-          heightLeft -= pageHeight;
-        }
+      const pages = multiPageElement.querySelectorAll('.a4-full-page');
+      if (!pages || pages.length === 0) {
+        throw new Error('No A4 pages found');
       }
 
+      const sandbox = document.getElementById('pdf-render-sandbox');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const margin = 6;
+      const targetWidth = pdfWidth - margin * 2;
+      const maxTargetHeight = pdfHeight - margin * 2;
+
+      for (let i = 0; i < pages.length; i++) {
+        const clonePage = pages[i].cloneNode(true);
+        clonePage.style.width = '754px';
+        clonePage.style.minHeight = '1066px';
+        clonePage.style.height = '1066px';
+        sandbox.innerHTML = '';
+        sandbox.appendChild(clonePage);
+
+        const canvas = await window.html2canvas(clonePage, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const imgProps = pdf.getImageProperties(imgData);
+        let drawW = targetWidth;
+        let drawH = drawW * (imgProps.height / imgProps.width);
+        if (drawH > maxTargetHeight) {
+          drawH = maxTargetHeight;
+          drawW = drawH * (imgProps.width / imgProps.height);
+        }
+
+        if (i > 0) pdf.addPage();
+        const offsetX = (pdfWidth - drawW) / 2;
+        pdf.addImage(imgData, 'PNG', offsetX, margin, drawW, drawH);
+      }
+
+      sandbox.innerHTML = '';
       const safeFileName = (fileName || 'document.pdf').replace(/[\\/:*?"<>|]+/g, '_');
       const blob = pdf.output('blob');
       const file = new File([blob], safeFileName, { type: 'application/pdf' });
-      sandbox.innerHTML = '';
       return { blob, file, safeFileName };
     }
 
-    function triggerBlobDownload(blob, safeFileName) {
+    function openPdfBlobInReader(blob, safeFileName) {
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = safeFileName;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1500);
+      const win = window.open(url, '_blank');
+      if (!win) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = safeFileName;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 15000);
     }
 
-    async function sharePdfHtml(htmlString, fileName, titleText) {
+    async function openStatementOrInvoicePdf() {
+      const sheet = document.getElementById('invoice-printable-template');
+      if (!sheet) return showToast('لا توجد بيانات لفتحها');
       try {
-        showToast('جاري تجهيز ملف PDF...');
-        const { blob, file, safeFileName } = await renderHtmlElementToPdfFile(htmlString, fileName);
+        showToast('جاري تجهيز ملف PDF لفتحه...');
+        const { blob, file, safeFileName } = await renderMultiPagePdfBlob(sheet, activeShareMeta.fileName);
 
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
-            title: titleText || safeFileName,
+            title: activeShareMeta.title || safeFileName,
             files: [file]
           });
-          showToast('تمت مشاركة ملف PDF');
           return;
         }
 
-        triggerBlobDownload(blob, safeFileName);
-        showToast('تم إنشاء ملف PDF وتنزيله — يمكنك إرفاقه مباشرة في واتساب');
+        openPdfBlobInReader(blob, safeFileName);
       } catch (err) {
         if (err && err.name === 'AbortError') return;
-        showToast('تعذر إنشاء ملف PDF، يمكنك استخدام الطباعة وحفظه PDF');
+        showToast('تعذر فتح ملف PDF، يمكنك استخدام الطباعة');
       }
     }
 
@@ -2568,7 +2709,7 @@
             <td>${escapeHtml(currencyArabicLabel(curr))}</td>
           </tr>
         `;
-      }).join('');
+      });
 
       const totalsByCurr = {};
       state.inventory.forEach(item => {
@@ -2581,45 +2722,41 @@
         .map(([c, v]) => `${v.toLocaleString('en-US', { maximumFractionDigits: 2 })} ${currencyArabicLabel(c)}`)
         .join(' | ') || '0';
 
-      return `
-        <div class="invoice-print-sheet">
-          ${buildOfficialLetterheadHtml()}
-          <div class="inv-sheet-meta-row">
-            <div class="inv-client-plain">قائمة المخزون والأصناف (${state.inventory.length})</div>
-            <div class="inv-no-side">
-              <div>التاريخ: <strong>${todayISO()}</strong></div>
-            </div>
-          </div>
-
-          <div style="padding:10px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>اسم الصنف</th>
-                  <th>العدد المتوفر</th>
-                  ${isManager ? '<th>سعر التكلفة</th>' : ''}
-                  <th>سعر البيع</th>
-                  <th>العملة</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rows || '<tr><td colspan="6" style="text-align:center;">لا توجد أصناف في المخزون</td></tr>'}
-              </tbody>
-            </table>
-          </div>
-
-          <div class="inv-total-strip">
-            <span>إجمالي قيمة المخزون بسعر البيع:</span>
-            <span>${summaryText}</span>
-          </div>
-        </div>
+      const headersHtml = `
+        <th>#</th>
+        <th>اسم الصنف</th>
+        <th>العدد المتوفر</th>
+        ${isManager ? '<th>سعر التكلفة</th>' : ''}
+        <th>سعر البيع</th>
+        <th>العملة</th>
       `;
+
+      return buildFullA4PagesHtml({
+        partyOrTitle: `قائمة المخزون والأصناف (${state.inventory.length})`,
+        rightMetaHtml: `<div>التاريخ: <strong>${todayISO()}</strong></div>`,
+        tableHeadersHtml: headersHtml,
+        rowHtmlList: rows,
+        colSpanCount: isManager ? 6 : 5,
+        emptyRowText: 'لا توجد أصناف في المخزون',
+        totalLabel: 'إجمالي قيمة المخزون بسعر البيع:',
+        totalValueHtml: escapeHtml(summaryText)
+      });
     }
 
     async function exportInventoryPdf() {
       const html = buildInventoryPdfHtml();
-      await sharePdfHtml(html, `مخزون-لمسات-التقنية-${todayISO()}.pdf`, 'تقرير المخزون والأعداد والأسعار');
+      activeShareMeta = {
+        fileName: `مخزون-لمسات-التقنية-${todayISO()}.pdf`,
+        title: 'تقرير المخزون والأعداد والأسعار'
+      };
+      document.getElementById('custom-modal-title').textContent = 'تقرير المخزون والأعداد والأسعار';
+      document.getElementById('custom-modal-body').innerHTML = html;
+      document.getElementById('custom-modal-actions').innerHTML = `
+        <button type="button" class="act-btn primary sm" onclick="printInvoiceTemplate()">🖨️ طباعة</button>
+        <button type="button" class="act-btn share sm" onclick="openStatementOrInvoicePdf()">📂 افتح</button>
+        <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>
+      `;
+      document.getElementById('custom-modal').classList.remove('hidden');
     }
 
     // Inventory CRUD
@@ -3270,7 +3407,6 @@
       });
     }
 
-    // Blue bar removed in invoice and statement templates
     function buildSingleInvoiceHtml(inv) {
       const invCurr = normalizeCurrencyCode(inv.currency || 'YER');
       const itemsRows = (Array.isArray(inv.items) && inv.items.length > 0)
@@ -3281,50 +3417,35 @@
               <td>${fmt(it.unitPrice, invCurr)}</td>
               <td>${fmt(it.lineTotal, invCurr)}</td>
             </tr>
-          `).join('')
-        : `
+          `)
+        : [`
             <tr>
               <td>${escapeHtml(inv.note || 'فاتورة')}</td>
               <td>1</td>
               <td>${fmt(inv.amount, invCurr)}</td>
               <td>${fmt(inv.amount, invCurr)}</td>
             </tr>
-          `;
+          `];
 
-      return `
-        <div id="invoice-printable-template" class="invoice-print-sheet">
-          ${buildOfficialLetterheadHtml()}
-          <div class="inv-sheet-meta-row">
-            <div class="inv-client-plain">${escapeHtml(inv.customerName)}</div>
-            <div class="inv-no-side">
-              <div>رقم الفاتورة: <strong>${escapeHtml(inv.id)}</strong></div>
-              <div style="color:var(--muted);font-size:11px;">التاريخ: ${escapeHtml(inv.date || '-')}</div>
-              <div style="color:var(--blue-royal);font-size:11px;">العملة: <strong>${escapeHtml(currencyArabicLabel(invCurr))}</strong></div>
-            </div>
-          </div>
-
-          <div class="table-scroll" style="padding:8px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>الصنف / البيان</th>
-                  <th>العدد</th>
-                  <th>السعر</th>
-                  <th>الإجمالي</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${itemsRows}
-              </tbody>
-            </table>
-          </div>
-
-          <div class="inv-total-strip">
-            <span>إجمالي الفاتورة (${escapeHtml(currencyArabicLabel(invCurr))}):</span>
-            <span>${fmt(inv.amount, invCurr)}</span>
-          </div>
-        </div>
-      `;
+      return buildFullA4PagesHtml({
+        partyOrTitle: inv.customerName,
+        rightMetaHtml: `
+          <div>رقم الفاتورة: <strong>${escapeHtml(inv.id)}</strong></div>
+          <div style="color:var(--muted);font-size:11px;">التاريخ: ${escapeHtml(inv.date || '-')}</div>
+          <div style="color:var(--blue-royal);font-size:11px;">العملة: <strong>${escapeHtml(currencyArabicLabel(invCurr))}</strong></div>
+        `,
+        tableHeadersHtml: `
+          <th>الصنف / البيان</th>
+          <th>العدد</th>
+          <th>السعر</th>
+          <th>الإجمالي</th>
+        `,
+        rowHtmlList: itemsRows,
+        colSpanCount: 4,
+        emptyRowText: 'لا توجد أصناف في الفاتورة',
+        totalLabel: `إجمالي الفاتورة (${currencyArabicLabel(invCurr)}):`,
+        totalValueHtml: escapeHtml(fmt(inv.amount, invCurr))
+      });
     }
 
     function buildUnifiedStatementHtml(partyType, partyId, focusInvoiceId = null) {
@@ -3356,7 +3477,7 @@
             <td>${fmt(Math.abs(running), c)}</td>
           </tr>
         `;
-      }).join('');
+      });
 
       const balMap = computePartyBalancesByCurrency(partyType, party.id);
       const activeTotals = Object.entries(balMap)
@@ -3368,41 +3489,26 @@
       const headerRightNo = focusInv ? focusInv.id : (txs.length > 0 ? (txs[txs.length - 1].invoiceNo || 'كشف عام') : 'كشف عام');
       const headerRightDate = focusInv ? focusInv.date : todayISO();
 
-      return `
-        <div id="invoice-printable-template" class="invoice-print-sheet">
-          ${buildOfficialLetterheadHtml()}
-          <div class="inv-sheet-meta-row">
-            <div class="inv-client-plain">${escapeHtml(party.name)}</div>
-            <div class="inv-no-side">
-              <div>رقم الفاتورة: <strong>${escapeHtml(headerRightNo)}</strong></div>
-              <div style="color:var(--muted);font-size:11px;">التاريخ: ${escapeHtml(headerRightDate)}</div>
-            </div>
-          </div>
-
-          <div class="table-scroll" style="padding:8px;">
-            <table>
-              <thead>
-                <tr>
-                  <th>التاريخ</th>
-                  <th>رقم الفاتورة</th>
-                  <th>البيان</th>
-                  <th>عليه</th>
-                  <th>له</th>
-                  <th>الرصيد</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${rowsHtml || '<tr><td colspan="6" style="text-align:center;">لا توجد حركات مسجلة</td></tr>'}
-              </tbody>
-            </table>
-          </div>
-
-          <div class="inv-total-strip">
-            <span>إجمالي ما عليكم:</span>
-            <span>${activeTotals}</span>
-          </div>
-        </div>
-      `;
+      return buildFullA4PagesHtml({
+        partyOrTitle: party.name,
+        rightMetaHtml: `
+          <div>رقم الفاتورة: <strong>${escapeHtml(headerRightNo)}</strong></div>
+          <div style="color:var(--muted);font-size:11px;">التاريخ: ${escapeHtml(headerRightDate)}</div>
+        `,
+        tableHeadersHtml: `
+          <th>التاريخ</th>
+          <th>رقم الفاتورة</th>
+          <th>البيان</th>
+          <th>عليه</th>
+          <th>له</th>
+          <th>الرصيد</th>
+        `,
+        rowHtmlList: rowsHtml,
+        colSpanCount: 6,
+        emptyRowText: 'لا توجد حركات مسجلة',
+        totalLabel: 'إجمالي ما عليكم:',
+        totalValueHtml: escapeHtml(activeTotals)
+      });
     }
 
     function openUnifiedStatementModal(partyType, partyId, focusInvoiceId = null) {
@@ -3423,16 +3529,10 @@
       document.getElementById('custom-modal-body').innerHTML = html;
       document.getElementById('custom-modal-actions').innerHTML = `
         <button type="button" class="act-btn primary sm" onclick="printInvoiceTemplate()">🖨️ طباعة</button>
-        <button type="button" class="act-btn share sm" onclick="shareStatementOrInvoice()">📤 مشاركة PDF</button>
+        <button type="button" class="act-btn share sm" onclick="openStatementOrInvoicePdf()">📂 افتح</button>
         <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>
       `;
       document.getElementById('custom-modal').classList.remove('hidden');
-    }
-
-    async function shareStatementOrInvoice() {
-      const sheet = document.getElementById('invoice-printable-template');
-      if (!sheet) return showToast('لا توجد بيانات للمشاركة');
-      await sharePdfHtml(sheet.outerHTML, activeShareMeta.fileName, activeShareMeta.title);
     }
 
     function openCustomerInvoicePreviewFlow() {
@@ -3446,7 +3546,7 @@
 
       document.getElementById('custom-modal-title').textContent = `${cust.name} — اختيار الفاتورة`;
       document.getElementById('custom-modal-body').innerHTML = `
-        <div style="margin-bottom:8px;font-weight:800;color:var(--blue-royal);">اختر الفاتورة لمعاينتها أو طباعتها أو مشاركتها:</div>
+        <div style="margin-bottom:8px;font-weight:800;color:var(--blue-royal);">اختر الفاتورة لمعاينتها أو طباعتها أو فتحها:</div>
         <div style="display:flex;flex-direction:column;gap:6px;">
           ${custInvoices.map(inv => `
             <button type="button" class="act-btn ghost" style="display:flex;justify-content:space-between;align-items:center;padding:9px 11px;border:1px solid #bfdbfe;" onclick="openInvoicePreviewModal('${inv.id}')">
@@ -3476,7 +3576,7 @@
       document.getElementById('custom-modal-body').innerHTML = html;
       document.getElementById('custom-modal-actions').innerHTML = `
         <button type="button" class="act-btn primary sm" onclick="printInvoiceTemplate()">🖨️ طباعة</button>
-        <button type="button" class="act-btn share sm" onclick="shareStatementOrInvoice()">📤 مشاركة PDF</button>
+        <button type="button" class="act-btn share sm" onclick="openStatementOrInvoicePdf()">📂 افتح</button>
         <button type="button" class="act-btn ghost sm" onclick="closeCustomModal()">إغلاق</button>
       `;
       document.getElementById('custom-modal').classList.remove('hidden');
